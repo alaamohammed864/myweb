@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AXIOM Engineering Suite — Building The Future</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cyan: #00ffe7;
+    --green: #00ff88;
+    --dark: #050505;
+    --glass-bg: rgba(0,255,231,0.04);
+    --glass-border: rgba(0,255,231,0.18);
+    --text-grey: #8a9bb0;
+    --glow-cyan: 0 0 24px rgba(0,255,231,0.55), 0 0 60px rgba(0,255,231,0.18);
+    --glow-green: 0 0 24px rgba(0,255,136,0.5), 0 0 60px rgba(0,255,136,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ─── CURSOR ─── */
+  #cursor {
+    position: fixed; top:0; left:0; z-index:9999; pointer-events:none;
+    width:12px; height:12px; border-radius:50%;
+    background: var(--cyan);
+    box-shadow: 0 0 18px var(--cyan), 0 0 40px rgba(0,255,231,0.4);
+    transform: translate(-50%,-50%);
+    transition: transform 0.08s ease, width 0.2s, height 0.2s, background 0.2s;
+  }
+  #cursor-ring {
+    position: fixed; top:0; left:0; z-index:9998; pointer-events:none;
+    width:40px; height:40px; border-radius:50%;
+    border: 1.5px solid rgba(0,255,231,0.5);
+    transform: translate(-50%,-50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s, border-color 0.2s;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    padding: 22px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,5,5,0.55);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,255,231,0.08);
+    transition: background 0.4s;
+  }
+  .nav-logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    color: var(--cyan);
+    text-shadow: 0 0 14px rgba(0,255,231,0.7);
+  }
+  .nav-logo span { color: #fff; }
+  .nav-links { display:flex; gap:38px; }
+  .nav-links a {
+    color: var(--text-grey); font-size:0.82rem; font-weight:600;
+    letter-spacing:0.14em; text-decoration:none; text-transform:uppercase;
+    transition: color 0.25s, text-shadow 0.25s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px;
+    background: var(--cyan); transform:scaleX(0); transform-origin:left;
+    transition: transform 0.3s ease;
+  }
+  .nav-links a:hover { color:#fff; text-shadow: 0 0 12px var(--cyan); }
+  .nav-links a:hover::after { transform:scaleX(1); }
+
+  /* ─── HERO ─── */
+  #hero {
+    position: relative; height: 100vh; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 900px;
+  }
+
+  /* SVG City Background */
+  #hero-bg {
+    position:absolute; inset:-8%; z-index:0;
+    will-change: transform;
+    transition: transform 0.06s linear;
+  }
+
+  /* City Canvas */
+  #city-canvas {
+    width:100%; height:100%; display:block;
+  }
+
+  /* Grid overlay */
+  #hero::after {
+    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:
+      linear-gradient(rgba(0,255,231,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,231,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Radial vignette */
+  #hero-vignette {
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%,
+      transparent 30%,
+      rgba(5,5,5,0.5) 70%,
+      rgba(5,5,5,0.95) 100%);
+  }
+
+  /* Ground glow */
+  #hero-ground {
+    position:absolute; bottom:0; left:0; right:0; height:280px; z-index:3; pointer-events:none;
+    background: linear-gradient(to top, rgba(0,255,136,0.07), transparent);
+  }
+
+  .hero-content {
+    position:relative; z-index:10; text-align:center;
+    will-change: transform;
+    transition: transform 0.06s linear;
+  }
+
+  .hero-badge {
+    display:inline-block; margin-bottom:28px;
+    font-family:'Share Tech Mono',monospace; font-size:0.72rem; letter-spacing:0.28em;
+    color: var(--cyan); text-transform:uppercase;
+    border: 1px solid rgba(0,255,231,0.3); padding: 7px 20px; border-radius:2px;
+    background: rgba(0,255,231,0.05);
+    box-shadow: 0 0 18px rgba(0,255,231,0.12);
+    animation: fadeSlideUp 1s 0.2s both;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    font-weight: 900; line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow:
+      0 0 60px rgba(0,255,231,0.25),
+      0 0 120px rgba(0,255,136,0.12),
+      0 2px 40px rgba(0,0,0,0.8);
+    animation: fadeSlideUp 1s 0.4s both;
+    margin-bottom: 28px;
+  }
+  .hero-title .accent { color: var(--cyan); }
+
+  .hero-sub {
+    font-size: clamp(0.8rem, 1.4vw, 1rem);
+    font-weight: 300; letter-spacing: 0.38em; text-transform:uppercase;
+    color: var(--text-grey); margin-bottom: 52px;
+    animation: fadeSlideUp 1s 0.6s both;
+  }
+
+  .hero-cta {
+    display:inline-block; cursor:none;
+    padding: 16px 52px; font-size:0.82rem; font-weight:700;
+    letter-spacing:0.22em; text-transform:uppercase; text-decoration:none;
+    color: var(--cyan); border: 1.5px solid var(--cyan);
+    background: rgba(0,255,231,0.05); backdrop-filter:blur(10px);
+    border-radius:3px; position:relative; overflow:hidden;
+    box-shadow: 0 0 22px rgba(0,255,231,0.25), inset 0 0 22px rgba(0,255,231,0.03);
+    transition: box-shadow 0.3s, transform 0.3s, background 0.3s;
+    animation: fadeSlideUp 1s 0.8s both;
+  }
+  .hero-cta::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, rgba(0,255,231,0.12), transparent);
+    opacity:0; transition: opacity 0.3s;
+  }
+  .hero-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 45px rgba(0,255,231,0.55), 0 0 80px rgba(0,255,231,0.2), inset 0 0 30px rgba(0,255,231,0.08);
+    background: rgba(0,255,231,0.1);
+  }
+  .hero-cta:hover::before { opacity:1; }
+
+  .hero-scroll-hint {
+    position:absolute; bottom:38px; left:50%; transform:translateX(-50%);
+    z-index:10; display:flex; flex-direction:column; align-items:center; gap:10px;
+    color: rgba(255,255,255,0.3); font-size:0.65rem; letter-spacing:0.2em;
+    animation: fadeSlideUp 1s 1.4s both;
+  }
+  .scroll-line {
+    width:1px; height:48px;
+    background: linear-gradient(to bottom, rgba(0,255,231,0.6), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* ─── SECTION COMMON ─── */
+  section { position:relative; z-index:5; }
+
+  .section-label {
+    font-family:'Share Tech Mono',monospace; font-size:0.7rem;
+    letter-spacing:0.3em; text-transform:uppercase; color: var(--cyan);
+    margin-bottom:16px; opacity:0.8;
+  }
+  .section-title {
+    font-size: clamp(2.2rem,4.5vw,4rem); font-weight:900; line-height:1.05;
+    letter-spacing:-0.02em; margin-bottom:24px;
+  }
+  .section-desc {
+    font-size:1rem; line-height:1.8; color: var(--text-grey); font-weight:300;
+    max-width:520px;
+  }
+
+  /* ─── SERVICES ─── */
+  #services {
+    padding: 130px 60px;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(0,42,26,0.5), transparent),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(0,15,40,0.6), transparent),
+      var(--dark);
+  }
+
+  .services-inner {
+    max-width:1300px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start;
+  }
+
+  .services-left .section-desc { margin-bottom:52px; }
+
+  .service-card {
+    position:relative; padding:28px 30px; margin-bottom:16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius:4px; cursor:none;
+    will-change: transform;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.15s ease;
+    transform-style: preserve-3d;
+    overflow:hidden;
+  }
+  .service-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity:0; transition: opacity 0.4s;
+  }
+  .service-card:hover {
+    border-color: var(--cyan);
+    box-shadow: var(--glow-cyan);
+  }
+  .service-card:hover::before { opacity:1; }
+
+  .card-num {
+    font-family:'Share Tech Mono',monospace; font-size:0.65rem;
+    letter-spacing:0.2em; color: var(--cyan); opacity:0.6; margin-bottom:10px;
+  }
+  .card-title {
+    font-size:1.1rem; font-weight:700; margin-bottom:8px;
+    transition: color 0.3s;
+  }
+  .service-card:hover .card-title { color: var(--cyan); }
+  .card-desc { font-size:0.82rem; color: var(--text-grey); line-height:1.7; }
+
+  .card-arrow {
+    position:absolute; right:24px; top:50%; transform:translateY(-50%);
+    color: var(--cyan); font-size:1.4rem; opacity:0;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .service-card:hover .card-arrow { opacity:1; transform:translateY(-50%) translateX(4px); }
+
+  /* Right: City 3D Canvas */
+  .services-right {
+    position: sticky; top: 120px;
+    height: 580px; border-radius:6px; overflow:hidden;
+    border: 1px solid rgba(0,255,231,0.12);
+    box-shadow: var(--glow-green);
+    background: rgba(0,10,5,0.8);
+  }
+  #city3d-canvas { width:100%; height:100%; display:block; }
+
+  /* ─── STATS BAR ─── */
+  #stats {
+    padding: 60px;
+    border-top: 1px solid rgba(0,255,231,0.07);
+    border-bottom: 1px solid rgba(0,255,231,0.07);
+    background: rgba(0,255,231,0.025);
+  }
+  .stats-inner {
+    max-width:1100px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+    text-align:center;
+  }
+  .stat-item { padding:20px; border-right:1px solid rgba(0,255,231,0.1); }
+  .stat-item:last-child { border-right:none; }
+  .stat-num {
+    font-size:clamp(2rem,4vw,3.2rem); font-weight:900;
+    color: var(--cyan); text-shadow: 0 0 20px rgba(0,255,231,0.5);
+    font-family:'Share Tech Mono',monospace;
+  }
+  .stat-label { font-size:0.72rem; letter-spacing:0.18em; color:var(--text-grey); margin-top:6px; text-transform:uppercase; }
+
+  /* ─── ABOUT ─── */
+  #about {
+    padding: 130px 60px; position:relative; overflow:hidden;
+  }
+  #about-bg {
+    position:absolute; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse 70% 70% at 30% 50%, rgba(0,42,26,0.35), transparent),
+      radial-gradient(ellipse 50% 80% at 90% 20%, rgba(0,10,40,0.5), transparent);
+  }
+
+  /* Construction site SVG BG */
+  #about-scene {
+    position:absolute; right:0; top:0; bottom:0; width:55%; z-index:1; opacity:0.5;
+  }
+
+  .about-inner {
+    position:relative; z-index:5;
+    max-width:1300px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+  }
+
+  .about-left .section-desc { margin-bottom:36px; }
+
+  .about-feature {
+    display:flex; gap:18px; align-items:flex-start; margin-bottom:24px;
+    opacity:0; transform:translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .about-feature.visible { opacity:1; transform:translateY(0); }
+
+  .feat-icon {
+    width:42px; height:42px; flex-shrink:0; border-radius:4px;
+    background: rgba(0,255,231,0.06); border:1px solid rgba(0,255,231,0.2);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cyan); font-size:1.1rem;
+    box-shadow: 0 0 12px rgba(0,255,231,0.12);
+  }
+  .feat-title { font-size:0.9rem; font-weight:700; margin-bottom:4px; }
+  .feat-desc { font-size:0.8rem; color:var(--text-grey); line-height:1.6; }
+
+  /* About right: animated crane visual */
+  .about-right {
+    position:relative; height:500px;
+    opacity:0; transform:translateX(40px);
+    transition: opacity 0.8s 0.3s ease, transform 0.8s 0.3s ease;
+  }
+  .about-right.visible { opacity:1; transform:translateX(0); }
+
+  #crane-canvas { width:100%; height:100%; display:block; }
+  .about-right-border {
+    position:absolute; inset:0; border-radius:6px;
+    border:1px solid rgba(0,255,231,0.15);
+    box-shadow: 0 0 40px rgba(0,255,136,0.08);
+    pointer-events:none;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding:60px; text-align:center;
+    border-top:1px solid rgba(0,255,231,0.07);
+    background: rgba(0,255,231,0.015);
+  }
+  .footer-logo {
+    font-family:'Share Tech Mono',monospace; font-size:1.4rem;
+    color:var(--cyan); text-shadow:0 0 18px rgba(0,255,231,0.6);
+    letter-spacing:0.2em; margin-bottom:16px;
+  }
+  .footer-sub {
+    font-size:0.75rem; letter-spacing:0.22em; color:var(--text-grey);
+    text-transform:uppercase; margin-bottom:8px;
+  }
+  .footer-copy {
+    font-size:0.7rem; color:rgba(255,255,255,0.15);
+    font-family:'Share Tech Mono',monospace;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeSlideUp {
+    from { opacity:0; transform:translateY(30px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity:0.4; transform:scaleY(1); }
+    50% { opacity:1; transform:scaleY(1.15); }
+  }
+  @keyframes rotateSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%,100%{ opacity:0.4; }
+    50%{ opacity:1; }
+  }
+
+  .reveal {
+    opacity:0; transform:translateY(36px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:900px){
+    nav { padding:18px 24px; }
+    .nav-links { display:none; }
+    #services, #about { padding:80px 24px; }
+    .services-inner, .about-inner { grid-template-columns:1fr; }
+    .services-right { height:300px; position:relative; top:auto; }
+    .stats-inner { grid-template-columns:1fr 1fr; }
+    .stat-item:nth-child(2) { border-right:none; }
+    #stats { padding:40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AXIOM<span> Engineering Suite</span></div>
+  <div class="nav-links">
+    <a href="#hero">Home</a>
+    <a href="#services">Services</a>
+    <a href="#stats">Stats</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--cyan);letter-spacing:0.1em;opacity:0.7;">ENG_ALAA MOHAMMED</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="hero-bg">
+    <canvas id="city-canvas"></canvas>
+  </div>
+  <div id="hero-vignette"></div>
+  <div id="hero-ground"></div>
+
+  <div class="hero-content" id="hero-content">
+    <div class="hero-badge">◈ AXIOM Engineering Suite — Est. 2024</div>
+    <h1 class="hero-title">BUILDING<br>THE <span class="accent">FUTURE</span></h1>
+    <p class="hero-sub">Engineering &nbsp;|&nbsp; Construction &nbsp;|&nbsp; Innovation</p>
+    <a href="#services" class="hero-cta">Explore Our Work</a>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    <span>SCROLL</span>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-inner">
+    <div class="services-left">
+      <p class="section-label reveal">◈ What We Build</p>
+      <h2 class="section-title reveal">Elite Engineering<br><span style="color:var(--cyan)">Services</span></h2>
+      <p class="section-desc reveal">From ground-breaking structural design to complex multiphysics simulation — we deliver precision-engineered solutions for the world's most demanding projects.</p>
+
+      <div class="service-card reveal" data-tilt>
+        <div class="card-num">01 //</div>
+        <div class="card-title">Structural Engineering</div>
+        <div class="card-desc">Advanced FEA-driven structural analysis and design for high-rise towers, bridges, and industrial complexes.</div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="service-card reveal" data-tilt>
+        <div class="card-num">02 //</div>
+        <div class="card-title">Multiphysics Simulation</div>
+        <div class="card-desc">Coupled thermal-mechanical, fluid-structure interaction, and electromagnetic simulations for mission-critical systems.</div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="service-card reveal" data-tilt>
+        <div class="card-num">03 //</div>
+        <div class="card-title">CAD & BIM Integration</div>
+        <div class="card-desc">Full parametric 3D modeling pipelines integrated with BIM workflows for construction-ready deliverables.</div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="service-card reveal" data-tilt>
+        <div class="card-num">04 //</div>
+        <div class="card-title">Geospatial Engineering</div>
+        <div class="card-desc">KMZ/GIS pipeline development, UTM coordinate systems, and field-accurate geospatial visualization tools.</div>
+        <div class="card-arrow">→</div>
+      </div>
+      <div class="service-card reveal" data-tilt>
+        <div class="card-num">05 //</div>
+        <div class="card-title">Defense & Aerospace Sim</div>
+        <div class="card-desc">Missile guidance, ballistic trajectory, and drone interceptor simulations with real-time 3D visualization engines.</div>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+
+    <div class="services-right reveal">
+      <canvas id="city3d-canvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="340">0</div>
+      <div class="stat-label">Projects Completed</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="18">0</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="97">0</div>
+      <div class="stat-label">Client Satisfaction %</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="42">0</div>
+      <div class="stat-label">Countries Served</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div id="about-bg"></div>
+  <canvas id="crane-canvas-bg" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0.18;pointer-events:none;"></canvas>
+
+  <div class="about-inner">
+    <div class="about-left">
+      <p class="section-label reveal">◈ Who We Are</p>
+      <h2 class="section-title reveal">Precision. <span style="color:var(--cyan)">Vision.</span><br>Execution.</h2>
+      <p class="section-desc reveal" style="margin-bottom:48px;">AXIOM Engineering Suite is a Basra-based engineering firm fusing cutting-edge simulation science with real-world construction expertise. We operate at the intersection of physics, code, and steel.</p>
+
+      <div class="about-feature">
+        <div class="feat-icon">⬡</div>
+        <div>
+          <div class="feat-title">Advanced FEA & CFD</div>
+          <div class="feat-desc">Finite element and computational fluid dynamics analysis for extreme-condition structural integrity verification.</div>
+        </div>
+      </div>
+      <div class="about-feature">
+        <div class="feat-icon">◈</div>
+        <div>
+          <div class="feat-title">Real-Time 3D Visualization</div>
+          <div class="feat-desc">WebGL-powered simulation dashboards that transform complex engineering data into actionable visual intelligence.</div>
+        </div>
+      </div>
+      <div class="about-feature">
+        <div class="feat-icon">▲</div>
+        <div>
+          <div class="feat-title">ISO-Grade Quality Systems</div>
+          <div class="feat-desc">Every deliverable undergoes rigorous multi-stage verification against international engineering standards.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-right" id="about-right">
+      <canvas id="crane-canvas"></canvas>
+      <div class="about-right-border"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-logo">AXIOM Engineering Suite</div>
+  <div class="footer-sub">Basra, Iraq &nbsp;·&nbsp; Engineering | Construction | Innovation</div>
+  <div style="font-size:1.1rem;letter-spacing:0.12em;color:var(--cyan);text-shadow:0 0 14px rgba(0,255,231,0.5);margin:14px 0 8px;font-weight:700;">ENG_ALAA MOHAMMED</div>
+  <div class="footer-copy">© 2024 AXIOM Engineering Suite · All Rights Reserved</div>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+// CURSOR
+// ════════════════════════════════════════
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*0.14; ry+=(my-ry)*0.14;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+document.querySelectorAll('a,button,.service-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cursor.style.width='18px'; cursor.style.height='18px';
+    cursor.style.background='var(--green)';
+    ring.style.width='56px'; ring.style.height='56px';
+    ring.style.borderColor='var(--green)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    cursor.style.width='12px'; cursor.style.height='12px';
+    cursor.style.background='var(--cyan)';
+    ring.style.width='40px'; ring.style.height='40px';
+    ring.style.borderColor='rgba(0,255,231,0.5)';
+  });
+});
+
+// ════════════════════════════════════════
+// HERO CITY CANVAS
+// ════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('city-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H;
+
+  function resize(){
+    W=canvas.width=canvas.offsetWidth;
+    H=canvas.height=canvas.offsetHeight;
+    drawCity();
+  }
+
+  function rand(min,max){return min+Math.random()*(max-min);}
+
+  // Building data — generated once
+  const buildings=[];
+  function genBuildings(){
+    buildings.length=0;
+    // BG layer
+    for(let i=0;i<28;i++){
+      buildings.push({
+        layer:0,
+        x:rand(0,1)*W, w:rand(30,90), h:rand(80,240),
+        color:`rgba(${rand(0,20)},${rand(20,50)},${rand(30,60)},1)`,
+        windows:[]
+      });
+    }
+    // MID layer
+    for(let i=0;i<18;i++){
+      buildings.push({
+        layer:1,
+        x:rand(0,1)*W, w:rand(50,120), h:rand(150,380),
+        color:`rgba(${rand(0,15)},${rand(10,30)},${rand(20,45)},1)`,
+        windows:[]
+      });
+    }
+    // FG layer
+    for(let i=0;i<10;i++){
+      buildings.push({
+        layer:2,
+        x:rand(0,1)*W, w:rand(60,160), h:rand(200,500),
+        color:`rgba(${rand(5,20)},${rand(15,35)},${rand(10,30)},1)`,
+        windows:[]
+      });
+    }
+    // Sort by layer
+    buildings.sort((a,b)=>a.layer-b.layer);
+    // Generate windows
+    buildings.forEach(b=>{
+      b.windows=[];
+      const cols=Math.floor(b.w/14);
+      const rows=Math.floor(b.h/18);
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          const lit=Math.random()<0.55;
+          if(lit){
+            const cyan=Math.random()<0.15;
+            b.windows.push({c,r,cyan,blink:Math.random()<0.05,phase:Math.random()*6.28});
+          }
+        }
+      }
+    });
+  }
+
+  let stars=[];
+  function genStars(){
+    stars=[];
+    for(let i=0;i<300;i++){
+      stars.push({x:Math.random(),y:Math.random()*0.45,r:Math.random()*1.2+0.3,a:Math.random()});
+    }
+  }
+
+  let t=0;
+  function drawCity(){
+    ctx.clearRect(0,0,W,H);
+
+    // Sky gradient
+    const sky=ctx.createLinearGradient(0,0,0,H*0.65);
+    sky.addColorStop(0,'#020810');
+    sky.addColorStop(0.5,'#040e1a');
+    sky.addColorStop(1,'#050505');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+    // Stars
+    stars.forEach(s=>{
+      const flicker=0.4+0.6*(0.5+0.5*Math.sin(t*0.8+s.a*10));
+      ctx.beginPath();
+      ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.fillStyle=`rgba(180,220,255,${flicker*s.a*0.8})`;
+      ctx.fill();
+    });
+
+    // Moon / glow orb
+    const grd=ctx.createRadialGradient(W*0.75,H*0.12,0,W*0.75,H*0.12,120);
+    grd.addColorStop(0,'rgba(0,255,180,0.07)');
+    grd.addColorStop(1,'transparent');
+    ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+
+    // Ground gradient
+    const ground=ctx.createLinearGradient(0,H*0.55,0,H);
+    ground.addColorStop(0,'transparent');
+    ground.addColorStop(1,'rgba(0,255,100,0.06)');
+    ctx.fillStyle=ground; ctx.fillRect(0,H*0.55,W,H);
+
+    // Horizon glow
+    ctx.save();
+    ctx.filter='blur(40px)';
+    const hgrd=ctx.createLinearGradient(0,H*0.6,0,H*0.75);
+    hgrd.addColorStop(0,'rgba(0,255,136,0.22)');
+    hgrd.addColorStop(1,'transparent');
+    ctx.fillStyle=hgrd; ctx.fillRect(0,H*0.6,W,H*0.15);
+    ctx.restore();
+
+    // Buildings
+    buildings.forEach(b=>{
+      const baseY = H - (b.layer===0? H*0.18 : b.layer===1? H*0.12 : H*0.06);
+      const top = baseY - b.h;
+      const left = b.x*W - b.w/2;
+
+      // Shadow/base
+      ctx.fillStyle=b.color;
+      ctx.fillRect(left,top,b.w,b.h);
+
+      // Edge highlights
+      if(b.layer>0){
+        ctx.strokeStyle=`rgba(0,255,200,0.06)`;
+        ctx.lineWidth=1;
+        ctx.strokeRect(left,top,b.w,b.h);
+      }
+
+      // Windows
+      const ww=8, wh=6, gapX=14, gapY=18;
+      b.windows.forEach(win=>{
+        const wx=left+4+win.c*gapX;
+        const wy=top+6+win.r*gapY;
+        let a=0.7;
+        if(win.blink){ a=0.3+0.7*(0.5+0.5*Math.sin(t*1.5+win.phase)); }
+        if(win.cyan){
+          ctx.fillStyle=`rgba(0,255,231,${a*0.9})`;
+        } else {
+          ctx.fillStyle=`rgba(${200+Math.floor(Math.random()*20)},${170+Math.floor(Math.random()*30)},${80+Math.floor(Math.random()*40)},${a})`;
+        }
+        ctx.fillRect(wx,wy,ww,wh);
+        if(win.cyan){
+          ctx.shadowBlur=8; ctx.shadowColor='rgba(0,255,231,0.8)';
+          ctx.fillRect(wx,wy,ww,wh);
+          ctx.shadowBlur=0;
+        }
+      });
+
+      // Antenna / spire
+      if(b.layer===2 && b.h>300){
+        ctx.strokeStyle='rgba(0,255,231,0.3)';
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(left+b.w/2, top);
+        ctx.lineTo(left+b.w/2, top-40);
+        ctx.stroke();
+        // blinking light
+        const bl=0.5+0.5*Math.sin(t*3+b.x);
+        ctx.beginPath();
+        ctx.arc(left+b.w/2, top-40, 3, 0, Math.PI*2);
+        ctx.fillStyle=`rgba(255,80,80,${bl})`;
+        ctx.shadowBlur=10; ctx.shadowColor='rgba(255,80,80,0.8)';
+        ctx.fill(); ctx.shadowBlur=0;
+      }
+    });
+
+    // Ground reflection shimmer
+    const refl=ctx.createLinearGradient(0,H-60,0,H);
+    refl.addColorStop(0,'rgba(0,255,136,0.12)');
+    refl.addColorStop(1,'rgba(0,255,136,0.03)');
+    ctx.fillStyle=refl; ctx.fillRect(0,H-60,W,60);
+
+    t+=0.012;
+  }
+
+  let animId;
+  function loop(){ drawCity(); animId=requestAnimationFrame(loop); }
+
+  window.addEventListener('resize',()=>{ cancelAnimationFrame(animId); genBuildings(); genStars(); resize(); loop(); });
+  genBuildings(); genStars(); resize(); loop();
+})();
+
+// ════════════════════════════════════════
+// HERO PARALLAX
+// ════════════════════════════════════════
+const heroBg = document.getElementById('hero-bg');
+const heroContent = document.getElementById('hero-content');
+let targetBgX=0,targetBgY=0,targetFgX=0,targetFgY=0;
+let currBgX=0,currBgY=0,currFgX=0,currFgY=0;
+const isMobile=window.innerWidth<900;
+const intensity = isMobile ? 0.4 : 1;
+
+document.addEventListener('mousemove',e=>{
+  const cx=e.clientX/window.innerWidth-0.5;
+  const cy=e.clientY/window.innerHeight-0.5;
+  targetBgX=cx*16*intensity; targetBgY=cy*10*intensity;
+  targetFgX=cx*-32*intensity; targetFgY=cy*-18*intensity;
+});
+
+(function parallaxLoop(){
+  currBgX+=(targetBgX-currBgX)*0.07;
+  currBgY+=(targetBgY-currBgY)*0.07;
+  currFgX+=(targetFgX-currFgX)*0.07;
+  currFgY+=(targetFgY-currFgY)*0.07;
+  heroBg.style.transform=`translate(${currBgX}px,${currBgY}px) rotateX(${currBgY*0.25}deg) rotateY(${currBgX*0.25}deg)`;
+  heroContent.style.transform=`translate(${currFgX}px,${currFgY}px)`;
+  requestAnimationFrame(parallaxLoop);
+})();
+
+// ════════════════════════════════════════
+// ROTATING CITY 3D CANVAS (Services right)
+// ════════════════════════════════════════
+(function(){
+  const canvas=document.getElementById('city3d-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,angle=0;
+
+  function resize(){
+    W=canvas.width=canvas.offsetWidth;
+    H=canvas.height=canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  const BLDGS=[];
+  for(let i=0;i<30;i++){
+    const r=60+Math.random()*180;
+    const a=Math.random()*Math.PI*2;
+    BLDGS.push({
+      r, a, h:40+Math.random()*160, w:12+Math.random()*28,
+      color:Math.random()<0.3?'#00ffe7':'#00ff88',
+      base:Math.random()<0.5?'#001a10':'#000d1a'
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // BG
+    const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.7);
+    bg.addColorStop(0,'#020a05');
+    bg.addColorStop(1,'#050505');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+    // Grid ground
+    ctx.save();
+    ctx.translate(W/2,H*0.62);
+    const gridW=W*1.2, gridH=H*0.6;
+    // perspective grid
+    for(let i=-10;i<=10;i++){
+      const x=i*(gridW/20);
+      ctx.beginPath();
+      ctx.moveTo(x,-10);
+      ctx.lineTo(x*0.1,gridH);
+      ctx.strokeStyle='rgba(0,255,136,0.08)'; ctx.lineWidth=1;
+      ctx.stroke();
+    }
+    for(let j=0;j<=10;j++){
+      const y=j*(gridH/10);
+      const xScale=(j/10);
+      ctx.beginPath();
+      ctx.moveTo(-gridW/2*xScale,y);
+      ctx.lineTo(gridW/2*xScale,y);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Sort by angle for painter's algo
+    const sorted=[...BLDGS].map(b=>{
+      const a=b.a+angle;
+      const x=Math.cos(a)*b.r;
+      const z=Math.sin(a)*b.r;
+      return {...b,a,x,z,screen_x:x};
+    }).sort((a,b)=>b.z-a.z);
+
+    const cx=W/2, groundY=H*0.62;
+    const persp=420;
+
+    sorted.forEach(b=>{
+      const scale=persp/(persp+b.z+200);
+      const sx=cx+b.screen_x*scale;
+      const sy=groundY;
+      const bw=b.w*scale, bh=b.h*scale;
+
+      // Building base
+      ctx.fillStyle=b.base;
+      ctx.strokeStyle=`rgba(0,255,200,${0.08+scale*0.15})`;
+      ctx.lineWidth=0.5+scale;
+      ctx.fillRect(sx-bw/2, sy-bh, bw, bh);
+      ctx.strokeRect(sx-bw/2, sy-bh, bw, bh);
+
+      // Window rows
+      const rows=Math.floor(bh/10);
+      for(let r=0;r<rows;r++){
+        if(Math.random()<0.4) continue;
+        const wy=sy-bh+6+r*10;
+        ctx.fillStyle=b.color==='#00ffe7'
+          ?`rgba(0,255,231,${0.5*scale})`
+          :`rgba(255,200,80,${0.4*scale})`;
+        ctx.fillRect(sx-bw/2+3, wy, bw-6, 4*scale);
+      }
+
+      // Top glow
+      ctx.shadowBlur=12*scale; ctx.shadowColor=b.color;
+      ctx.fillStyle=b.color;
+      ctx.fillRect(sx-1.5,sy-bh-3,3,3);
+      ctx.shadowBlur=0;
+    });
+
+    // Horizon glow
+    const hg=ctx.createLinearGradient(0,groundY-30,0,groundY+20);
+    hg.addColorStop(0,'rgba(0,255,136,0.15)');
+    hg.addColorStop(1,'transparent');
+    ctx.fillStyle=hg; ctx.fillRect(0,groundY-30,W,50);
+
+    // Label
+    ctx.fillStyle='rgba(0,255,231,0.5)';
+    ctx.font='11px Share Tech Mono, monospace';
+    ctx.letterSpacing='3px';
+    ctx.fillText('CITY-DISTRICT-VIEW',16,24);
+
+    angle+=0.004;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ════════════════════════════════════════
+// CRANE CANVAS (About right)
+// ════════════════════════════════════════
+(function(){
+  const canvas=document.getElementById('crane-canvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  let W,H,t=0;
+
+  function resize(){
+    W=canvas.width=canvas.offsetWidth;
+    H=canvas.height=canvas.offsetHeight;
+  }
+  resize(); window.addEventListener('resize',resize);
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // BG
+    ctx.fillStyle='#030d08'; ctx.fillRect(0,0,W,H);
+
+    // Grid
+    for(let i=0;i<12;i++){
+      ctx.strokeStyle='rgba(0,255,136,0.06)';
+      ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(0,i*H/11); ctx.lineTo(W,i*H/11); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(i*W/11,0); ctx.lineTo(i*W/11,H); ctx.stroke();
+    }
+
+    const ground=H*0.72;
+
+    // Structure: steel skeleton
+    ctx.strokeStyle='rgba(0,255,200,0.3)'; ctx.lineWidth=2.5;
+
+    // Vertical columns
+    const cols=[W*0.18,W*0.42,W*0.68,W*0.85];
+    const heights=[H*0.6,H*0.52,H*0.45,H*0.3];
+    cols.forEach((cx,i)=>{
+      ctx.strokeStyle=`rgba(0,255,200,${0.2+i*0.05})`; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(cx,ground); ctx.lineTo(cx,ground-heights[i]); ctx.stroke();
+    });
+
+    // Cross beams
+    for(let i=0;i<4;i++){
+      const y=ground-40-i*60;
+      const x0=cols[0]; const x1=cols[Math.min(i+1,3)];
+      ctx.strokeStyle='rgba(0,255,200,0.15)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+      // diagonal brace
+      ctx.beginPath(); ctx.moveTo(x0,y+40); ctx.lineTo(x1,y); ctx.stroke();
+    }
+
+    // CRANE — animated arm
+    const craneX=W*0.55, craneBase=ground, craneH=H*0.65;
+    const armSwing=Math.sin(t*0.4)*0.18;
+
+    // Mast
+    ctx.strokeStyle='rgba(0,255,231,0.5)'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(craneX,craneBase); ctx.lineTo(craneX,craneBase-craneH); ctx.stroke();
+
+    // Boom arm
+    const boomLen=W*0.38;
+    const boomY=craneBase-craneH+10;
+    ctx.strokeStyle='rgba(0,255,231,0.7)'; ctx.lineWidth=3;
+    ctx.save(); ctx.translate(craneX,boomY);
+    ctx.rotate(armSwing);
+    ctx.beginPath(); ctx.moveTo(-boomLen*0.25,0); ctx.lineTo(boomLen*0.75,0); ctx.stroke();
+    // Counter jib
+    ctx.strokeStyle='rgba(0,255,136,0.5)';
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-boomLen*0.25,0); ctx.stroke();
+    // Cable
+    const cableSwing=Math.sin(t*0.4+0.3)*0.08;
+    ctx.strokeStyle='rgba(0,255,231,0.4)'; ctx.lineWidth=1.5;
+    const hookX=boomLen*0.5, hookLen=80+20*Math.sin(t*0.6);
+    ctx.beginPath(); ctx.moveTo(hookX,0); ctx.lineTo(hookX+cableSwing*40,hookLen); ctx.stroke();
+    // Hook
+    ctx.strokeStyle='rgba(0,255,231,0.8)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(hookX+cableSwing*40,hookLen+8,8,0,Math.PI); ctx.stroke();
+
+    ctx.restore();
+
+    // Spotlights
+    [[W*0.18,ground],[W*0.42,ground],[W*0.85,ground]].forEach(([lx,ly])=>{
+      const g=ctx.createConicalGradient
+        ? null
+        : (() => {
+            const g2=ctx.createRadialGradient(lx,ly-30,0,lx,ly-30,120);
+            g2.addColorStop(0,'rgba(0,255,180,0.18)');
+            g2.addColorStop(1,'transparent');
+            return g2;
+          })();
+      if(g){ ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
+    });
+
+    // Ground
+    ctx.fillStyle='rgba(0,255,100,0.06)';
+    ctx.fillRect(0,ground,W,H-ground);
+    ctx.strokeStyle='rgba(0,255,136,0.2)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,ground); ctx.lineTo(W,ground); ctx.stroke();
+
+    // Ambient particles
+    for(let i=0;i<5;i++){
+      const px=(Math.sin(t*0.3+i*1.2)*0.5+0.5)*W;
+      const py=ground-20-Math.abs(Math.sin(t*0.5+i))*H*0.6;
+      ctx.beginPath(); ctx.arc(px,py,1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,255,136,${0.3+0.4*Math.sin(t+i)})`; ctx.fill();
+    }
+
+    // Label
+    ctx.fillStyle='rgba(0,255,231,0.4)';
+    ctx.font='10px Share Tech Mono,monospace';
+    ctx.fillText('SITE-LIVE-VIEW · BASRA',12,20);
+
+    t+=0.016;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ════════════════════════════════════════
+// SERVICE CARD 3D TILT
+// ════════════════════════════════════════
+document.querySelectorAll('[data-tilt]').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const cx=(e.clientX-r.left)/r.width-0.5;
+    const cy=(e.clientY-r.top)/r.height-0.5;
+    card.style.transform=`perspective(600px) rotateY(${cx*18}deg) rotateX(${-cy*12}deg) scale(1.03)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='perspective(600px) rotateY(0deg) rotateX(0deg) scale(1)';
+  });
+});
+
+// ════════════════════════════════════════
+// SCROLL REVEAL
+// ════════════════════════════════════════
+const reveals=document.querySelectorAll('.reveal');
+const features=document.querySelectorAll('.about-feature');
+const aboutRight=document.getElementById('about-right');
+
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:0.15});
+
+reveals.forEach((el,i)=>{
+  el.style.transitionDelay=`${(i%4)*0.1}s`;
+  observer.observe(el);
+});
+
+const featureObs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('visible'),i*120);
+      featureObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.2});
+features.forEach(f=>featureObs.observe(f));
+if(aboutRight) observer.observe(aboutRight);
+
+// ════════════════════════════════════════
+// COUNTER ANIMATION
+// ════════════════════════════════════════
+function animCount(el,target,duration=1800){
+  let start=null;
+  function step(ts){
+    if(!start) start=ts;
+    const progress=Math.min((ts-start)/duration,1);
+    const ease=1-Math.pow(1-progress,3);
+    el.textContent=Math.floor(ease*target)+(target===97?'%':'+');
+    if(progress<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const countEls=document.querySelectorAll('[data-count]');
+const countObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animCount(e.target,+e.target.dataset.count);
+      countObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.5});
+countEls.forEach(el=>countObs.observe(el));
+</script>
+</body>
+</html>

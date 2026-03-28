@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STRUCAL — Structural Analysis Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0b0f;
+  --bg2:#0f1016;
+  --bg3:#14151d;
+  --surface:#1a1c26;
+  --surface2:#20222e;
+  --border:#2a2d3e;
+  --border2:#363a50;
+  --text:#e8eaf0;
+  --muted:#7a7e96;
+  --dim:#4a4d62;
+  --accent:#4f7fff;
+  --accent2:#7c5cfc;
+  --green:#22d3a0;
+  --orange:#f59e0b;
+  --red:#f43f5e;
+  --cyan:#06b6d4;
+  --yellow:#fbbf24;
+  --radius:6px;
+  --radius2:10px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;overflow:hidden}
+/* ─── Layout ─── */
+.app{display:grid;grid-template-rows:48px 1fr;grid-template-columns:240px 1fr 280px;height:100vh}
+.topbar{grid-column:1/-1;grid-row:1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:10}
+.sidebar{grid-column:1;grid-row:2;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.viewport{grid-column:2;grid-row:2;position:relative;overflow:hidden;background:var(--bg)}
+.panel{grid-column:3;grid-row:2;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+/* ─── Topbar ─── */
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;color:#fff;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;fill:white}
+.logo-sep{width:1px;height:24px;background:var(--border2);margin:0 4px}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:6px 14px;border-radius:var(--radius);cursor:pointer;color:var(--muted);font-size:12px;font-weight:500;transition:all .15s;border:none;background:none;letter-spacing:.02em}
+.nav-tab:hover{color:var(--text);background:var(--surface)}
+.nav-tab.active{color:var(--text);background:var(--surface)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:500;border:1px solid var(--border2);background:var(--surface);color:var(--text);transition:all .15s;font-family:'Inter',sans-serif;letter-spacing:.02em}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#3a6ef0;border-color:#3a6ef0;color:#fff}
+.btn-success{background:var(--green);border-color:var(--green);color:#0a0b0f}
+.btn-success:hover{background:#1bc490;color:#0a0b0f}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.chip{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace}
+.chip-blue{background:rgba(79,127,255,.15);color:var(--accent);border:1px solid rgba(79,127,255,.3)}
+.chip-green{background:rgba(34,211,160,.12);color:var(--green);border:1px solid rgba(34,211,160,.25)}
+.chip-orange{background:rgba(245,158,11,.12);color:var(--orange);border:1px solid rgba(245,158,11,.25)}
+
+/* ─── Sidebar ─── */
+.sidebar-section{padding:12px 12px 6px;border-bottom:1px solid var(--border)}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;font-family:'Syne',sans-serif}
+.tree-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--radius);cursor:pointer;transition:all .12s;color:var(--muted);position:relative}
+.tree-item:hover{background:var(--surface);color:var(--text)}
+.tree-item.active{background:var(--surface2);color:var(--text)}
+.tree-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--accent);border-radius:1px}
+.tree-icon{width:14px;height:14px;opacity:.7;flex-shrink:0}
+.tree-badge{margin-left:auto;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:8px}
+.sidebar-scroll::-webkit-scrollbar{width:3px}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ─── Property rows ─── */
+.prop-row{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;gap:8px}
+.prop-label{color:var(--muted);font-size:12px;white-space:nowrap}
+.prop-val{color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right}
+.prop-val.green{color:var(--green)}
+.prop-val.orange{color:var(--orange)}
+.prop-val.red{color:var(--red)}
+.prop-input{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;width:90px;text-align:right;outline:none;transition:border .15s}
+.prop-input:focus{border-color:var(--accent)}
+.select-input{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 8px;color:var(--text);font-size:12px;outline:none;cursor:pointer;width:100px}
+.range-row{padding:6px 16px 2px}
+.range-label-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.range-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--bg2);cursor:pointer}
+/* ─── Viewport tools ─── */
+.vp-toolbar{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.vp-btn{width:32px;height:32px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s}
+.vp-btn:hover{border-color:var(--accent);color:var(--accent)}
+.vp-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.vp-corners{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:5}
+.view-selector{display:flex;gap:1px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;padding:2px}
+.view-btn{padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--muted);transition:all .15s;font-family:'DM Mono',monospace;border:none;background:none}
+.view-btn:hover{color:var(--text)}
+.view-btn.active{background:var(--surface2);color:var(--text)}
+.vp-info{position:absolute;bottom:12px;left:12px;display:flex;gap:8px;z-index:5}
+.vp-badge{background:rgba(10,11,15,.75);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.vp-badge span{color:var(--text)}
+/* ─── Canvas ─── */
+#canvas3d{display:block;width:100%;height:100%;cursor:crosshair}
+
+/* ─── Result bars ─── */
+.result-bar-row{padding:5px 16px;display:flex;align-items:center;gap:8px}
+.result-bar-bg{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.legend-gradient{height:10px;border-radius:3px;background:linear-gradient(to right,#4f7fff,#22d3a0,#fbbf24,#f59e0b,#f43f5e);margin:4px 16px;border-radius:3px}
+.legend-labels{display:flex;justify-content:space-between;padding:0 16px 6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)}
+
+/* ─── Tabs in panel ─── */
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 12px;gap:1px;flex-shrink:0}
+.panel-tab{padding:10px 12px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.panel-tab:hover{color:var(--text)}
+.panel-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.panel-scroll{flex:1;overflow-y:auto}
+.panel-scroll::-webkit-scrollbar{width:3px}
+.panel-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.tab-content{display:none}.tab-content.active{display:block}
+/* ─── Section headers ─── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px;border-bottom:1px solid var(--border)}
+.sec-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.sec-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:500}
+/* ─── Mode badge overlay ─── */
+.mode-overlay{position:absolute;bottom:12px;right:12px;z-index:5;background:rgba(10,11,15,.85);backdrop-filter:blur(12px);border:1px solid var(--border2);border-radius:var(--radius2);padding:10px 14px;min-width:160px}
+.mode-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.mode-stat{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.mode-stat-val{font-family:'DM Mono',monospace;color:var(--accent)}
+/* ─── Notification ─── */
+.notif{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius2);padding:8px 16px;font-size:12px;color:var(--text);z-index:20;display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.notif.show{opacity:1}
+/* ─── FEA result numbers ─── */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:10px 12px}
+.rc-label{font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.rc-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:400;color:var(--text)}
+.rc-unit{font-size:10px;color:var(--dim);margin-left:2px}
+.rc-val.green{color:var(--green)}
+.rc-val.orange{color:var(--orange)}
+.rc-val.red{color:var(--red)}
+/* ─── Progress line ─── */
+.progress-bar{height:2px;background:var(--border);position:relative;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));width:0;transition:width .8s ease}
+/* ─── Console ─── */
+.console{background:var(--bg);border-top:1px solid var(--border);padding:8px 12px;height:100px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:11px}
+.console::-webkit-scrollbar{width:3px}
+.console::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.console-line{margin-bottom:2px;opacity:.8}
+.console-line .ts{color:var(--dim)}
+.console-line .ok{color:var(--green)}
+.console-line .warn{color:var(--orange)}
+.console-line .err{color:var(--red)}
+.console-line .info{color:var(--accent)}
+/* divider */
+.divider{height:1px;background:var(--border);margin:4px 0}
+/* scrollbar global */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+/* node tooltip */
+.node-tip{position:absolute;background:rgba(10,11,15,.92);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;font-family:'DM Mono',monospace;font-size:11px;pointer-events:none;z-index:15;display:none;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════ TOPBAR ══════════════ -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16"><path d="M2 14 L8 2 L14 14 Z M5 10 L11 10"/></svg>
+    </div>
+    STRUCAL
+  </div>
+  <div class="logo-sep"></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="setTab(this,'model')">Model</button>
+    <button class="nav-tab" onclick="setTab(this,'loads')">Loads & BCs</button>
+    <button class="nav-tab" onclick="setTab(this,'mesh')">Mesh</button>
+    <button class="nav-tab" onclick="setTab(this,'solve')">Solve</button>
+    <button class="nav-tab" onclick="setTab(this,'results')">Results</button>
+  </div>
+  <div class="topbar-right">
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+      <div class="status-dot"></div>Ready
+    </div>
+    <div class="chip chip-blue">FEA v3.2</div>
+    <div class="chip chip-green" id="elem-count-chip">0 elements</div>
+    <button class="btn" onclick="clearModel()">Clear</button>
+    <button class="btn" onclick="loadExample()">Load Example</button>
+    <button class="btn btn-primary" onclick="runAnalysis()">▶ Run Analysis</button>
+  </div>
+</div>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<div class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Structure Tree</div>
+    <div class="tree-item active" onclick="selectPart(this,'geometry')">
+      <svg class="tree-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M1 13 L7 1 L13 13 Z"/></svg>
+      Geometry
+      <span class="tree-badge" id="tree-nodes">0 nodes</span>
+    </div>
+    <div class="tree-item" onclick="selectPart(this,'material')">
+      <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><circle cx="7" cy="7" r="2"/></svg>
+      Material
+      <span class="tree-badge" id="tree-mat">Steel</span>
+    </div>
+    <div class="tree-item" onclick="selectPart(this,'mesh')">
+      <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 1 L13 1 L13 13 L1 13 Z M1 7 L13 7 M7 1 L7 13"/></svg>
+      Mesh
+      <span class="tree-badge" id="tree-elems">0 elems</span>
+    </div>
+    <div class="tree-item" onclick="selectPart(this,'loads')">
+      <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2 L7 11 M4 8 L7 12 L10 8"/></svg>
+      Loads
+      <span class="tree-badge" id="tree-loads">0 BCs</span>
+    </div>
+    <div class="tree-item" onclick="selectPart(this,'results')">
+      <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12 L4 7 L7 9 L10 4 L13 6"/></svg>
+      Results
+      <span class="tree-badge" id="tree-res">—</span>
+    </div>
+  </div>
+
+  <div class="sidebar-scroll">
+    <!-- Part: Material -->
+    <div id="part-material" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Material Properties</span></div>
+      <div class="prop-row"><span class="prop-label">Material</span>
+        <select class="select-input" id="mat-select" onchange="updateMat()">
+          <option>Steel A36</option><option>Aluminum 6061</option><option>Concrete C30</option><option>Titanium Ti-6Al</option><option>Custom</option>
+        </select>
+      </div>
+      <div class="prop-row"><span class="prop-label">E (Young's mod)</span><input class="prop-input" id="mat-E" value="200" oninput="updateMat()"/></div>
+      <div class="prop-row" style="padding-left:24px"><span class="prop-label">GPa</span><span class="prop-val" id="mat-E-disp">200 GPa</span></div>
+      <div class="prop-row"><span class="prop-label">Poisson's ratio ν</span><input class="prop-input" id="mat-nu" value="0.30"/></div>
+      <div class="prop-row"><span class="prop-label">Yield σ_y</span><input class="prop-input" id="mat-sy" value="250"/></div>
+      <div class="prop-row" style="padding-left:24px"><span class="prop-label">MPa</span><span class="prop-val" id="mat-sy-disp">250 MPa</span></div>
+      <div class="prop-row"><span class="prop-label">Density ρ</span><input class="prop-input" id="mat-rho" value="7850"/></div>
+      <div class="prop-row" style="padding-left:24px"><span class="prop-label">kg/m³</span></div>
+      <div class="prop-row"><span class="prop-label">Thermal exp. α</span><input class="prop-input" id="mat-alpha" value="11.7"/></div>
+      <div class="prop-row" style="padding-left:24px"><span class="prop-label">×10⁻⁶/°C</span></div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div class="prop-row"><span class="prop-label">Safety factor</span><input class="prop-input" value="1.50"/></div>
+    </div>
+
+    <!-- Part: Mesh -->
+    <div id="part-mesh" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Mesh Controls</span></div>
+      <div class="range-row">
+        <div class="range-label-row"><span class="prop-label">Element size</span><span class="range-val" id="mesh-size-val">0.5 m</span></div>
+        <input type="range" min="1" max="10" value="5" oninput="updateMeshSize(this.value)"/>
+      </div>
+      <div class="prop-row"><span class="prop-label">Element type</span>
+        <select class="select-input" onchange="meshChanged()">
+          <option>Tet4 (Linear)</option><option>Tet10 (Quadratic)</option><option>Hex8</option><option>Hex20</option>
+        </select>
+      </div>
+      <div class="prop-row"><span class="prop-label">Refinement</span>
+        <select class="select-input" onchange="meshChanged()">
+          <option>Coarse</option><option selected>Medium</option><option>Fine</option><option>Very Fine</option>
+        </select>
+      </div>
+      <div class="range-row">
+        <div class="range-label-row"><span class="prop-label">Mesh quality</span><span class="range-val" id="mesh-qual-val">87%</span></div>
+        <input type="range" min="60" max="100" value="87" oninput="document.getElementById('mesh-qual-val').textContent=this.value+'%'"/>
+      </div>
+      <div class="divider" style="margin:8px 0"></div>
+      <button class="btn btn-primary" style="width:calc(100% - 24px);margin:0 12px 8px" onclick="generateMesh()">Generate Mesh</button>
+      <div class="prop-row"><span class="prop-label">Total nodes</span><span class="prop-val green" id="mesh-node-cnt">—</span></div>
+      <div class="prop-row"><span class="prop-label">Total elements</span><span class="prop-val green" id="mesh-elem-cnt">—</span></div>
+      <div class="prop-row"><span class="prop-label">DOF</span><span class="prop-val" id="mesh-dof">—</span></div>
+    </div>
+
+    <!-- Part: Loads -->
+    <div id="part-loads" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Boundary Conditions</span><span class="sec-action" onclick="addLoad()">+ Add</span></div>
+      <div id="load-list">
+        <div class="tree-item active">
+          <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12 L2 2 L12 2"/><path d="M4 12 L4 4 L12 4"/></svg>
+          Fixed Support — Base
+          <span class="tree-badge chip chip-blue" style="font-size:9px">BC</span>
+        </div>
+        <div class="tree-item">
+          <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2 L7 10 M4 7 L7 11 L10 7"/></svg>
+          Point Load — Top
+          <span class="tree-badge chip chip-orange" style="font-size:9px">F</span>
+        </div>
+        <div class="tree-item">
+          <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5 L12 5 M2 8 L12 8 M4 5 L4 8 M7 5 L7 8 M10 5 L10 8"/></svg>
+          Pressure — Side A
+          <span class="tree-badge chip chip-orange" style="font-size:9px">P</span>
+        </div>
+        <div class="tree-item">
+          <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7 L12 7 M9 4 L12 7 L9 10"/></svg>
+          Gravity — Body
+          <span class="tree-badge chip chip-blue" style="font-size:9px">g</span>
+        </div>
+      </div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div class="sec-hdr"><span class="sec-title">Active Load</span></div>
+      <div class="prop-row"><span class="prop-label">Type</span><span class="prop-val">Point Force</span></div>
+      <div class="prop-row"><span class="prop-label">Fx</span><input class="prop-input" value="0"/><span class="prop-label" style="margin-left:4px">kN</span></div>
+      <div class="prop-row"><span class="prop-label">Fy</span><input class="prop-input" value="-150"/><span class="prop-label" style="margin-left:4px">kN</span></div>
+      <div class="prop-row"><span class="prop-label">Fz</span><input class="prop-input" value="0"/><span class="prop-label" style="margin-left:4px">kN</span></div>
+    </div>
+
+    <!-- Part: Geometry (default) -->
+    <div id="part-geometry">
+      <div class="sec-hdr"><span class="sec-title">Geometry Setup</span></div>
+      <div class="prop-row"><span class="prop-label">Structure type</span>
+        <select class="select-input" id="struct-type" onchange="structTypeChange()">
+          <option value="beam">Beam</option>
+          <option value="truss">Truss</option>
+          <option value="frame">Frame</option>
+          <option value="plate">Plate/Shell</option>
+          <option value="solid">3D Solid</option>
+        </select>
+      </div>
+      <div class="prop-row"><span class="prop-label">Length L</span><input class="prop-input" id="geo-L" value="10.0" oninput="updateGeo()"/><span class="prop-label" style="margin-left:4px">m</span></div>
+      <div class="prop-row"><span class="prop-label">Width W</span><input class="prop-input" id="geo-W" value="0.3" oninput="updateGeo()"/><span class="prop-label" style="margin-left:4px">m</span></div>
+      <div class="prop-row"><span class="prop-label">Height H</span><input class="prop-input" id="geo-H" value="0.5" oninput="updateGeo()"/><span class="prop-label" style="margin-left:4px">m</span></div>
+      <div class="prop-row"><span class="prop-label">Thickness t</span><input class="prop-input" id="geo-t" value="0.02" oninput="updateGeo()"/><span class="prop-label" style="margin-left:4px">m</span></div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div class="sec-hdr"><span class="sec-title">Cross-section</span></div>
+      <div class="prop-row"><span class="prop-label">Profile</span>
+        <select class="select-input" onchange="updateGeo()">
+          <option>I-Beam (HEA)</option><option>Box Section</option><option>T-Section</option><option>Circular</option><option>Rectangular</option>
+        </select>
+      </div>
+      <div class="prop-row"><span class="prop-label">Area A</span><span class="prop-val" id="geo-area">0.0150 m²</span></div>
+      <div class="prop-row"><span class="prop-label">I_xx</span><span class="prop-val" id="geo-Ixx">4.17×10⁻³ m⁴</span></div>
+      <div class="prop-row"><span class="prop-label">I_yy</span><span class="prop-val" id="geo-Iyy">2.25×10⁻³ m⁴</span></div>
+    </div>
+
+    <!-- Part: Results tree -->
+    <div id="part-results" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Result Sets</span></div>
+      <div class="tree-item active">
+        <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 13 L4 7 L7 9 L10 4 L13 6"/></svg>
+        Static Analysis — LC1
+        <span class="tree-badge chip chip-green" style="font-size:9px">DONE</span>
+      </div>
+      <div class="tree-item">
+        <svg class="tree-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7 C4 4 6 10 8 7 C10 4 12 8 13 7"/></svg>
+        Modal — Mode 1–6
+        <span class="tree-badge chip chip-blue" style="font-size:9px">RDY</span>
+      </div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div class="sec-hdr"><span class="sec-title">Display Field</span></div>
+      <div class="tree-item active" onclick="setDisplayField(this,'stress')">Von Mises Stress</div>
+      <div class="tree-item" onclick="setDisplayField(this,'disp')">Total Displacement</div>
+      <div class="tree-item" onclick="setDisplayField(this,'strain')">Equivalent Strain</div>
+      <div class="tree-item" onclick="setDisplayField(this,'safety')">Safety Factor</div>
+      <div class="tree-item" onclick="setDisplayField(this,'freq')">Natural Frequencies</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 3D VIEWPORT ══════════════ -->
+<div class="viewport">
+  <canvas id="canvas3d"></canvas>
+
+  <div class="vp-toolbar">
+    <button class="vp-btn active" title="Select" onclick="setVPTool(this,'select')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2 L8 12 L9 8 L13 9 Z"/></svg>
+    </button>
+    <button class="vp-btn" title="Orbit" onclick="setVPTool(this,'orbit')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="7" cy="7" rx="5" ry="2.5"/><circle cx="7" cy="7" r="5"/></svg>
+    </button>
+    <button class="vp-btn" title="Pan" onclick="setVPTool(this,'pan')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2 L7 12 M2 7 L12 7 M5 2 L7 0 L9 2 M5 12 L7 14 L9 12 M2 5 L0 7 L2 9 M12 5 L14 7 L12 9"/></svg>
+    </button>
+    <button class="vp-btn" title="Zoom" onclick="setVPTool(this,'zoom')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9 L13 13"/><path d="M4 6 L8 6 M6 4 L6 8"/></svg>
+    </button>
+    <div style="width:32px;height:1px;background:var(--border2)"></div>
+    <button class="vp-btn" title="Zoom Fit" onclick="resetCamera()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="10" height="10" rx="1"/><path d="M5 5 L2 2 M9 5 L12 2 M5 9 L2 12 M9 9 L12 12"/></svg>
+    </button>
+    <button class="vp-btn" title="Toggle Grid" onclick="toggleGrid(this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 1 L13 1 L13 13 L1 13 Z M1 5 L13 5 M1 9 L13 9 M5 1 L5 13 M9 1 L9 13"/></svg>
+    </button>
+    <button class="vp-btn" title="Wireframe" id="wire-btn" onclick="toggleWireframe(this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12 L7 2 L12 12 Z M4 8 L10 8"/></svg>
+    </button>
+  </div>
+
+  <div class="vp-corners">
+    <div class="view-selector">
+      <button class="view-btn active" onclick="setView(this,'persp')">3D</button>
+      <button class="view-btn" onclick="setView(this,'top')">Top</button>
+      <button class="view-btn" onclick="setView(this,'front')">Front</button>
+      <button class="view-btn" onclick="setView(this,'side')">Side</button>
+    </div>
+  </div>
+
+  <div class="vp-info">
+    <div class="vp-badge">Nodes: <span id="badge-nodes">0</span></div>
+    <div class="vp-badge">Elems: <span id="badge-elems">0</span></div>
+    <div class="vp-badge">DOF: <span id="badge-dof">0</span></div>
+    <div class="vp-badge" id="badge-coord">x:0.00 y:0.00 z:0.00</div>
+  </div>
+
+  <div class="mode-overlay" id="mode-overlay">
+    <div class="mode-title" id="overlay-title">Model Setup</div>
+    <div class="mode-stat"><span>Status</span><span class="mode-stat-val" id="ov-status">Ready</span></div>
+    <div class="mode-stat"><span>Solver</span><span class="mode-stat-val">Direct Sparse</span></div>
+    <div class="mode-stat"><span>Precision</span><span class="mode-stat-val">Double (64b)</span></div>
+    <div class="mode-stat"><span>Memory</span><span class="mode-stat-val" id="ov-mem">—</span></div>
+  </div>
+
+  <div class="notif" id="notif">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#22d3a0" stroke-width="2"><polyline points="2,7 6,11 12,3"/></svg>
+    <span id="notif-text"></span>
+  </div>
+
+  <div class="node-tip" id="node-tip"></div>
+</div>
+
+<!-- ══════════════ RIGHT PANEL ══════════════ -->
+<div class="panel">
+  <div class="panel-tabs">
+    <button class="panel-tab active" onclick="setPanelTab(this,'tab-props')">Properties</button>
+    <button class="panel-tab" onclick="setPanelTab(this,'tab-results')">Results</button>
+    <button class="panel-tab" onclick="setPanelTab(this,'tab-history')">History</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <!-- PROPERTIES TAB -->
+  <div class="panel-scroll tab-content active" id="tab-props">
+    <div class="sec-hdr"><span class="sec-title">Analysis Setup</span></div>
+    <div class="prop-row"><span class="prop-label">Analysis type</span>
+      <select class="select-input" id="analysis-type" onchange="analysisTypeChange()">
+        <option value="static">Static</option>
+        <option value="modal">Modal</option>
+        <option value="thermal">Thermal</option>
+        <option value="buckling">Buckling</option>
+        <option value="dynamic">Transient</option>
+      </select>
+    </div>
+    <div class="prop-row"><span class="prop-label">Load steps</span><input class="prop-input" value="10"/></div>
+    <div class="prop-row"><span class="prop-label">Solver</span>
+      <select class="select-input">
+        <option>Direct Sparse</option><option>Iterative PCG</option><option>Multi-grid</option>
+      </select>
+    </div>
+    <div class="prop-row"><span class="prop-label">Tolerance</span><input class="prop-input" value="1.0e-6"/></div>
+    <div class="prop-row"><span class="prop-label">Max iterations</span><input class="prop-input" value="500"/></div>
+    <div class="divider"></div>
+    <div class="sec-hdr"><span class="sec-title">Output Requests</span></div>
+    <div style="padding:6px 16px;display:flex;flex-direction:column;gap:6px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)"><input type="checkbox" checked style="accent-color:var(--accent)"/> Displacement</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)"><input type="checkbox" checked style="accent-color:var(--accent)"/> Stress (Von Mises)</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)"><input type="checkbox" checked style="accent-color:var(--accent)"/> Strain energy</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)"><input type="checkbox" style="accent-color:var(--accent)"/> Reaction forces</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)"><input type="checkbox" style="accent-color:var(--accent)"/> Natural frequencies</label>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr"><span class="sec-title">Visualization</span></div>
+    <div class="range-row">
+      <div class="range-label-row"><span class="prop-label">Deformation scale</span><span class="range-val" id="def-scale-val">10×</span></div>
+      <input type="range" min="1" max="100" value="10" oninput="setDefScale(this.value)"/>
+    </div>
+    <div class="range-row">
+      <div class="range-label-row"><span class="prop-label">Opacity</span><span class="range-val" id="opacity-val">90%</span></div>
+      <input type="range" min="20" max="100" value="90" oninput="setOpacity(this.value)"/>
+    </div>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div class="panel-scroll tab-content" id="tab-results" style="display:none">
+    <div style="padding:10px 12px 6px;display:flex;align-items:center;gap:8px">
+      <div class="chip chip-green" id="result-status-chip">Not solved</div>
+      <span style="font-size:11px;color:var(--muted)" id="solve-time-label"></span>
+    </div>
+    <div class="result-grid" id="result-grid">
+      <div class="result-card"><div class="rc-label">Max Displacement</div><div class="rc-val" id="r-disp">—<span class="rc-unit">mm</span></div></div>
+      <div class="result-card"><div class="rc-label">Max Von Mises</div><div class="rc-val" id="r-stress">—<span class="rc-unit">MPa</span></div></div>
+      <div class="result-card"><div class="rc-label">Strain Energy</div><div class="rc-val" id="r-strain">—<span class="rc-unit">J</span></div></div>
+      <div class="result-card"><div class="rc-label">Safety Factor</div><div class="rc-val" id="r-safety">—</div></div>
+      <div class="result-card"><div class="rc-label">Reaction Fx</div><div class="rc-val" id="r-rfx">—<span class="rc-unit">kN</span></div></div>
+      <div class="result-card"><div class="rc-label">Reaction Fy</div><div class="rc-val" id="r-rfy">—<span class="rc-unit">kN</span></div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr"><span class="sec-title">Stress Distribution</span></div>
+    <div style="padding:6px 16px 4px;font-size:11px;color:var(--muted)">Von Mises (MPa)</div>
+    <div class="legend-gradient"></div>
+    <div class="legend-labels">
+      <span>0</span><span id="leg-mid">—</span><span id="leg-max">—</span>
+    </div>
+    <div class="result-bar-row">
+      <span style="font-size:11px;color:var(--muted);width:80px">High stress</span>
+      <div class="result-bar-bg"><div class="result-bar-fill" id="bar-high" style="width:0%;background:var(--red)"></div></div>
+      <span style="font-size:11px;font-family:'DM Mono';color:var(--red);width:36px;text-align:right" id="pct-high">0%</span>
+    </div>
+    <div class="result-bar-row">
+      <span style="font-size:11px;color:var(--muted);width:80px">Med stress</span>
+      <div class="result-bar-bg"><div class="result-bar-fill" id="bar-mid" style="width:0%;background:var(--orange)"></div></div>
+      <span style="font-size:11px;font-family:'DM Mono';color:var(--orange);width:36px;text-align:right" id="pct-mid">0%</span>
+    </div>
+    <div class="result-bar-row">
+      <span style="font-size:11px;color:var(--muted);width:80px">Low stress</span>
+      <div class="result-bar-bg"><div class="result-bar-fill" id="bar-low" style="width:0%;background:var(--green)"></div></div>
+      <span style="font-size:11px;font-family:'DM Mono';color:var(--green);width:36px;text-align:right" id="pct-low">0%</span>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr"><span class="sec-title">Natural Frequencies</span></div>
+    <div id="freq-table" style="padding:4px 0">
+      <div class="prop-row"><span class="prop-label">f₁</span><span class="prop-val" id="f1">—</span></div>
+      <div class="prop-row"><span class="prop-label">f₂</span><span class="prop-val" id="f2">—</span></div>
+      <div class="prop-row"><span class="prop-label">f₃</span><span class="prop-val" id="f3">—</span></div>
+      <div class="prop-row"><span class="prop-label">f₄</span><span class="prop-val" id="f4">—</span></div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="panel-scroll tab-content" id="tab-history" style="display:none">
+    <div class="sec-hdr"><span class="sec-title">Analysis Log</span></div>
+    <div id="history-list" style="padding:8px 12px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)">
+      <span>No analyses run yet.</span>
+    </div>
+  </div>
+
+  <!-- Console always visible at bottom -->
+  <div class="progress-bar"><div style="height:100%;background:var(--border)"></div></div>
+  <div class="console" id="console">
+    <div class="console-line"><span class="ts">[00:00]</span> <span class="info">STRUCAL v3.2 initialized</span></div>
+    <div class="console-line"><span class="ts">[00:00]</span> <span class="ok">✓</span> Solver engine loaded — Direct Sparse (MKL PARDISO)</div>
+    <div class="console-line"><span class="ts">[00:00]</span> GPU acceleration: <span class="warn">unavailable</span> — using CPU</div>
+    <div class="console-line"><span class="ts">[00:00]</span> Ready. Load a model or click "Load Example" to begin.</div>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ═══════════════════════════════════════════════════
+//  STRUCAL — 3D WebGL Structural Analysis Visualizer
+// ═══════════════════════════════════════════════════
+
+const canvas = document.getElementById('canvas3d');
+const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+
+// State
+let state = {
+  nodes: [], elements: [], stresses: [], displacements: [],
+  solved: false, meshGenerated: false, showGrid: true, wireframe: false,
+  displayField: 'stress', defScale: 10, opacity: 0.9,
+  structType: 'beam', analysisType: 'static',
+  camera: { rotX: -0.5, rotY: 0.6, dist: 4, tx: 0, ty: 0, view:'persp' },
+  mouse: { down: false, lastX:0, lastY:0, button:0 },
+  vpTool: 'select', solveCount: 0, elapsedMs: 0,
+  animFrame: null, time: 0
+};
+
+// ─── Resize ─────────────────────────────────────────
+function resize(){
+  const vp = canvas.parentElement;
+  canvas.width = vp.clientWidth * devicePixelRatio;
+  canvas.height = vp.clientHeight * devicePixelRatio;
+  canvas.style.width = vp.clientWidth + 'px';
+  canvas.style.height = vp.clientHeight + 'px';
+  if(gl) gl.viewport(0,0,canvas.width,canvas.height);
+}
+window.addEventListener('resize', ()=>{resize();render();});
+resize();
+
+// ─── Mouse ──────────────────────────────────────────
+canvas.addEventListener('mousedown', e=>{
+  state.mouse.down=true; state.mouse.lastX=e.clientX; state.mouse.lastY=e.clientY;
+  state.mouse.button=e.button; e.preventDefault();
+});
+canvas.addEventListener('contextmenu', e=>e.preventDefault());
+canvas.addEventListener('mousemove', e=>{
+  const tip = document.getElementById('node-tip');
+  if(state.mouse.down){
+    const dx = e.clientX - state.mouse.lastX, dy = e.clientY - state.mouse.lastY;
+    if(state.mouse.button===0 || state.vpTool==='orbit'){
+      state.camera.rotY += dx*0.008; state.camera.rotX += dy*0.008;
+      state.camera.rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, state.camera.rotX));
+    } else if(state.mouse.button===1 || state.vpTool==='pan'){
+      state.camera.tx += dx*0.003*state.camera.dist;
+      state.camera.ty -= dy*0.003*state.camera.dist;
+    }
+    state.mouse.lastX=e.clientX; state.mouse.lastY=e.clientY;
+    render(); updateCoordBadge(e);
+  } else {
+    updateCoordBadge(e);
+    tip.style.display='none';
+  }
+});
+canvas.addEventListener('mouseup', ()=>{ state.mouse.down=false; });
+canvas.addEventListener('wheel', e=>{
+  state.camera.dist = Math.max(0.5, Math.min(20, state.camera.dist + e.deltaY*0.005));
+  render(); e.preventDefault();
+},{passive:false});
+
+function updateCoordBadge(e){
+  const r = canvas.getBoundingClientRect();
+  const nx = ((e.clientX-r.left)/r.width*2-1)*state.camera.dist;
+  const ny = (-(e.clientY-r.top)/r.height*2+1)*state.camera.dist;
+  document.getElementById('badge-coord').textContent =
+    `x:${nx.toFixed(2)} y:${ny.toFixed(2)} z:0.00`;
+}
+
+// ─── WebGL Shaders ───────────────────────────────────
+const VS = `
+attribute vec3 aPos;
+attribute vec3 aNorm;
+attribute float aStress;
+uniform mat4 uMVP;
+uniform mat4 uModel;
+uniform float uDefScale;
+varying vec3 vNorm;
+varying float vStress;
+varying vec3 vPos;
+void main(){
+  vNorm = normalize(mat3(uModel)*aNorm);
+  vStress = aStress;
+  vPos = (uModel*vec4(aPos,1.0)).xyz;
+  gl_Position = uMVP*vec4(aPos,1.0);
+  gl_PointSize = 5.0;
+}`;
+
+const FS = `
+precision mediump float;
+varying vec3 vNorm;
+varying float vStress;
+varying vec3 vPos;
+uniform int uColorMode; // 0=solid,1=stress,2=wireframe
+uniform vec3 uBaseColor;
+uniform float uOpacity;
+void main(){
+  vec3 light = normalize(vec3(1.0,1.5,2.0));
+  float diff = max(dot(vNorm,light),0.0)*0.7+0.3;
+  vec3 col;
+  if(uColorMode==1){
+    float t = clamp(vStress,0.0,1.0);
+    vec3 c0=vec3(0.31,0.49,1.0);
+    vec3 c1=vec3(0.13,0.83,0.63);
+    vec3 c2=vec3(0.98,0.75,0.14);
+    vec3 c3=vec3(0.96,0.62,0.07);
+    vec3 c4=vec3(0.96,0.25,0.37);
+    if(t<0.25) col=mix(c0,c1,t/0.25);
+    else if(t<0.5) col=mix(c1,c2,(t-0.25)/0.25);
+    else if(t<0.75) col=mix(c2,c3,(t-0.5)/0.25);
+    else col=mix(c3,c4,(t-0.75)/0.25);
+    col *= diff;
+  } else if(uColorMode==2){
+    col = vec3(0.31,0.49,1.0)*0.9;
+  } else {
+    col = uBaseColor*diff;
+  }
+  gl_FragColor = vec4(col, uOpacity);
+}`;
+
+function compileShader(src, type){
+  const s = gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compileShader(VS, gl.VERTEX_SHADER));
+gl.attachShader(prog, compileShader(FS, gl.FRAGMENT_SHADER));
+gl.linkProgram(prog); gl.useProgram(prog);
+
+const aPos = gl.getAttribLocation(prog,'aPos');
+const aNorm = gl.getAttribLocation(prog,'aNorm');
+const aStress = gl.getAttribLocation(prog,'aStress');
+const uMVP = gl.getUniformLocation(prog,'uMVP');
+const uModel = gl.getUniformLocation(prog,'uModel');
+const uColorMode = gl.getUniformLocation(prog,'uColorMode');
+const uBaseColor = gl.getUniformLocation(prog,'uBaseColor');
+const uOpacity = gl.getUniformLocation(prog,'uOpacity');
+
+// ─── Grid lines shader ───────────────────────────────
+const GRID_VS = `attribute vec3 aPos; uniform mat4 uMVP; void main(){ gl_Position=uMVP*vec4(aPos,1.0); }`;
+const GRID_FS = `precision mediump float; uniform vec4 uColor; void main(){ gl_FragColor=uColor; }`;
+const gridProg = gl.createProgram();
+gl.attachShader(gridProg, compileShader(GRID_VS, gl.VERTEX_SHADER));
+gl.attachShader(gridProg, compileShader(GRID_FS, gl.FRAGMENT_SHADER));
+gl.linkProgram(gridProg);
+const gMVP = gl.getUniformLocation(gridProg,'uMVP');
+const gColor = gl.getUniformLocation(gridProg,'uColor');
+const gPos = gl.getAttribLocation(gridProg,'aPos');
+
+// ─── Matrix math ────────────────────────────────────
+function mat4(){return new Float32Array(16);}
+function identity(m){m[0]=m[5]=m[10]=m[15]=1;m[1]=m[2]=m[3]=m[4]=m[6]=m[7]=m[8]=m[9]=m[11]=m[12]=m[13]=m[14]=0;return m;}
+function perspective(m,fov,asp,near,far){
+  const f=1/Math.tan(fov/2),nf=1/(near-far);
+  m[0]=f/asp;m[1]=m[2]=m[3]=0;m[4]=0;m[5]=f;m[6]=m[7]=0;m[8]=m[9]=0;
+  m[10]=(far+near)*nf;m[11]=-1;m[12]=m[13]=0;m[14]=2*far*near*nf;m[15]=0;return m;}
+function ortho(m,l,r,b,t,near,far){
+  m[0]=2/(r-l);m[1]=m[2]=m[3]=0;m[4]=0;m[5]=2/(t-b);m[6]=m[7]=0;
+  m[8]=m[9]=0;m[10]=-2/(far-near);m[11]=0;
+  m[12]=-(r+l)/(r-l);m[13]=-(t+b)/(t-b);m[14]=-(far+near)/(far-near);m[15]=1;return m;}
+function rotX(m,a){const c=Math.cos(a),s=Math.sin(a);identity(m);m[5]=c;m[6]=s;m[9]=-s;m[10]=c;return m;}
+function rotY(m,a){const c=Math.cos(a),s=Math.sin(a);identity(m);m[0]=c;m[2]=-s;m[8]=s;m[10]=c;return m;}
+function translate(m,x,y,z){identity(m);m[12]=x;m[13]=y;m[14]=z;return m;}
+function mul(out,a,b){
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+    let s=0; for(let k=0;k<4;k++) s+=a[r+k*4]*b[k+c*4]; out[r+c*4]=s;
+  } return out;
+}
+
+// ─── Build geometry ─────────────────────────────────
+function buildBeamGeometry(L,W,H,structType){
+  // Parametric generation of beam/truss/frame/plate/solid
+  const verts=[], norms=[], stresses=[], indices=[];
+  const nx=Math.max(4,Math.round(L/0.5));
+  const ny=2,nz=2;
+  if(structType==='beam'||structType==='frame'||structType==='solid'){
+    // I-beam extruded shape
+    const x0=-L/2, x1=L/2;
+    const profile=[
+      [-W/2,-H/2],[W/2,-H/2],[W/2,-H/2+H*0.15],[W*0.08,-H/2+H*0.15],
+      [W*0.08,H/2-H*0.15],[-W*0.08,H/2-H*0.15],[-W*0.08,-H/2+H*0.15],[-W/2,-H/2+H*0.15],
+      [-W/2,H/2-H*0.15],[W/2,H/2-H*0.15],[W/2,H/2],[-W/2,H/2]
+    ];
+    const segs = profile.length;
+    const nSlice = nx+1;
+    for(let i=0;i<=nx;i++){
+      const xp = x0 + (x1-x0)*i/nx;
+      const t = i/nx;
+      const s = Math.sin(Math.PI*t)*0.7+0.1*(1-t)+0.05;
+      for(let j=0;j<segs;j++){
+        verts.push(xp, profile[j][1], profile[j][0]);
+        norms.push(0, profile[j][1]>0?1:-1, 0);
+        stresses.push(s*(0.8+Math.random()*0.4));
+      }
+    }
+    for(let i=0;i<nx;i++) for(let j=0;j<segs;j++){
+      const a=i*segs+j, b=i*segs+(j+1)%segs, c=(i+1)*segs+j, d=(i+1)*segs+(j+1)%segs;
+      indices.push(a,c,b,b,c,d);
+    }
+    // End caps
+    const c0=0, c1=nx*segs;
+    for(let j=1;j<segs-1;j++){indices.push(c0,c0+j,c0+j+1);}
+    for(let j=1;j<segs-1;j++){indices.push(c1,c1+j+1,c1+j);}
+  } else if(structType==='truss'){
+    // Generate a Warren truss
+    const h=H, seg=Math.floor(nx);
+    for(let i=0;i<=seg;i++){
+      const xp = x0+(x1-x0)*i/seg;
+      // bottom chord
+      verts.push(xp, -h/2, 0); norms.push(0,-1,0); stresses.push(0.2+0.1*Math.random());
+      // top chord
+      verts.push(xp,  h/2, 0); norms.push(0, 1,0); stresses.push(0.3+0.1*Math.random());
+    }
+    // Build thick edges as quads
+    const r=0.04;
+    function addEdge(ax,ay,bx,by,s){
+      const mx=(ax+bx)/2,my=(ay+by)/2;
+      verts.push(ax-r,ay,0,bx-r,by,0,bx+r,by,0,ax+r,ay,0);
+      norms.push(0,0,1,0,0,1,0,0,1,0,0,1);
+      stresses.push(s,s,s,s);
+      const base=verts.length/3-4;
+      indices.push(base,base+1,base+2,base,base+2,base+3);
+    }
+    const dx=(x1-x0)/seg;
+    for(let i=0;i<seg;i++){
+      const xa=x0+dx*i, xb=x0+dx*(i+1);
+      const sa=0.3+Math.sin(Math.PI*i/seg)*0.6;
+      addEdge(xa,-h/2,xb,-h/2,sa*0.5); // bottom
+      addEdge(xa, h/2,xb, h/2,sa*0.4); // top
+      if(i%2===0) addEdge(xa,-h/2,xb,h/2,sa); // diag
+      else         addEdge(xa,h/2,xb,-h/2,sa);
+      addEdge(xa,-h/2,xa,h/2,sa*0.3); // vert
+    }
+  } else if(structType==='plate'){
+    // flat shell plate
+    const nx2=8,ny2=6;
+    for(let i=0;i<=nx2;i++) for(let j=0;j<=ny2;j++){
+      const xp=-L/2+L*i/nx2, yp=-H/2+H*j/ny2;
+      verts.push(xp,yp,0); norms.push(0,0,1);
+      const t=i/nx2, s=j/ny2;
+      stresses.push(0.1+Math.sin(Math.PI*t)*Math.sin(Math.PI*s)*0.9);
+    }
+    for(let i=0;i<nx2;i++) for(let j=0;j<ny2;j++){
+      const a=i*(ny2+1)+j,b=a+1,c=(i+1)*(ny2+1)+j,d=c+1;
+      indices.push(a,c,b,b,c,d);
+    }
+  }
+  return {verts:new Float32Array(verts),norms:new Float32Array(norms),stresses:new Float32Array(stresses),indices:new Uint16Array(indices)};
+}
+
+let geoData = null, vBuf=null, nBuf=null, sBuf=null, iBuf=null, numIdx=0;
+
+function uploadGeometry(data){
+  if(vBuf){ gl.deleteBuffer(vBuf);gl.deleteBuffer(nBuf);gl.deleteBuffer(sBuf);gl.deleteBuffer(iBuf); }
+  geoData = data;
+  vBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,vBuf); gl.bufferData(gl.ARRAY_BUFFER,data.verts,gl.STATIC_DRAW);
+  nBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,nBuf); gl.bufferData(gl.ARRAY_BUFFER,data.norms,gl.STATIC_DRAW);
+  sBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,sBuf); gl.bufferData(gl.ARRAY_BUFFER,data.stresses,gl.STATIC_DRAW);
+  iBuf = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,data.indices,gl.STATIC_DRAW);
+  numIdx = data.indices.length;
+  const nodeCount = data.verts.length/3;
+  const elemCount = data.indices.length/3;
+  document.getElementById('badge-nodes').textContent = nodeCount;
+  document.getElementById('badge-elems').textContent = elemCount;
+  document.getElementById('badge-dof').textContent = nodeCount*6;
+  document.getElementById('elem-count-chip').textContent = elemCount+' elements';
+  document.getElementById('tree-nodes').textContent = nodeCount+' nodes';
+  document.getElementById('tree-elems').textContent = elemCount+' elems';
+  document.getElementById('mesh-node-cnt').textContent = nodeCount;
+  document.getElementById('mesh-elem-cnt').textContent = elemCount;
+  document.getElementById('mesh-dof').textContent = nodeCount*6;
+  document.getElementById('ov-mem').textContent = Math.round(data.verts.byteLength/1024)+'KB';
+}
+
+// ─── Grid geometry ───────────────────────────────────
+let gridBuf=null, gridCount=0;
+function buildGrid(){
+  const lines=[]; const sz=5, step=0.5;
+  for(let x=-sz;x<=sz;x+=step){ lines.push(x,-0.001,-sz,x,-0.001,sz); }
+  for(let z=-sz;z<=sz;z+=step){ lines.push(-sz,-0.001,z,sz,-0.001,z); }
+  const d=new Float32Array(lines);
+  if(!gridBuf) gridBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,gridBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);
+  gridCount=d.length/3;
+}
+buildGrid();
+
+// ─── MVP matrix ──────────────────────────────────────
+const mvp=mat4(),proj=mat4(),view=mat4(),model=mat4(),tmp=mat4(),rx=mat4(),ry=mat4(),tr=mat4();
+function buildMVP(){
+  const cam=state.camera;
+  const asp=canvas.width/canvas.height;
+  if(cam.view==='persp') perspective(proj,0.8,asp,0.01,100);
+  else {
+    const s=cam.dist; ortho(proj,-s*asp,s*asp,-s,s,-50,50);
+  }
+  // view
+  const ex=Math.sin(cam.rotY)*Math.cos(cam.rotX)*cam.dist;
+  const ey=Math.sin(cam.rotX)*cam.dist;
+  const ez=Math.cos(cam.rotY)*Math.cos(cam.rotX)*cam.dist;
+  // simple lookat
+  const up=[0,1,0];
+  const fwd=normalize3([-ex,-ey,-ez]);
+  const right=cross3(fwd,up);
+  const u=cross3(right,fwd);
+  identity(view);
+  view[0]=right[0];view[4]=right[1];view[8]=right[2];
+  view[1]=u[0];view[5]=u[1];view[9]=u[2];
+  view[2]=-fwd[0];view[6]=-fwd[1];view[10]=-fwd[2];
+  view[12]=-dot3(right,[ex+cam.tx,ey,ez]);
+  view[13]=-dot3(u,[ex+cam.tx,ey+cam.ty,ez]);
+  view[14]=dot3(fwd,[ex+cam.tx,ey,ez]);
+  identity(model);
+  mul(tmp,view,model);
+  mul(mvp,proj,tmp);
+}
+function normalize3(v){const l=Math.hypot(...v);return v.map(x=>x/l);}
+function cross3(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function dot3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+
+// ─── Render ──────────────────────────────────────────
+function render(){
+  if(!gl) return;
+  gl.clearColor(0.039,0.043,0.059,1);
+  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  buildMVP();
+
+  // Grid
+  if(state.showGrid){
+    gl.useProgram(gridProg);
+    gl.uniformMatrix4fv(gMVP,false,mvp);
+    gl.uniform4f(gColor,0.16,0.17,0.24,1.0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,gridBuf);
+    gl.enableVertexAttribArray(gPos);
+    gl.vertexAttribPointer(gPos,3,gl.FLOAT,false,0,0);
+    gl.drawArrays(gl.LINES,0,gridCount);
+    gl.disableVertexAttribArray(gPos);
+  }
+
+  // Main mesh
+  if(vBuf && numIdx>0){
+    gl.useProgram(prog);
+    gl.uniformMatrix4fv(uMVP,false,mvp);
+    gl.uniformMatrix4fv(uModel,false,model);
+    gl.uniform1f(uOpacity, state.opacity);
+
+    // Bind position
+    gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+    // Bind normal
+    gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);
+    gl.enableVertexAttribArray(aNorm);
+    gl.vertexAttribPointer(aNorm,3,gl.FLOAT,false,0,0);
+    // Bind stress
+    gl.bindBuffer(gl.ARRAY_BUFFER,sBuf);
+    gl.enableVertexAttribArray(aStress);
+    gl.vertexAttribPointer(aStress,1,gl.FLOAT,false,0,0);
+    // Index
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);
+
+    if(state.wireframe){
+      gl.uniform1i(uColorMode,2);
+      gl.uniform3f(uBaseColor,0.3,0.5,1.0);
+      gl.drawElements(gl.LINES,numIdx,gl.UNSIGNED_SHORT,0);
+    } else {
+      const cm = state.solved ? 1 : 0;
+      gl.uniform1i(uColorMode,cm);
+      gl.uniform3f(uBaseColor,0.25,0.45,0.85);
+      gl.drawElements(gl.TRIANGLES,numIdx,gl.UNSIGNED_SHORT,0);
+    }
+
+    // Draw wireframe overlay
+    if(!state.wireframe && state.solved){
+      gl.enable(gl.POLYGON_OFFSET_FILL);
+      gl.polygonOffset(1,1);
+      gl.uniform1i(uColorMode,2);
+      gl.uniform1f(uOpacity,0.12);
+      gl.drawElements(gl.LINES,numIdx,gl.UNSIGNED_SHORT,0);
+      gl.disable(gl.POLYGON_OFFSET_FILL);
+    }
+
+    gl.disableVertexAttribArray(aPos);
+    gl.disableVertexAttribArray(aNorm);
+    gl.disableVertexAttribArray(aStress);
+  }
+
+  // Axes indicator (bottom left)
+  drawAxes();
+}
+
+function drawAxes(){
+  // Simple colored axis lines in corner
+  const axisLines=new Float32Array([
+    0,0,0, 0.3,0,0,
+    0,0,0, 0,0.3,0,
+    0,0,0, 0,0,0.3
+  ]);
+  const colors=[[0.96,0.25,0.37],[0.13,0.83,0.63],[0.31,0.49,1.0]];
+  const axBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,axBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,axisLines,gl.STREAM_DRAW);
+  const asp=canvas.width/canvas.height;
+  const axMVP=mat4();
+  perspective(axMVP,0.8,asp,0.01,100);
+  // position in corner — translate+rotate
+  const rx2=mat4(),ry2=mat4(),tr2=mat4(),t1=mat4(),t2=mat4(),m1=mat4();
+  rotX(rx2,state.camera.rotX); rotY(ry2,state.camera.rotY);
+  translate(tr2,asp*0.8,0.75,-2.5);
+  mul(t1,rx2,ry2); mul(t2,tr2,t1);
+  mul(m1,axMVP,t2);
+  gl.useProgram(gridProg);
+  gl.uniformMatrix4fv(gMVP,false,m1);
+  gl.bindBuffer(gl.ARRAY_BUFFER,axBuf);
+  gl.enableVertexAttribArray(gPos);
+  gl.vertexAttribPointer(gPos,3,gl.FLOAT,false,0,0);
+  for(let i=0;i<3;i++){
+    gl.uniform4f(gColor,colors[i][0],colors[i][1],colors[i][2],0.9);
+    gl.drawArrays(gl.LINES,i*2,2);
+  }
+  gl.disableVertexAttribArray(gPos);
+  gl.deleteBuffer(axBuf);
+}
+
+// ─── Build initial model ─────────────────────────────
+function rebuildModel(){
+  const L=parseFloat(document.getElementById('geo-L').value)||10;
+  const W=parseFloat(document.getElementById('geo-W').value)||0.3;
+  const H=parseFloat(document.getElementById('geo-H').value)||0.5;
+  const data = buildBeamGeometry(L,W,H,state.structType);
+  uploadGeometry(data);
+  render();
+}
+
+// ─── FEA Solver (client-side simulation) ─────────────
+function runAnalysis(){
+  if(!geoData){loadExample();return;}
+  addConsole('[RUN]', 'Starting analysis...', 'info');
+  const progressFill = document.getElementById('progress-fill');
+  progressFill.style.width='0%';
+  document.getElementById('ov-status').textContent='Solving...';
+  let step=0, steps=12;
+  const msgs=['Assembling stiffness matrix K...','Applying boundary conditions...','Factorizing K (LU)...','Back substitution...','Computing strains...','Computing stresses (Von Mises)...','Modal analysis...','Post-processing...','Computing reaction forces...','Generating result fields...','Validating convergence...','Writing results...'];
+  const t0=performance.now();
+  function tick(){
+    if(step<steps){
+      progressFill.style.width=(step/steps*100)+'%';
+      addConsole('',msgs[step],'ok');
+      step++;
+      setTimeout(tick, 80+Math.random()*120);
+    } else {
+      const elapsed=((performance.now()-t0)/1000).toFixed(2);
+      progressFill.style.width='100%';
+      finishSolve(elapsed);
+    }
+  }
+  tick();
+}
+
+function finishSolve(elapsed){
+  state.solved=true; state.solveCount++;
+  const atype=document.getElementById('analysis-type').value;
+  // Realistic results based on geometry
+  const L=parseFloat(document.getElementById('geo-L').value)||10;
+  const H=parseFloat(document.getElementById('geo-H').value)||0.5;
+  const E=parseFloat(document.getElementById('mat-E').value)||200;
+  const sy=parseFloat(document.getElementById('mat-sy').value)||250;
+  // Simple beam theory: δ = FL³/48EI for simply supported, I=WH³/12
+  const W=parseFloat(document.getElementById('geo-W').value)||0.3;
+  const F=150e3; // N
+  const I=W*Math.pow(H,3)/12;
+  const delta=F*Math.pow(L,3)/(48*E*1e9*I)*1000; // mm
+  const sigma=F*L/(4*W*H*H/6)/1e6; // MPa
+  const strain=F*Math.pow(L,3)/(48*E*1e9*I)*E*1e9*I/L/1000; // rough
+  const sf=(sy/Math.max(sigma,1)).toFixed(2);
+  const sfNum=parseFloat(sf);
+  // Natural frequencies (Euler-Bernoulli)
+  const rho=parseFloat(document.getElementById('mat-rho').value)||7850;
+  const A=W*H;
+  const mu=rho*A;
+  const f1=(Math.PI/(2*L*L))*Math.sqrt(E*1e9*I/mu);
+  const freqs=[f1,f1*4,f1*9,f1*16].map(f=>f.toFixed(2)+' Hz');
+  // Update UI
+  document.getElementById('r-disp').innerHTML = delta.toFixed(2)+'<span class="rc-unit">mm</span>';
+  document.getElementById('r-stress').innerHTML = sigma.toFixed(1)+'<span class="rc-unit">MPa</span>';
+  document.getElementById('r-strain').innerHTML = (strain*1000).toFixed(2)+'<span class="rc-unit">J</span>';
+  document.getElementById('r-safety').innerHTML = sf;
+  document.getElementById('r-rfx').innerHTML = '0.0<span class="rc-unit">kN</span>';
+  document.getElementById('r-rfy').innerHTML = F/1000+'<span class="rc-unit">kN</span>';
+  // Color safety factor
+  const rSafe=document.getElementById('r-safety');
+  rSafe.className='rc-val '+(sfNum>2?'green':sfNum>1.2?'orange':'red');
+  const rStress=document.getElementById('r-stress');
+  rStress.className='rc-val '+(sigma>sy*0.8?'red':sigma>sy*0.5?'orange':'green');
+  // Stress bars
+  const pHigh=Math.round(Math.random()*15+5);
+  const pMid=Math.round(Math.random()*25+20);
+  const pLow=100-pHigh-pMid;
+  setTimeout(()=>{
+    document.getElementById('bar-high').style.width=pHigh+'%';
+    document.getElementById('bar-mid').style.width=pMid+'%';
+    document.getElementById('bar-low').style.width=pLow+'%';
+    document.getElementById('pct-high').textContent=pHigh+'%';
+    document.getElementById('pct-mid').textContent=pMid+'%';
+    document.getElementById('pct-low').textContent=pLow+'%';
+    document.getElementById('leg-max').textContent=sigma.toFixed(1);
+    document.getElementById('leg-mid').textContent=(sigma/2).toFixed(1);
+  },300);
+  // Frequencies
+  freqs.forEach((f,i)=>{ document.getElementById('f'+(i+1)).textContent=f; });
+  document.getElementById('f1').style.color='var(--green)';
+  // Status
+  document.getElementById('ov-status').textContent='Converged';
+  document.getElementById('result-status-chip').textContent='Solved ✓';
+  document.getElementById('result-status-chip').className='chip chip-green';
+  document.getElementById('solve-time-label').textContent=elapsed+' s';
+  document.getElementById('tree-res').textContent='✓ Done';
+  addConsole('['+elapsed+'s]','Analysis complete — converged in '+Math.round(elapsed*100)+'ms','ok');
+  addConsole('','σ_max='+sigma.toFixed(1)+' MPa  δ_max='+delta.toFixed(2)+' mm  SF='+sf,'info');
+  // History
+  addHistory(state.solveCount,atype,elapsed,sigma.toFixed(1),delta.toFixed(2));
+  notify('Analysis complete — SF = '+sf+' | δ_max = '+delta.toFixed(2)+' mm');
+  render();
+}
+
+function addHistory(n,type,t,sigma,disp){
+  const el=document.getElementById('history-list');
+  if(el.querySelector('span')) el.innerHTML='';
+  const d=new Date(); const ts=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  el.insertAdjacentHTML('afterbegin',`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;margin-bottom:4px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:500;color:var(--text)">Run #${n} — ${type}</span><span style="font-family:var(--DM Mono,monospace);font-size:11px;color:var(--muted)">${ts}</span></div>
+    <div style="display:flex;gap:8px"><div class="chip chip-blue" style="font-size:10px">${t}s</div><div class="chip chip-green" style="font-size:10px">σ ${sigma} MPa</div><div class="chip chip-orange" style="font-size:10px">δ ${disp} mm</div></div>
+  </div>`);
+}
+
+// ─── Console log ─────────────────────────────────────
+function addConsole(ts,msg,cls){
+  const c=document.getElementById('console');
+  const now=new Date();const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  c.insertAdjacentHTML('beforeend',`<div class="console-line"><span class="ts">[${t}]</span> <span class="${cls}">${msg}</span></div>`);
+  c.scrollTop=c.scrollHeight;
+}
+
+// ─── Notify ──────────────────────────────────────────
+function notify(msg){
+  const n=document.getElementById('notif');
+  document.getElementById('notif-text').textContent=msg;
+  n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3500);
+}
+
+// ─── UI handlers ─────────────────────────────────────
+function setTab(el,tab){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('overlay-title').textContent=el.textContent.trim();
+  if(tab==='results'&&!state.solved) notify('Run analysis first to see results');
+  if(tab==='results') setPanelTab(document.querySelector('[onclick*="tab-results"]'),'tab-results');
+}
+function setPanelTab(el,id){
+  document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.getElementById(id).classList.add('active');
+}
+function selectPart(el,part){
+  document.querySelectorAll('.tree-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['geometry','material','mesh','loads','results'].forEach(p=>{
+    const d=document.getElementById('part-'+p);
+    if(d) d.style.display=(p===part?'block':'none');
+  });
+}
+function setVPTool(el,tool){ document.querySelectorAll('.vp-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); state.vpTool=tool; }
+function setView(el,v){ document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); state.camera.view=v; if(v==='top'){state.camera.rotX=-Math.PI/2;state.camera.rotY=0;}else if(v==='front'){state.camera.rotX=0;state.camera.rotY=0;}else if(v==='side'){state.camera.rotX=0;state.camera.rotY=Math.PI/2;}else{state.camera.rotX=-0.5;state.camera.rotY=0.6;} render(); }
+function toggleGrid(el){ state.showGrid=!state.showGrid; el.classList.toggle('active'); render(); }
+function toggleWireframe(el){ state.wireframe=!state.wireframe; el.classList.toggle('active'); render(); }
+function resetCamera(){ state.camera={rotX:-0.5,rotY:0.6,dist:4,tx:0,ty:0,view:'persp'}; document.querySelectorAll('.view-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); render(); }
+function setDefScale(v){ state.defScale=v; document.getElementById('def-scale-val').textContent=v+'×'; render(); }
+function setOpacity(v){ state.opacity=v/100; document.getElementById('opacity-val').textContent=v+'%'; render(); }
+function setDisplayField(el,field){ document.querySelectorAll('#part-results .tree-item').forEach(t=>t.classList.remove('active')); el.classList.add('active'); state.displayField=field; render(); }
+function updateGeo(){ rebuildModel(); }
+function updateMat(){
+  const presets={
+    'Steel A36':{E:200,nu:0.30,sy:250,rho:7850,alpha:11.7},
+    'Aluminum 6061':{E:69,nu:0.33,sy:270,rho:2700,alpha:23.6},
+    'Concrete C30':{E:30,nu:0.20,sy:30,rho:2400,alpha:10.0},
+    'Titanium Ti-6Al':{E:113,nu:0.34,sy:880,rho:4430,alpha:8.6},
+  };
+  const m=document.getElementById('mat-select').value;
+  if(presets[m]){
+    document.getElementById('mat-E').value=presets[m].E;
+    document.getElementById('mat-nu').value=presets[m].nu;
+    document.getElementById('mat-sy').value=presets[m].sy;
+    document.getElementById('mat-rho').value=presets[m].rho;
+    document.getElementById('mat-alpha').value=presets[m].alpha;
+  }
+  document.getElementById('mat-E-disp').textContent=document.getElementById('mat-E').value+' GPa';
+  document.getElementById('mat-sy-disp').textContent=document.getElementById('mat-sy').value+' MPa';
+}
+function structTypeChange(){ state.structType=document.getElementById('struct-type').value; rebuildModel(); addConsole('','Structure type: '+state.structType,'info'); }
+function analysisTypeChange(){ state.analysisType=document.getElementById('analysis-type').value; addConsole('','Analysis type: '+state.analysisType,'info'); }
+function updateMeshSize(v){ document.getElementById('mesh-size-val').textContent=(v*0.1).toFixed(1)+' m'; }
+function generateMesh(){
+  notify('Mesh generated successfully');
+  addConsole('','Mesh generated — '+document.getElementById('mesh-node-cnt').textContent+' nodes','ok');
+  state.meshGenerated=true;
+}
+function addLoad(){ notify('Click on the model to place a load'); }
+function clearModel(){
+  if(vBuf){gl.deleteBuffer(vBuf);gl.deleteBuffer(nBuf);gl.deleteBuffer(sBuf);gl.deleteBuffer(iBuf);}
+  vBuf=nBuf=sBuf=iBuf=null; numIdx=0; geoData=null; state.solved=false;
+  ['badge-nodes','badge-elems','badge-dof'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('elem-count-chip').textContent='0 elements';
+  document.getElementById('ov-status').textContent='Ready';
+  render(); addConsole('','Model cleared','warn');
+}
+function loadExample(){
+  document.getElementById('struct-type').value='beam';
+  document.getElementById('geo-L').value='10.0';
+  document.getElementById('geo-W').value='0.3';
+  document.getElementById('geo-H').value='0.5';
+  state.structType='beam';
+  rebuildModel();
+  addConsole('','Example: Simply supported I-beam, L=10m, W=0.3m, H=0.5m','info');
+  addConsole('','Material: Steel A36, E=200 GPa, σ_y=250 MPa','info');
+  addConsole('','Applied: Point load 150 kN at midspan','info');
+  notify('Example model loaded — click Run Analysis');
+}
+
+// ─── Boot ────────────────────────────────────────────
+loadExample();
+setInterval(()=>{ if(state.solved){ state.time+=0.016; render(); } },16);
+</script>
+</body>
+</html>

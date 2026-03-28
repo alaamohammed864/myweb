@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCPP — 3D Interactive Power Plant</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap');
+
+:root {
+  --col-fuel: #ffd84d;
+  --col-steam: #ff4444;
+  --col-cool: #29b6f6;
+  --col-elec: #ffffff;
+  --col-water: #66bb6a;
+  --col-bg: #0a1628;
+  --col-panel: rgba(10,22,44,0.95);
+  --col-accent: #00e5ff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--col-bg);
+  font-family: 'Barlow', sans-serif;
+  overflow: hidden;
+  color: #cde;
+}
+
+#canvas-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* TOP BAR */
+#topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(5,12,28,0.97);
+  border-bottom: 1px solid #1a3a5a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  backdrop-filter: blur(12px);
+}
+
+#topbar h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #e8f4fd;
+  text-transform: uppercase;
+}
+
+#topbar .subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #4a9fd4;
+  letter-spacing: 1.5px;
+}
+
+.tbcontrols {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid #2a4a6a;
+  background: rgba(20,40,70,0.8);
+  color: #7ab8e0;
+  cursor: pointer;
+  transition: all .2s;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: #1a3a60;
+  color: #fff;
+  border-color: #4a8ab8;
+}
+
+.btn.active {
+  background: #1a4a7a;
+  color: #00e5ff;
+  border-color: #00e5ff;
+}
+
+.btn.danger {
+  border-color: #cc2222;
+  color: #ff8888;
+}
+
+.btn.danger.active {
+  background: #3a0a0a;
+  color: #ff4444;
+  border-color: #ff4444;
+}
+
+/* SIDE DASHBOARD */
+#dashboard {
+  position: fixed;
+  right: 0;
+  top: 52px;
+  bottom: 0;
+  width: 240px;
+  z-index: 150;
+  background: var(--col-panel);
+  border-left: 1px solid #1a3a5a;
+  padding: 14px 12px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  backdrop-filter: blur(16px);
+}
+
+#dashboard.open {
+  transform: translateX(0);
+}
+
+.dash-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #4a9fd4;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1a3a5a;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.metric-label {
+  font-size: 10px;
+  color: #8ab;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.metric-value {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Share Tech Mono', monospace;
+  color: #7fffaa;
+}
+
+.metric-bar {
+  width: 100%;
+  height: 4px;
+  background: #0d2a4a;
+  border-radius: 2px;
+  margin: 3px 0 6px;
+}
+
+.metric-fill {
+  height: 4px;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* FLOW CONTROL PANEL */
+#flowpanel {
+  position: fixed;
+  left: 12px;
+  bottom: 80px;
+  z-index: 150;
+  background: var(--col-panel);
+  border: 1px solid #1a3a5a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  backdrop-filter: blur(16px);
+  min-width: 160px;
+}
+
+.flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.flow-label {
+  font-size: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .5px;
+  color: #9ab;
+}
+
+.flow-toggle {
+  width: 28px;
+  height: 14px;
+  border-radius: 7px;
+  background: #1a3a5a;
+  border: 1px solid #2a5a8a;
+  cursor: pointer;
+  position: relative;
+  transition: background .3s;
+}
+
+.flow-toggle.on {
+  background: #0a4a0a;
+  border-color: #4a8a4a;
+}
+
+.flow-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a6a8a;
+  transition: all .3s;
+}
+
+.flow-toggle.on::after {
+  left: 16px;
+  background: #66bb6a;
+}
+
+/* TOOLTIP */
+#tooltip {
+  position: fixed;
+  z-index: 300;
+  background: rgba(5,15,35,0.97);
+  border: 1px solid #2a5a8a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 280px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+#tooltip.show {
+  opacity: 1;
+}
+
+#tooltip h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+#tooltip p {
+  font-size: 11px;
+  color: #aabbcc;
+  line-height: 1.5;
+}
+
+#tooltip .spec {
+  margin-top: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #66aacc;
+  border-top: 1px solid #1a3a5a;
+  padding-top: 6px;
+  white-space: pre-line;
+}
+
+/* TOUR OVERLAY */
+#tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0,0,0,0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .5s;
+}
+
+#tour-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#tour-box {
+  position: absolute;
+  background: rgba(5,15,35,0.97);
+  border: 1px solid #00e5ff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  max-width: 300px;
+  box-shadow: 0 0 40px rgba(0,229,255,0.3);
+}
+
+#tour-box h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+#tour-box p {
+  font-size: 12px;
+  color: #aabbcc;
+  line-height: 1.6;
+}
+
+#tour-nav {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+/* STATUS BAR */
+#statusbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(5,12,28,0.97);
+  border-top: 1px solid #1a3a5a;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 5px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #4a8ab0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #66bb6a;
+  box-shadow: 0 0 6px #66bb6a;
+  display: inline-block;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% { opacity: .3; }
+}
+
+/* MINIMAP */
+#minimap {
+  position: fixed;
+  left: 12px;
+  top: 70px;
+  width: 180px;
+  height: 140px;
+  background: rgba(5,15,35,0.9);
+  border: 1px solid #1a3a5a;
+  border-radius: 8px;
+  z-index: 150;
+  overflow: hidden;
+}
+
+#minimap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* COMPASS */
+#compass {
+  position: fixed;
+  right: 260px;
+  top: 70px;
+  width: 60px;
+  height: 60px;
+  z-index: 150;
+  pointer-events: none;
+}
+
+/* INFO PANEL */
+#info-panel {
+  position: fixed;
+  left: 12px;
+  top: 220px;
+  width: 180px;
+  background: var(--col-panel);
+  border: 1px solid #1a3a5a;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 150;
+  backdrop-filter: blur(16px);
+}
+
+#info-panel h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  color: #4a9fd4;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.camera-mode {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.camera-mode .btn {
+  font-size: 9px;
+  padding: 4px 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div>
+    <h1 id="mainTitle">Natural Gas Combined Cycle Power Plant</h1>
+    <div class="subtitle" id="mainSubtitle">3D INTERACTIVE ENGINEERING MODEL</div>
+  </div>
+  <div class="tbcontrols">
+    <button class="btn active" id="btnDay" onclick="setTimeOfDay('day')">Day</button>
+    <button class="btn" id="btnDusk" onclick="setTimeOfDay('dusk')">Dusk</button>
+    <button class="btn" id="btnNight" onclick="setTimeOfDay('night')">Night</button>
+    <span style="border-left:1px solid #1a3a5a;height:20px;display:inline-block;margin:0 4px;"></span>
+    <button class="btn" id="btnTour" onclick="startTour()">Guided Tour</button>
+    <button class="btn" id="btnDash" onclick="toggleDash()">Live Data</button>
+    <button class="btn" id="langBtn" onclick="toggleLang()">AR / EN</button>
+  </div>
+</div>
+
+<!-- 3D CANVAS -->
+<div id="canvas-container"></div>
+
+<!-- MINIMAP -->
+<div id="minimap">
+  <canvas id="minimapCanvas"></canvas>
+</div>
+
+<!-- COMPASS -->
+<svg id="compass" viewBox="0 0 60 60">
+  <circle cx="30" cy="30" r="28" fill="rgba(10,22,44,0.9)" stroke="#3a5a7a" stroke-width="1.5"/>
+  <polygon points="30,8 26,26 30,22 34,26" fill="#00e5ff"/>
+  <polygon points="30,52 26,34 30,38 34,34" fill="#445566"/>
+  <text x="30" y="6" text-anchor="middle" font-size="8" fill="#00e5ff" font-family="Barlow Condensed" font-weight="700">N</text>
+  <text x="30" y="58" text-anchor="middle" font-size="7" fill="#445566" font-family="Barlow Condensed">S</text>
+  <text x="6" y="33" text-anchor="middle" font-size="7" fill="#445566" font-family="Barlow Condensed">W</text>
+  <text x="54" y="33" text-anchor="middle" font-size="7" fill="#445566" font-family="Barlow Condensed">E</text>
+</svg>
+
+<!-- INFO PANEL -->
+<div id="info-panel">
+  <h4>CAMERA CONTROLS</h4>
+  <div class="camera-mode">
+    <button class="btn active" onclick="setCameraView('overview')">Overview</button>
+    <button class="btn" onclick="setCameraView('turbines')">Turbines</button>
+    <button class="btn" onclick="setCameraView('cooling')">Cooling</button>
+    <button class="btn" onclick="setCameraView('electrical')">Electrical</button>
+  </div>
+  <div style="margin-top:10px;font-size:9px;color:#6a8aaa;font-family:'Share Tech Mono',monospace;">
+    Drag: Rotate<br>
+    Scroll: Zoom<br>
+    Right-drag: Pan<br>
+    Click: Select
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-title" id="dashTitle">LIVE PLANT DATA</div>
+  <div class="metric"><span class="metric-label" id="ml1">OUTPUT POWER</span><span class="metric-value" id="mv1">480 MW</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf1" style="width:80%;background:#7fffaa;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml2">THERMAL EFF.</span><span class="metric-value" id="mv2">59.8 %</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf2" style="width:60%;background:#66bb6a;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml3">EXHAUST TEMP</span><span class="metric-value" id="mv3">620 C</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf3" style="width:72%;background:#ff6b6b;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml4">STEAM PRESSURE</span><span class="metric-value" id="mv4">120 bar</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf4" style="width:65%;background:#ff8888;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml5">COOLING FLOW</span><span class="metric-value" id="mv5">2400 m3/h</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf5" style="width:55%;background:#29b6f6;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml6">FUEL FLOW</span><span class="metric-value" id="mv6">38.2 t/h</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf6" style="width:44%;background:#ffd84d;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml7">GT1 SPEED</span><span class="metric-value" id="mv7">3000 RPM</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf7" style="width:90%;background:#aabbcc;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml8">GT2 SPEED</span><span class="metric-value" id="mv8">3000 RPM</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf8" style="width:90%;background:#aabbcc;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml9">AMBIENT TEMP</span><span class="metric-value" id="mv9">28 C</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf9" style="width:38%;background:#ffcc88;"></div></div>
+  
+  <div class="metric"><span class="metric-label" id="ml10">CO2 INTENSITY</span><span class="metric-value" id="mv10">350 g/kWh</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf10" style="width:35%;background:#88aa88;"></div></div>
+</div>
+
+<!-- FLOW CONTROL -->
+<div id="flowpanel">
+  <div class="dash-title" id="flowTitle" style="font-size:10px;margin-bottom:8px;">FLOW CONTROL</div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#ffd84d;" id="fl1">FUEL GAS</span>
+    <div class="flow-toggle on" id="ft1" onclick="toggleFlow('fuel')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#ff6666;" id="fl2">HOT STEAM</span>
+    <div class="flow-toggle on" id="ft2" onclick="toggleFlow('steam')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#29b6f6;" id="fl3">COOL WATER</span>
+    <div class="flow-toggle on" id="ft3" onclick="toggleFlow('cool')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#cccccc;" id="fl4">ELECTRICAL</span>
+    <div class="flow-toggle on" id="ft4" onclick="toggleFlow('elec')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#66bb6a;" id="fl5">TREATED H2O</span>
+    <div class="flow-toggle on" id="ft5" onclick="toggleFlow('water')"></div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <h3 id="tipTitle">Component</h3>
+  <p id="tipDesc">Description</p>
+  <div class="spec" id="tipSpec">Specs</div>
+</div>
+
+<!-- TOUR OVERLAY -->
+<div id="tour-overlay">
+  <div id="tour-box">
+    <h2 id="tourTitle">Step Title</h2>
+    <p id="tourDesc">Step description.</p>
+    <div id="tour-nav">
+      <button class="btn" onclick="prevTour()">Prev</button>
+      <button class="btn" onclick="nextTour()">Next</button>
+      <button class="btn danger" onclick="endTour()">Exit</button>
+    </div>
+    <div style="margin-top:8px;font-size:9px;color:#4a6a8a;font-family:'Share Tech Mono',monospace;" id="tourStep">1 / 8</div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span><span class="status-dot"></span> PLANT ONLINE</span>
+  <span id="statusTime">—</span>
+  <span id="statusOutput">OUTPUT: <b style="color:#7fffaa">480 MW</b></span>
+  <span id="statusEff">EFF: <b style="color:#66bb6a">59.8%</b></span>
+  <span id="statusCo2">CO2: <b style="color:#88aa88">350 g/kWh</b></span>
+  <span style="margin-left:auto;opacity:.4">3D Interactive Power Plant - Three.js</span>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ═══════════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════════
+let scene, camera, renderer, controls;
+let plantObjects = {};
+let particleSystems = [];
+let flowState = { fuel: true, steam: true, cool: true, elec: true, water: true };
+let currentTime = 'day';
+let tourActive = false;
+let tourStep = 0;
+let lang = 'en';
+let dashOpen = false;
+let selectedObject = null;
+let turbineBlades = [];
+let steamParticles = [];
+
+// Tooltip data
+const tipData = {
+  gasMeter: {
+    en: { title: 'Gas Metering Station', desc: 'Receives high-pressure natural gas from the national grid. Contains pressure regulators, flow meters, and safety shut-off valves.', spec: 'Inlet P: 60-80 bar\nOutlet P: 30-40 bar\nFlow: 38 t/h max' },
+    ar: { title: 'محطة قياس الغاز', desc: 'تستقبل الغاز الطبيعي عالي الضغط من الشبكة الوطنية', spec: 'ضغط الدخول: 80-60 بار' }
+  },
+  gt1: {
+    en: { title: 'Gas Turbine 1', desc: 'Heavy-duty industrial gas turbine. Compresses air, mixes with natural gas, ignites to drive the generator.', spec: 'Output: ~150 MW ISO\nSpeed: 3,000 RPM\nExhaust T: ~620C' },
+    ar: { title: 'توربين الغاز 1', desc: 'توربين غاز صناعي ثقيل', spec: 'الإنتاج: ~150 ميغاواط' }
+  },
+  gt2: {
+    en: { title: 'Gas Turbine 2', desc: 'Identical to GT1, running in parallel to double generation capacity.', spec: 'Output: ~150 MW ISO\nSpeed: 3,000 RPM' },
+    ar: { title: 'توربين الغاز 2', desc: 'مطابق لتوربين الغاز 1', spec: 'الإنتاج: ~150 ميغاواط' }
+  },
+  hrsg1: {
+    en: { title: 'HRSG 1', desc: 'Heat Recovery Steam Generator. Recovers waste heat from GT1 exhaust to produce high-pressure steam.', spec: 'Steam: 120 bar / 565C\nExhaust in: 620C\nExhaust out: 95C' },
+    ar: { title: 'مولد البخار 1', desc: 'يسترد الحرارة المهدرة من العادم', spec: 'البخار: 120 بار / 565م' }
+  },
+  hrsg2: {
+    en: { title: 'HRSG 2', desc: 'Identical to HRSG 1, receiving exhaust from GT2.', spec: 'Steam: 120 bar / 565C' },
+    ar: { title: 'مولد البخار 2', desc: 'مطابق لـ HRSG 1', spec: 'البخار: 120 بار' }
+  },
+  stg: {
+    en: { title: 'Steam Turbine Generator', desc: 'Converts high-pressure steam from both HRSGs into electricity. Responsible for ~30% of total plant output.', spec: 'Output: ~180 MW\nInlet: 120 bar / 565C' },
+    ar: { title: 'توربين البخار', desc: 'يحول البخار عالي الضغط إلى كهرباء', spec: 'الإنتاج: ~180 ميغاواط' }
+  },
+  ct1: {
+    en: { title: 'Cooling Tower 1', desc: 'Natural draft cooling tower. Cools condenser water through evaporative cooling.', spec: 'Height: ~150 m\nBase dia: ~100 m' },
+    ar: { title: 'برج التبريد 1', desc: 'يبرد مياه المكثف بالتبخر', spec: 'الارتفاع: ~150 م' }
+  },
+  ct2: {
+    en: { title: 'Cooling Tower 2', desc: 'Second cooling tower, identical to CT1.', spec: 'Height: ~150 m' },
+    ar: { title: 'برج التبريد 2', desc: 'برج التبريد الثاني', spec: 'الارتفاع: ~150 م' }
+  },
+  transformer: {
+    en: { title: 'Main Transformer Bank', desc: 'Step-up transformers that raise generator voltage (18 kV) to grid voltage (400 kV).', spec: 'Ratio: 18 kV / 400 kV\nRating: 3 x 200 MVA' },
+    ar: { title: 'المحولات الرئيسية', desc: 'ترفع جهد المولد إلى جهد الشبكة', spec: 'النسبة: 18 / 400 كيلوفولت' }
+  },
+  switchyard: {
+    en: { title: '400kV Switchyard', desc: 'High-voltage substation connecting the power plant to the national transmission grid.', spec: 'Voltage: 400 kV\nType: Air-insulated' },
+    ar: { title: 'محطة التوزيع', desc: 'تربط المحطة بالشبكة الوطنية', spec: 'الجهد: 400 كيلوفولت' }
+  },
+  controlRoom: {
+    en: { title: 'Control Room (DCS)', desc: 'Operations center with Distributed Control System. Operators monitor all plant parameters 24/7.', spec: 'DCS: Honeywell/ABB\nConsoles: 8 stations' },
+    ar: { title: 'غرفة التحكم', desc: 'مركز العمليات بنظام التحكم الموزع', spec: 'محطات التشغيل: 8' }
+  }
+};
+
+const tourSteps = [
+  { en: { title: '1. Natural Gas Supply', desc: 'Natural gas enters from the pipeline, passes through the metering station where flow and pressure are measured.' },
+    ar: { title: '1. إمداد الغاز', desc: 'يدخل الغاز الطبيعي من خط الأنابيب ويمر عبر محطة القياس' },
+    pos: new THREE.Vector3(-80, 20, 30), target: new THREE.Vector3(-100, 10, 0) },
+  { en: { title: '2. Gas Turbines', desc: 'Filtered air is compressed, mixed with natural gas, and ignited. Each turbine produces ~150 MW.' },
+    ar: { title: '2. توربينات الغاز', desc: 'يُضغط الهواء ويُخلط بالغاز ويُشعل لإنتاج الكهرباء' },
+    pos: new THREE.Vector3(-20, 30, 50), target: new THREE.Vector3(-30, 10, 0) },
+  { en: { title: '3. Heat Recovery Steam Generators', desc: 'Exhaust gases at ~620C pass through HRSGs to produce high-pressure steam.' },
+    ar: { title: '3. مولدات البخار', desc: 'غازات العادم تمر عبر HRSG لإنتاج البخار' },
+    pos: new THREE.Vector3(30, 35, 40), target: new THREE.Vector3(20, 15, 0) },
+  { en: { title: '4. Exhaust Stacks', desc: 'Cooled flue gases exit through tall stacks. White plumes are water vapor, not pollution.' },
+    ar: { title: '4. المداخن', desc: 'تخرج الغازات المبردة عبر المداخن الطويلة' },
+    pos: new THREE.Vector3(50, 60, 30), target: new THREE.Vector3(30, 40, 0) },
+  { en: { title: '5. Steam Turbine Generator', desc: 'Steam from both HRSGs drives this turbine, adding ~180 MW more power.' },
+    ar: { title: '5. توربين البخار', desc: 'البخار يشغل هذا التوربين لإضافة ~180 ميغاواط' },
+    pos: new THREE.Vector3(70, 25, 40), target: new THREE.Vector3(60, 10, 0) },
+  { en: { title: '6. Cooling Towers', desc: 'Natural-draft towers (150m tall) cool condenser water by evaporation.' },
+    ar: { title: '6. أبراج التبريد', desc: 'أبراج التبريد بالسحب الطبيعي بارتفاع 150م' },
+    pos: new THREE.Vector3(100, 50, 60), target: new THREE.Vector3(90, 20, 0) },
+  { en: { title: '7. Electrical Switchyard', desc: 'Electricity is stepped up to 400 kV and exported to the national grid.' },
+    ar: { title: '7. محطة التوزيع', desc: 'الكهرباء تُرفع إلى 400 كيلوفولت وتُصدَّر للشبكة' },
+    pos: new THREE.Vector3(-60, 30, 80), target: new THREE.Vector3(-80, 10, 60) },
+  { en: { title: '8. Control Room & Support', desc: 'DCS Control Room operates the plant 24/7. Supporting facilities include admin, workshop, and fire station.' },
+    ar: { title: '8. غرفة التحكم', desc: 'تُدير غرفة التحكم المحطة على مدار الساعة' },
+    pos: new THREE.Vector3(10, 40, 100), target: new THREE.Vector3(0, 10, 80) }
+];
+
+const cameraViews = {
+  overview: { pos: new THREE.Vector3(80, 80, 120), target: new THREE.Vector3(0, 0, 0) },
+  turbines: { pos: new THREE.Vector3(-10, 30, 60), target: new THREE.Vector3(-30, 10, 0) },
+  cooling: { pos: new THREE.Vector3(120, 50, 50), target: new THREE.Vector3(90, 15, 0) },
+  electrical: { pos: new THREE.Vector3(-50, 40, 100), target: new THREE.Vector3(-70, 10, 60) }
+};
+
+// ═══════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════
+function init() {
+  // Scene
+  scene = new THREE.Scene();
+  
+  // Camera
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+  camera.position.set(80, 80, 120);
+  
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  document.getElementById('canvas-container').appendChild(renderer.domElement);
+  
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.maxPolarAngle = Math.PI / 2.1;
+  controls.minDistance = 30;
+  controls.maxDistance = 300;
+  controls.target.set(0, 0, 0);
+  
+  // Build scene
+  createSky();
+  createGround();
+  createLighting();
+  createPlant();
+  createParticleSystems();
+  
+  // Events
+  window.addEventListener('resize', onWindowResize);
+  renderer.domElement.addEventListener('click', onMouseClick);
+  renderer.domElement.addEventListener('mousemove', onMouseMove);
+  
+  // Start animation
+  animate();
+  
+  // Start data updates
+  setInterval(updateDashboard, 2000);
+  setInterval(updateClock, 1000);
+  updateClock();
+}
+
+// ═══════════════════════════════════════════════════════
+// SKY & ENVIRONMENT
+// ═══════════════════════════════════════════════════════
+function createSky() {
+  const skyGeo = new THREE.SphereGeometry(800, 32, 32);
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTopColor: { value: new THREE.Color(0x6aa8d8) },
+      uBottomColor: { value: new THREE.Color(0xd8eef8) },
+      uOffset: { value: 0.4 },
+      uExponent: { value: 0.6 }
+    },
+    vertexShader: `
+      varying vec3 vWorldPosition;
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uTopColor;
+      uniform vec3 uBottomColor;
+      uniform float uOffset;
+      uniform float uExponent;
+      varying vec3 vWorldPosition;
+      void main() {
+        float h = normalize(vWorldPosition + uOffset).y;
+        gl_FragColor = vec4(mix(uBottomColor, uTopColor, max(pow(max(h, 0.0), uExponent), 0.0)), 1.0);
+      }
+    `,
+    side: THREE.BackSide
+  });
+  const sky = new THREE.Mesh(skyGeo, skyMat);
+  sky.name = 'sky';
+  scene.add(sky);
+  plantObjects.sky = sky;
+}
+
+function createGround() {
+  // Main ground
+  const groundGeo = new THREE.PlaneGeometry(400, 400, 50, 50);
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x4a5a48,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = 0;
+  ground.receiveShadow = true;
+  scene.add(ground);
+  
+  // Concrete pad for plant
+  const padGeo = new THREE.PlaneGeometry(250, 200);
+  const padMat = new THREE.MeshStandardMaterial({
+    color: 0x8a8a82,
+    roughness: 0.85,
+    metalness: 0.05
+  });
+  const pad = new THREE.Mesh(padGeo, padMat);
+  pad.rotation.x = -Math.PI / 2;
+  pad.position.y = 0.1;
+  pad.receiveShadow = true;
+  scene.add(pad);
+  
+  // Roads
+  createRoads();
+}
+
+function createRoads() {
+  const roadMat = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.9 });
+  
+  // Main horizontal road
+  const road1 = new THREE.Mesh(new THREE.PlaneGeometry(200, 8), roadMat);
+  road1.rotation.x = -Math.PI / 2;
+  road1.position.set(0, 0.15, 60);
+  scene.add(road1);
+  
+  // Vertical road
+  const road2 = new THREE.Mesh(new THREE.PlaneGeometry(6, 150), roadMat);
+  road2.rotation.x = -Math.PI / 2;
+  road2.position.set(0, 0.15, -10);
+  scene.add(road2);
+}
+
+// ═══════════════════════════════════════════════════════
+// LIGHTING
+// ═══════════════════════════════════════════════════════
+function createLighting() {
+  // Ambient
+  const ambient = new THREE.AmbientLight(0x404050, 0.4);
+  scene.add(ambient);
+  plantObjects.ambientLight = ambient;
+  
+  // Sun
+  const sun = new THREE.DirectionalLight(0xffffee, 1.5);
+  sun.position.set(100, 150, 50);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = 4096;
+  sun.shadow.mapSize.height = 4096;
+  sun.shadow.camera.near = 10;
+  sun.shadow.camera.far = 400;
+  sun.shadow.camera.left = -150;
+  sun.shadow.camera.right = 150;
+  sun.shadow.camera.top = 150;
+  sun.shadow.camera.bottom = -150;
+  scene.add(sun);
+  plantObjects.sunLight = sun;
+  
+  // Hemisphere
+  const hemi = new THREE.HemisphereLight(0x87ceeb, 0x3a5a38, 0.6);
+  scene.add(hemi);
+  plantObjects.hemiLight = hemi;
+}
+
+// ═══════════════════════════════════════════════════════
+// PLANT STRUCTURES
+// ═══════════════════════════════════════════════════════
+function createPlant() {
+  // Gas Metering Station
+  createGasMetering();
+  
+  // Gas Turbines
+  createGasTurbine(-40, 0, 0, 'gt1');
+  createGasTurbine(-40, 0, 35, 'gt2');
+  
+  // HRSGs
+  createHRSG(10, 0, -5, 'hrsg1');
+  createHRSG(10, 0, 40, 'hrsg2');
+  
+  // Exhaust Stacks
+  createStack(30, 0, 5, 60, 'stack1');
+  createStack(30, 0, 50, 55, 'stack2');
+  
+  // Steam Turbine Generator
+  createSteamTurbine();
+  
+  // Cooling Towers
+  createCoolingTower(100, 0, 10, 'ct1');
+  createCoolingTower(100, 0, 60, 'ct2');
+  
+  // Water Basin
+  createWaterBasin();
+  
+  // Transformers
+  createTransformers();
+  
+  // Switchyard
+  createSwitchyard();
+  
+  // Buildings
+  createControlRoom();
+  createAdminBuilding();
+  createWorkshop();
+  createFireStation();
+  createWarehouse();
+  
+  // Pipes
+  createPipes();
+  
+  // Tanks
+  createTanks();
+}
+
+function createGasMetering() {
+  const group = new THREE.Group();
+  group.position.set(-100, 0, 20);
+  
+  // Main building
+  const building = createBox(20, 12, 15, 0xc0ccd8);
+  building.position.set(0, 6, 0);
+  building.castShadow = true;
+  building.receiveShadow = true;
+  group.add(building);
+  
+  // Roof
+  const roof = createBox(22, 1, 17, 0x8898a8);
+  roof.position.set(0, 12.5, 0);
+  group.add(roof);
+  
+  // Windows
+  for (let i = 0; i < 3; i++) {
+    const win = createBox(0.2, 3, 4, 0x7ab8d8);
+    win.position.set(10.1, 5, -4 + i * 5);
+    group.add(win);
+  }
+  
+  // Gauges (cylinders)
+  for (let i = 0; i < 4; i++) {
+    const gauge = createCylinder(1, 1, 3, 0xffd84d);
+    gauge.position.set(-6 + i * 4, 1.5, 8);
+    group.add(gauge);
+  }
+  
+  group.userData = { id: 'gasMeter', clickable: true };
+  scene.add(group);
+  plantObjects.gasMeter = group;
+}
+
+function createGasTurbine(x, y, z, id) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  
+  // Air intake
+  const intake = createBox(18, 10, 12, 0xb8c4d0);
+  intake.position.set(-18, 5, 0);
+  intake.castShadow = true;
+  group.add(intake);
+  
+  // Intake louvers
+  for (let i = 0; i < 6; i++) {
+    const louver = createBox(0.3, 8, 10, 0x9aaab8);
+    louver.position.set(-26.5, 5, -5 + i * 2);
+    group.add(louver);
+  }
+  
+  // Turbine housing
+  const housing = createBox(30, 12, 12, 0x9aaab8);
+  housing.position.set(0, 6, 0);
+  housing.castShadow = true;
+  group.add(housing);
+  
+  // Turbine rotor (spinning)
+  const rotorGeo = new THREE.CylinderGeometry(4, 4, 8, 16);
+  const rotorMat = new THREE.MeshStandardMaterial({ color: 0x6a7a8a, metalness: 0.8, roughness: 0.3 });
+  const rotor = new THREE.Mesh(rotorGeo, rotorMat);
+  rotor.rotation.x = Math.PI / 2;
+  rotor.position.set(0, 6, 0);
+  group.add(rotor);
+  turbineBlades.push(rotor);
+  
+  // Generator
+  const gen = createCylinder(5, 5, 18, 0xd0d8e0);
+  gen.rotation.z = Math.PI / 2;
+  gen.position.set(22, 6, 0);
+  gen.castShadow = true;
+  group.add(gen);
+  
+  // Generator rotor
+  const genRotor = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 20, 16), rotorMat);
+  genRotor.rotation.z = Math.PI / 2;
+  genRotor.position.set(22, 6, 0);
+  group.add(genRotor);
+  turbineBlades.push(genRotor);
+  
+  group.userData = { id: id, clickable: true };
+  scene.add(group);
+  plantObjects[id] = group;
+}
+
+function createHRSG(x, y, z, id) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  
+  // Main body
+  const body = createBox(15, 35, 40, 0xa0b0c0);
+  body.position.set(0, 17.5, 0);
+  body.castShadow = true;
+  body.receiveShadow = true;
+  group.add(body);
+  
+  // Finned tubes (horizontal lines)
+  for (let i = 0; i < 12; i++) {
+    const tube = createBox(14, 0.3, 38, 0x7888a0);
+    tube.position.set(0, 5 + i * 2.5, 0);
+    group.add(tube);
+  }
+  
+  // Inlet duct
+  const duct = createBox(10, 10, 10, 0x9aaab8);
+  duct.position.set(-12, 30, 0);
+  group.add(duct);
+  
+  group.userData = { id: id, clickable: true };
+  scene.add(group);
+  plantObjects[id] = group;
+}
+
+function createStack(x, y, z, height, id) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  
+  // Main stack
+  const stackGeo = new THREE.CylinderGeometry(3, 4, height, 16);
+  const stackMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.6, metalness: 0.2 });
+  const stack = new THREE.Mesh(stackGeo, stackMat);
+  stack.position.y = height / 2;
+  stack.castShadow = true;
+  group.add(stack);
+  
+  // Red stripes
+  for (let i = 0; i < 4; i++) {
+    const stripe = new THREE.Mesh(
+      new THREE.CylinderGeometry(3.1, 4.1, 5, 16),
+      new THREE.MeshStandardMaterial({ color: 0xcc2222 })
+    );
+    stripe.position.y = 5 + i * 15;
+    group.add(stripe);
+  }
+  
+  // Top cap
+  const cap = new THREE.Mesh(
+    new THREE.CylinderGeometry(3.5, 3, 2, 16),
+    new THREE.MeshStandardMaterial({ color: 0xcc2222 })
+  );
+  cap.position.y = height + 1;
+  group.add(cap);
+  
+  scene.add(group);
+  plantObjects[id] = group;
+}
+
+function createSteamTurbine() {
+  const group = new THREE.Group();
+  group.position.set(60, 0, 20);
+  
+  // Building
+  const building = createBox(25, 20, 30, 0xb8c8d8);
+  building.position.set(0, 10, 0);
+  building.castShadow = true;
+  building.receiveShadow = true;
+  group.add(building);
+  
+  // Roof
+  const roof = createBox(27, 1, 32, 0x8898a8);
+  roof.position.set(0, 20.5, 0);
+  group.add(roof);
+  
+  // Windows
+  for (let i = 0; i < 4; i++) {
+    const win = createBox(0.2, 4, 5, 0x7ab8d8);
+    win.position.set(12.6, 12, -10 + i * 7);
+    group.add(win);
+  }
+  
+  // Generator
+  const gen = createCylinder(6, 6, 20, 0xd0d8e0);
+  gen.rotation.z = Math.PI / 2;
+  gen.position.set(18, 8, 0);
+  gen.castShadow = true;
+  group.add(gen);
+  
+  // Steam inlet pipes
+  const pipe1 = createCylinder(1.5, 1.5, 15, 0xcc2222);
+  pipe1.position.set(-5, 25, -8);
+  group.add(pipe1);
+  
+  const pipe2 = createCylinder(1.5, 1.5, 15, 0xcc2222);
+  pipe2.position.set(-5, 25, 8);
+  group.add(pipe2);
+  
+  group.userData = { id: 'stg', clickable: true };
+  scene.add(group);
+  plantObjects.stg = group;
+}
+
+function createCoolingTower(x, y, z, id) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  
+  // Hyperboloid shape using lathe geometry
+  const points = [];
+  for (let i = 0; i < 30; i++) {
+    const t = i / 29;
+    const r = 12 + 18 * Math.pow(2 * t - 1, 2) - 8 * Math.pow(2 * t - 1, 4);
+    points.push(new THREE.Vector2(r, t * 50));
+  }
+  
+  const towerGeo = new THREE.LatheGeometry(points, 32);
+  const towerMat = new THREE.MeshStandardMaterial({
+    color: 0xb8c0c8,
+    roughness: 0.8,
+    metalness: 0.1,
+    side: THREE.DoubleSide
+  });
+  const tower = new THREE.Mesh(towerGeo, towerMat);
+  tower.castShadow = true;
+  tower.receiveShadow = true;
+  group.add(tower);
+  
+  // Base rim
+  const rim = new THREE.Mesh(
+    new THREE.TorusGeometry(30, 1.5, 8, 32),
+    new THREE.MeshStandardMaterial({ color: 0x9aa4ae })
+  );
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 0.5;
+  group.add(rim);
+  
+  // Top rim
+  const topRim = new THREE.Mesh(
+    new THREE.TorusGeometry(12, 1, 8, 32),
+    new THREE.MeshStandardMaterial({ color: 0xc8d0d8 })
+  );
+  topRim.rotation.x = Math.PI / 2;
+  topRim.position.y = 50;
+  group.add(topRim);
+  
+  // Internal structure
+  for (let i = 0; i < 8; i++) {
+    const column = createCylinder(0.5, 0.5, 48, 0x8090a0);
+    const angle = (i / 8) * Math.PI * 2;
+    column.position.set(Math.cos(angle) * 25, 24, Math.sin(angle) * 25);
+    group.add(column);
+  }
+  
+  group.userData = { id: id, clickable: true };
+  scene.add(group);
+  plantObjects[id] = group;
+}
+
+function createWaterBasin() {
+  const group = new THREE.Group();
+  group.position.set(100, 0, 35);
+  
+  // Basin
+  const basin = new THREE.Mesh(
+    new THREE.BoxGeometry(60, 3, 40),
+    new THREE.MeshStandardMaterial({ color: 0x29b6f6, transparent: true, opacity: 0.8, roughness: 0.1 })
+  );
+  basin.position.y = 1.5;
+  basin.receiveShadow = true;
+  group.add(basin);
+  
+  // Walls
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x607080 });
+  const wallN = createBox(62, 4, 1, wallMat);
+  wallN.position.set(0, 2, 20);
+  group.add(wallN);
+  const wallS = createBox(62, 4, 1, wallMat);
+  wallS.position.set(0, 2, -20);
+  group.add(wallS);
+  const wallE = createBox(1, 4, 40, wallMat);
+  wallE.position.set(30.5, 2, 0);
+  group.add(wallE);
+  const wallW = createBox(1, 4, 40, wallMat);
+  wallW.position.set(-30.5, 2, 0);
+  group.add(wallW);
+  
+  scene.add(group);
+  plantObjects.waterBasin = group;
+}
+
+function createTransformers() {
+  const group = new THREE.Group();
+  group.position.set(-80, 0, 60);
+  
+  for (let i = 0; i < 3; i++) {
+    const transformer = createBox(8, 10, 12, 0x7a8a9a);
+    transformer.position.set(i * 12, 5, 0);
+    transformer.castShadow = true;
+    group.add(transformer);
+    
+    // Cooling fins
+    for (let j = 0; j < 5; j++) {
+      const fin = createBox(0.3, 9, 10, 0x607080);
+      fin.position.set(i * 12 - 3 + j * 1.5, 5, 6.2);
+      group.add(fin);
+    }
+    
+    // Bushings
+    for (let j = 0; j < 3; j++) {
+      const bushing = createCylinder(0.3, 0.3, 3, 0xcc2222);
+      bushing.position.set(i * 12 - 2 + j * 2, 12, 0);
+      group.add(bushing);
+    }
+  }
+  
+  group.userData = { id: 'transformer', clickable: true };
+  scene.add(group);
+  plantObjects.transformers = group;
+}
+
+function createSwitchyard() {
+  const group = new THREE.Group();
+  group.position.set(-80, 0, 85);
+  
+  // Lattice towers
+  for (let i = 0; i < 5; i++) {
+    const tower = createLatticeTower();
+    tower.position.set(-30 + i * 15, 0, 0);
+    group.add(tower);
+  }
+  
+  // Busbars
+  const busbarMat = new THREE.MeshStandardMaterial({ color: 0xcc7700, metalness: 0.9, roughness: 0.2 });
+  for (let i = 0; i < 3; i++) {
+    const busbar = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 70, 8), busbarMat);
+    busbar.rotation.z = Math.PI / 2;
+    busbar.position.set(0, 18 + i * 3, -5);
+    group.add(busbar);
+  }
+  
+  group.userData = { id: 'switchyard', clickable: true };
+  scene.add(group);
+  plantObjects.switchyard = group;
+}
+
+function createLatticeTower() {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color: 0x8090a0, metalness: 0.7, roughness: 0.3 });
+  
+  // Legs
+  for (let i = 0; i < 4; i++) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 25, 4), mat);
+    const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    leg.position.set(Math.cos(angle) * 2, 12.5, Math.sin(angle) * 2);
+    group.add(leg);
+  }
+  
+  // Cross arms
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(8, 0.3, 0.3), mat);
+  arm.position.set(0, 20, 0);
+  group.add(arm);
+  
+  return group;
+}
+
+function createControlRoom() {
+  const group = new THREE.Group();
+  group.position.set(0, 0, 80);
+  
+  // Building
+  const building = createBox(30, 12, 20, 0xc8d4e0);
+  building.position.set(0, 6, 0);
+  building.castShadow = true;
+  building.receiveShadow = true;
+  group.add(building);
+  
+  // Roof
+  const roof = createBox(32, 1, 22, 0x8898a8);
+  roof.position.set(0, 12.5, 0);
+  group.add(roof);
+  
+  // Solar panels
+  for (let i = 0; i < 4; i++) {
+    const panel = createBox(6, 0.2, 4, 0x1a2a48);
+    panel.position.set(-10 + i * 7, 13, 0);
+    panel.rotation.x = -0.3;
+    group.add(panel);
+  }
+  
+  // Windows
+  for (let i = 0; i < 5; i++) {
+    const win = createBox(0.2, 4, 3, 0x7ab8d8);
+    win.position.set(15.1, 6, -7 + i * 4);
+    group.add(win);
+  }
+  
+  // Antenna
+  const antenna = createCylinder(0.2, 0.2, 5, 0x9aaab8);
+  antenna.position.set(12, 15, 5);
+  group.add(antenna);
+  
+  group.userData = { id: 'controlRoom', clickable: true };
+  scene.add(group);
+  plantObjects.controlRoom = group;
+}
+
+function createAdminBuilding() {
+  const group = new THREE.Group();
+  group.position.set(35, 0, 80);
+  
+  const building = createBox(20, 10, 15, 0xb8c8d8);
+  building.position.set(0, 5, 0);
+  building.castShadow = true;
+  group.add(building);
+  
+  for (let i = 0; i < 4; i++) {
+    const win = createBox(0.2, 3, 2.5, 0x7ab8d8);
+    win.position.set(10.1, 5, -5 + i * 3.5);
+    group.add(win);
+  }
+  
+  scene.add(group);
+}
+
+function createWorkshop() {
+  const group = new THREE.Group();
+  group.position.set(-30, 0, 80);
+  
+  const building = createBox(25, 10, 18, 0xa0a8b0);
+  building.position.set(0, 5, 0);
+  building.castShadow = true;
+  group.add(building);
+  
+  // Roller doors
+  for (let i = 0; i < 2; i++) {
+    const door = createBox(0.2, 6, 6, 0x808890);
+    door.position.set(-12.6, 3, -4 + i * 8);
+    group.add(door);
+  }
+  
+  scene.add(group);
+}
+
+function createFireStation() {
+  const group = new THREE.Group();
+  group.position.set(-55, 0, 80);
+  
+  const building = createBox(12, 8, 15, 0xd04040);
+  building.position.set(0, 4, 0);
+  building.castShadow = true;
+  group.add(building);
+  
+  // Doors
+  for (let i = 0; i < 2; i++) {
+    const door = createBox(0.2, 5, 4, 0xe8b8b8);
+    door.position.set(-6.1, 2.5, -3 + i * 6);
+    group.add(door);
+  }
+  
+  scene.add(group);
+}
+
+function createWarehouse() {
+  const group = new THREE.Group();
+  group.position.set(60, 0, 80);
+  
+  const building = createBox(30, 10, 20, 0xa8b0b8);
+  building.position.set(0, 5, 0);
+  building.castShadow = true;
+  group.add(building);
+  
+  scene.add(group);
+}
+
+function createTanks() {
+  // Fuel tanks
+  for (let i = 0; i < 2; i++) {
+    const tank = createCylinder(6, 6, 10, 0xc0c8d0);
+    tank.position.set(-110, 5, -10 + i * 15);
+    tank.castShadow = true;
+    scene.add(tank);
+  }
+  
+  // Condensate tanks
+  for (let i = 0; i < 4; i++) {
+    const tank = createCylinder(4, 4, 8, 0xb8c0c8);
+    tank.position.set(80 + i * 10, 4, -30);
+    tank.castShadow = true;
+    scene.add(tank);
+  }
+}
+
+function createPipes() {
+  const pipeMatYellow = new THREE.MeshStandardMaterial({ color: 0xffd84d, metalness: 0.6, roughness: 0.3 });
+  const pipeMatRed = new THREE.MeshStandardMaterial({ color: 0xcc2222, metalness: 0.6, roughness: 0.3 });
+  const pipeMatBlue = new THREE.MeshStandardMaterial({ color: 0x29b6f6, metalness: 0.6, roughness: 0.3 });
+  const pipeMatGreen = new THREE.MeshStandardMaterial({ color: 0x66bb6a, metalness: 0.6, roughness: 0.3 });
+  
+  // Fuel pipes
+  const fuelPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 60, 8), pipeMatYellow);
+  fuelPipe.rotation.z = Math.PI / 2;
+  fuelPipe.position.set(-70, 5, 20);
+  scene.add(fuelPipe);
+  
+  // Steam pipes
+  const steamPipe1 = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 30, 8), pipeMatRed);
+  steamPipe1.position.set(35, 25, 5);
+  scene.add(steamPipe1);
+  
+  // Cooling water pipes
+  const coolPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 40, 8), pipeMatBlue);
+  coolPipe.rotation.z = Math.PI / 2;
+  coolPipe.position.set(80, 3, 30);
+  scene.add(coolPipe);
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLE SYSTEMS
+// ═══════════════════════════════════════════════════════
+function createParticleSystems() {
+  // Steam from cooling towers
+  createSteamParticles(100, 52, 10);
+  createSteamParticles(100, 52, 60);
+  
+  // Steam from stacks
+  createSteamParticles(30, 62, 5);
+  createSteamParticles(30, 57, 50);
+}
+
+function createSteamParticles(x, y, z) {
+  const particleCount = 200;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  const velocities = [];
+  const lifetimes = [];
+  
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = x + (Math.random() - 0.5) * 10;
+    positions[i * 3 + 1] = y + Math.random() * 20;
+    positions[i * 3 + 2] = z + (Math.random() - 0.5) * 10;
+    velocities.push({
+      x: (Math.random() - 0.5) * 0.5,
+      y: Math.random() * 0.8 + 0.3,
+      z: (Math.random() - 0.5) * 0.5
+    });
+    lifetimes.push(Math.random());
+  }
+  
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  
+  const material = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 3,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true,
+    blending: THREE.AdditiveBlending
+  });
+  
+  const particles = new THREE.Points(geometry, material);
+  particles.userData = { baseY: y, baseX: x, baseZ: z, velocities, lifetimes };
+  scene.add(particles);
+  steamParticles.push(particles);
+}
+
+function updateParticles() {
+  steamParticles.forEach(particles => {
+    const positions = particles.geometry.attributes.position.array;
+    const { baseX, baseY, baseZ, velocities, lifetimes } = particles.userData;
+    
+    for (let i = 0; i < positions.length / 3; i++) {
+      lifetimes[i] += 0.005;
+      
+      if (lifetimes[i] > 1) {
+        lifetimes[i] = 0;
+        positions[i * 3] = baseX + (Math.random() - 0.5) * 8;
+        positions[i * 3 + 1] = baseY;
+        positions[i * 3 + 2] = baseZ + (Math.random() - 0.5) * 8;
+      } else {
+        positions[i * 3] += velocities[i].x * 0.3;
+        positions[i * 3 + 1] += velocities[i].y * 0.5;
+        positions[i * 3 + 2] += velocities[i].z * 0.3;
+      }
+    }
+    
+    particles.geometry.attributes.position.needsUpdate = true;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function createBox(w, h, d, color) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.1 });
+  return new THREE.Mesh(geo, mat);
+}
+
+function createCylinder(rt, rb, h, color) {
+  const geo = new THREE.CylinderGeometry(rt, rb, h, 16);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.3 });
+  return new THREE.Mesh(geo, mat);
+}
+
+// ═══════════════════════════════════════════════════════
+// INTERACTION
+// ═══════════════════════════════════════════════════════
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function onMouseClick(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(scene.children, true);
+  
+  for (const intersect of intersects) {
+    let obj = intersect.object;
+    while (obj.parent && !obj.userData.clickable) {
+      obj = obj.parent;
+    }
+    if (obj.userData.clickable) {
+      showTooltip(obj.userData.id, event);
+      return;
+    }
+  }
+  
+  hideTooltip();
+}
+
+function onMouseMove(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(scene.children, true);
+  
+  let found = false;
+  for (const intersect of intersects) {
+    let obj = intersect.object;
+    while (obj.parent && !obj.userData.clickable) {
+      obj = obj.parent;
+    }
+    if (obj.userData.clickable) {
+      document.body.style.cursor = 'pointer';
+      found = true;
+      break;
+    }
+  }
+  
+  if (!found) {
+    document.body.style.cursor = 'default';
+  }
+}
+
+function showTooltip(key, evt) {
+  const data = tipData[key];
+  if (!data) return;
+  const d = data[lang] || data['en'];
+  
+  document.getElementById('tipTitle').textContent = d.title;
+  document.getElementById('tipDesc').textContent = d.desc;
+  document.getElementById('tipSpec').textContent = d.spec || '';
+  
+  const tip = document.getElementById('tooltip');
+  tip.classList.add('show');
+  
+  const x = evt.clientX + 16;
+  const y = evt.clientY + 16;
+  tip.style.left = Math.min(x, window.innerWidth - 300) + 'px';
+  tip.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// TIME OF DAY
+// ═══════════════════════════════════════════════════════
+window.setTimeOfDay = function(time) {
+  currentTime = time;
+  document.querySelectorAll('#topbar .btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + time.charAt(0).toUpperCase() + time.slice(1)).classList.add('active');
+  
+  const sky = plantObjects.sky;
+  const sun = plantObjects.sunLight;
+  const ambient = plantObjects.ambientLight;
+  const hemi = plantObjects.hemiLight;
+  
+  if (time === 'day') {
+    sky.material.uniforms.uTopColor.value.setHex(0x6aa8d8);
+    sky.material.uniforms.uBottomColor.value.setHex(0xd8eef8);
+    sun.intensity = 1.5;
+    sun.color.setHex(0xffffee);
+    ambient.intensity = 0.4;
+    hemi.intensity = 0.6;
+    renderer.toneMappingExposure = 1.0;
+  } else if (time === 'dusk') {
+    sky.material.uniforms.uTopColor.value.setHex(0xc86030);
+    sky.material.uniforms.uBottomColor.value.setHex(0x9a50a0);
+    sun.intensity = 0.8;
+    sun.color.setHex(0xff8844);
+    sun.position.set(150, 50, 100);
+    ambient.intensity = 0.3;
+    hemi.intensity = 0.4;
+    renderer.toneMappingExposure = 0.9;
+  } else if (time === 'night') {
+    sky.material.uniforms.uTopColor.value.setHex(0x050b1a);
+    sky.material.uniforms.uBottomColor.value.setHex(0x0a1832);
+    sun.intensity = 0.1;
+    sun.color.setHex(0x4466aa);
+    ambient.intensity = 0.15;
+    hemi.intensity = 0.1;
+    renderer.toneMappingExposure = 0.6;
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// CAMERA VIEWS
+// ═══════════════════════════════════════════════════════
+window.setCameraView = function(view) {
+  const v = cameraViews[view];
+  if (!v) return;
+  
+  document.querySelectorAll('.camera-mode .btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  animateCamera(v.pos, v.target);
+};
+
+function animateCamera(targetPos, targetLook) {
+  const startPos = camera.position.clone();
+  const startTarget = controls.target.clone();
+  const duration = 1500;
+  const startTime = Date.now();
+  
+  function update() {
+    const elapsed = Date.now() - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    
+    camera.position.lerpVectors(startPos, targetPos, ease);
+    controls.target.lerpVectors(startTarget, targetLook, ease);
+    
+    if (t < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  
+  update();
+}
+
+// ═══════════════════════════════════════════════════════
+// TOUR
+// ═══════════════════════════════════════════════════════
+window.startTour = function() {
+  tourActive = true;
+  tourStep = 0;
+  document.getElementById('tour-overlay').classList.add('active');
+  document.getElementById('btnTour').classList.add('active');
+  renderTour();
+};
+
+window.endTour = function() {
+  tourActive = false;
+  document.getElementById('tour-overlay').classList.remove('active');
+  document.getElementById('btnTour').classList.remove('active');
+};
+
+window.nextTour = function() {
+  if (tourStep < tourSteps.length - 1) {
+    tourStep++;
+    renderTour();
+  } else {
+    endTour();
+  }
+};
+
+window.prevTour = function() {
+  if (tourStep > 0) {
+    tourStep--;
+    renderTour();
+  }
+};
+
+function renderTour() {
+  const step = tourSteps[tourStep];
+  const d = step[lang] || step['en'];
+  
+  document.getElementById('tourTitle').textContent = d.title;
+  document.getElementById('tourDesc').textContent = d.desc;
+  document.getElementById('tourStep').textContent = (tourStep + 1) + ' / ' + tourSteps.length;
+  
+  const box = document.getElementById('tour-box');
+  box.style.top = '20%';
+  box.style.left = '5%';
+  
+  // Animate camera
+  animateCamera(step.pos, step.target);
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+window.toggleDash = function() {
+  dashOpen = !dashOpen;
+  document.getElementById('dashboard').classList.toggle('open', dashOpen);
+  document.getElementById('btnDash').classList.toggle('active', dashOpen);
+};
+
+function fluctuate(base, range) {
+  return (base + (Math.random() - 0.5) * range).toFixed(1);
+}
+
+function updateDashboard() {
+  const metrics = [
+    { id: 'mv1', base: 480, range: 20, unit: ' MW', bar: 'mf1', max: 600 },
+    { id: 'mv2', base: 59.8, range: 0.6, unit: ' %', bar: 'mf2', max: 100 },
+    { id: 'mv3', base: 620, range: 15, unit: ' C', bar: 'mf3', max: 860 },
+    { id: 'mv4', base: 120, range: 5, unit: ' bar', bar: 'mf4', max: 185 },
+    { id: 'mv5', base: 2400, range: 150, unit: ' m3/h', bar: 'mf5', max: 4000 },
+    { id: 'mv6', base: 38.2, range: 2, unit: ' t/h', bar: 'mf6', max: 80 },
+    { id: 'mv7', base: 3000, range: 2, unit: ' RPM', bar: 'mf7', max: 3600 },
+    { id: 'mv8', base: 3000, range: 2, unit: ' RPM', bar: 'mf8', max: 3600 },
+    { id: 'mv9', base: 28, range: 4, unit: ' C', bar: 'mf9', max: 60 },
+    { id: 'mv10', base: 350, range: 20, unit: ' g/kWh', bar: 'mf10', max: 1000 }
+  ];
+  
+  metrics.forEach(m => {
+    const val = parseFloat(fluctuate(m.base, m.range));
+    const el = document.getElementById(m.id);
+    if (el) el.textContent = val.toFixed(1) + m.unit;
+    
+    const bar = document.getElementById(m.bar);
+    if (bar) bar.style.width = Math.min(100, (val / m.max) * 100) + '%';
+  });
+  
+  const pw = parseFloat(fluctuate(480, 20)).toFixed(0);
+  const ef = parseFloat(fluctuate(59.8, 0.6)).toFixed(1);
+  document.getElementById('statusOutput').innerHTML = 'OUTPUT: <b style="color:#7fffaa">' + pw + ' MW</b>';
+  document.getElementById('statusEff').innerHTML = 'EFF: <b style="color:#66bb6a">' + ef + '%</b>';
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('statusTime').textContent = now.toLocaleTimeString() + '  ' + now.toLocaleDateString();
+}
+
+// ═══════════════════════════════════════════════════════
+// FLOW CONTROL
+// ═══════════════════════════════════════════════════════
+window.toggleFlow = function(type) {
+  flowState[type] = !flowState[type];
+  const btn = document.getElementById('ft' + { fuel: 1, steam: 2, cool: 3, elec: 4, water: 5 }[type]);
+  btn.classList.toggle('on', flowState[type]);
+  
+  // Update particle visibility based on flow
+  if (type === 'steam') {
+    steamParticles.forEach(p => p.visible = flowState.steam);
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════════════════════════════
+window.toggleLang = function() {
+  lang = lang === 'en' ? 'ar' : 'en';
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  
+  const labels = {
+    en: {
+      main: 'Natural Gas Combined Cycle Power Plant',
+      sub: '3D INTERACTIVE ENGINEERING MODEL',
+      dashTitle: 'LIVE PLANT DATA',
+      flowTitle: 'FLOW CONTROL'
+    },
+    ar: {
+      main: 'محطة طاقة الدورة المركبة بالغاز الطبيعي',
+      sub: 'نموذج هندسي تفاعلي ثلاثي الأبعاد',
+      dashTitle: 'البيانات الحية للمحطة',
+      flowTitle: 'التحكم بالتدفق'
+    }
+  };
+  
+  const L = labels[lang];
+  document.getElementById('mainTitle').textContent = L.main;
+  document.getElementById('mainSubtitle').textContent = L.sub;
+  document.getElementById('dashTitle').textContent = L.dashTitle;
+  document.getElementById('flowTitle').textContent = L.flowTitle;
+  
+  if (tourActive) renderTour();
+};
+
+// ═══════════════════════════════════════════════════════
+// RESIZE
+// ═══════════════════════════════════════════════════════
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// ═══════════════════════════════════════════════════════
+// MINIMAP
+// ═══════════════════════════════════════════════════════
+function updateMinimap() {
+  const canvas = document.getElementById('minimapCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 180;
+  canvas.height = 140;
+  
+  // Background
+  ctx.fillStyle = '#0a1628';
+  ctx.fillRect(0, 0, 180, 140);
+  
+  // Ground
+  ctx.fillStyle = '#1a2a18';
+  ctx.fillRect(10, 20, 160, 100);
+  
+  // Concrete pad
+  ctx.fillStyle = '#3a3a32';
+  ctx.fillRect(20, 30, 140, 80);
+  
+  // Buildings (simplified)
+  ctx.fillStyle = '#6a7a8a';
+  ctx.fillRect(25, 50, 15, 20); // GTs
+  ctx.fillRect(50, 45, 20, 40); // HRSGs
+  ctx.fillRect(85, 50, 25, 25); // STG
+  ctx.fillStyle = '#b8c0c8';
+  ctx.fillRect(130, 35, 20, 50); // Cooling towers
+  ctx.fillStyle = '#5a6a7a';
+  ctx.fillRect(30, 95, 40, 12); // Control room
+  
+  // Camera position indicator
+  const camX = 90 + (camera.position.x / 150) * 60;
+  const camZ = 70 + (camera.position.z / 150) * 50;
+  
+  ctx.beginPath();
+  ctx.arc(camX, camZ, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#00e5ff';
+  ctx.fill();
+  
+  // Direction indicator
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  ctx.beginPath();
+  ctx.moveTo(camX, camZ);
+  ctx.lineTo(camX + dir.x * 10, camZ + dir.z * 10);
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ═══════════════════════════════════════════════════════
+function animate() {
+  requestAnimationFrame(animate);
+  
+  // Rotate turbine blades
+  turbineBlades.forEach((blade, i) => {
+    blade.rotation.z += (i % 2 === 0 ? 0.05 : -0.05);
+  });
+  
+  // Update particles
+  if (flowState.steam) {
+    updateParticles();
+  }
+  
+  // Update controls
+  controls.update();
+  
+  // Update minimap
+  updateMinimap();
+  
+  // Render
+  renderer.render(scene, camera);
+}
+
+// Initialize
+init();
+</script>
+</body>
+</html>

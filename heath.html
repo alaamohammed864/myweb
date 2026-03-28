@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TriageIQ — منصة تصنيف الطوارئ الذكية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --nhs:#005EB8; --nhs-d:#003F80; --nhs-l:#E8F1FB;
+  --crit:#C0392B; --high:#D35400; --med:#7D3C98; --low:#1E8449;
+  --bg:#0A0E1A; --bg2:#111827; --bg3:#1A2236; --card:#1E2A3A;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
+  --text:#E8EDF5; --text2:#8B9BB4; --text3:#5A6A80;
+  --green:#00D4AA; --red:#FF4757; --amber:#FFA502;
+  --font:'Cairo',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+.light-mode {
+  --bg:#F0F4F8; --bg2:#FFFFFF; --bg3:#E8EDF5; --card:#FFFFFF;
+  --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.14);
+  --text:#1A2236; --text2:#4A5568; --text3:#718096;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;direction:rtl;transition:background .3s,color .3s;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--nhs);border-radius:2px;}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.login-card{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:380px;text-align:center;}
+.login-logo{font-size:2rem;font-weight:900;color:var(--nhs);margin-bottom:.3rem;}
+.login-sub{font-size:.82rem;color:var(--text2);margin-bottom:2rem;}
+.login-roles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.5rem;}
+.role-btn{padding:.7rem .5rem;border:1px solid var(--border2);border-radius:10px;background:var(--bg3);color:var(--text2);font-family:var(--font);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.role-btn:hover,.role-btn.selected{background:var(--nhs);color:#fff;border-color:var(--nhs);}
+.login-input{width:100%;padding:.75rem 1rem;border:1px solid var(--border2);border-radius:10px;background:var(--bg3);color:var(--text);font-family:var(--font);font-size:.88rem;margin-bottom:.75rem;outline:none;transition:border .2s;}
+.login-input:focus{border-color:var(--nhs);}
+.login-btn{width:100%;padding:.85rem;border-radius:10px;background:var(--nhs);color:#fff;border:none;font-family:var(--font);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.login-btn:hover{background:var(--nhs-d);}
+.login-demo{font-size:.72rem;color:var(--text3);margin-top:.75rem;}
+
+/* ── HEADER ── */
+header{position:fixed;top:0;right:0;left:0;z-index:100;background:rgba(10,14,26,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;transition:background .3s;}
+.light-mode header{background:rgba(240,244,248,0.95);}
+.logo{font-size:1.25rem;font-weight:900;color:var(--text);display:flex;align-items:center;gap:7px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulseGlow 1.5s ease-in-out infinite;}
+@keyframes pulseGlow{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,170,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(0,212,170,0)}}
+.header-right{display:flex;align-items:center;gap:.75rem;}
+.badge-live{display:flex;align-items:center;gap:5px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:20px;padding:3px 10px;font-size:.7rem;font-weight:600;color:var(--green);}
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:.72rem;color:var(--text2);}
+.user-role{color:var(--nhs);font-weight:700;}
+.icon-btn{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.icon-btn:hover{color:var(--text);border-color:var(--border2);}
+
+/* ── AUTO REFRESH BAR ── */
+#refresh-bar{height:3px;background:var(--nhs);position:fixed;top:56px;left:0;right:0;z-index:99;transform-origin:right;animation:refreshAnim 60s linear infinite;}
+@keyframes refreshAnim{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+
+/* ── NAV ── */
+nav{position:fixed;top:59px;right:0;left:0;z-index:98;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 1.25rem;}
+nav::-webkit-scrollbar{height:2px;}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:.65rem 1rem;font-family:var(--font);font-size:.8rem;font-weight:600;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nav-btn:hover{color:var(--text);}
+.nav-btn.active{color:var(--nhs);border-bottom-color:var(--nhs);}
+
+/* ── MAIN ── */
+main{padding-top:103px;min-height:100vh;}
+.page{display:none;padding:1.25rem;animation:fadeIn .3s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ALERT STRIP ── */
+.alert-strip{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:.65rem 1rem;display:flex;align-items:center;gap:10px;margin-bottom:1rem;animation:alertPulse 2s ease-in-out infinite;}
+@keyframes alertPulse{0%,100%{border-color:rgba(192,57,43,.3)}50%{border-color:rgba(192,57,43,.7)}}
+.alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulseGlow 1s infinite;flex-shrink:0;}
+.alert-text{font-size:.8rem;flex:1;}
+.alert-text strong{color:var(--red);}
+.alert-time-t{font-family:var(--mono);font-size:.7rem;color:var(--text3);}
+
+/* ── STATS ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;}
+.stat-card.blue::before{background:var(--nhs);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.amber::before{background:var(--amber);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.purple::before{background:#CC88FF;}
+.stat-label{font-size:.68rem;color:var(--text2);margin-bottom:.25rem;}
+.stat-val{font-size:1.7rem;font-weight:900;line-height:1;margin-bottom:.15rem;}
+.stat-card.blue .stat-val{color:#4DA8FF;}
+.stat-card.red .stat-val{color:var(--red);}
+.stat-card.amber .stat-val{color:var(--amber);}
+.stat-card.green .stat-val{color:var(--green);}
+.stat-card.purple .stat-val{color:#CC88FF;}
+.stat-sub{font-size:.65rem;color:var(--text3);}
+
+/* ── PATIENT TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1rem;}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.1rem .7rem;gap:.5rem;flex-wrap:wrap;}
+.section-title{font-size:.92rem;font-weight:700;}
+.table-controls{display:flex;gap:6px;align-items:center;}
+.sort-select{font-family:var(--font);font-size:.72rem;padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text2);cursor:pointer;}
+.refresh-btn{font-family:var(--font);font-size:.72rem;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;transition:all .2s;}
+.refresh-btn:hover{color:var(--green);border-color:rgba(0,212,170,.4);}
+.patient-table{width:100%;border-collapse:collapse;}
+.patient-table th{text-align:right;padding:.55rem .85rem;font-size:.68rem;font-weight:600;letter-spacing:.05em;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;}
+.patient-table th:hover{color:var(--text);}
+.patient-table td{padding:.65rem .85rem;font-size:.8rem;border-bottom:1px solid var(--border);transition:background .15s;}
+.patient-table tr:hover td{background:rgba(255,255,255,.025);}
+.patient-table tr.crit td{background:rgba(192,57,43,.05);}
+.patient-table tr.high-r td{background:rgba(211,84,0,.04);}
+.risk-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap;}
+.rb-crit{background:rgba(192,57,43,.2);color:#FF6B6B;border:1px solid rgba(192,57,43,.3);}
+.rb-high{background:rgba(211,84,0,.2);color:#FFAA55;border:1px solid rgba(211,84,0,.3);}
+.rb-med{background:rgba(125,60,152,.2);color:#CC88FF;border:1px solid rgba(125,60,152,.3);}
+.rb-low{background:rgba(30,132,73,.2);color:#66DD88;border:1px solid rgba(30,132,73,.3);}
+.vital{font-family:var(--mono);font-size:.78rem;}
+.v-bad{color:var(--red);font-weight:700;}
+.v-warn{color:var(--amber);font-weight:700;}
+.v-ok{color:var(--green);}
+.countdown{font-family:var(--mono);font-size:.75rem;font-weight:700;}
+.cd-red{color:var(--red);}
+.cd-amber{color:var(--amber);}
+.cd-green{color:var(--green);}
+
+/* ── CHARTS AREA ── */
+.charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:1rem;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+.chart-label{font-size:.68rem;color:var(--text3);margin-bottom:.5rem;}
+.chart-val{font-size:.82rem;font-weight:700;font-family:var(--mono);margin-top:.4rem;}
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:32px;}
+.mini-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;transition:height .3s;}
+
+/* ── DONUT WRAP ── */
+.donut-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+.donut-wrap{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.donut-canvas-wrap{width:120px;height:120px;flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;}
+.dl-item{display:flex;align-items:center;gap:6px;font-size:.75rem;}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── TRIAGE PAGE ── */
+.triage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:1.25rem;}
+.triage-level{border-radius:14px;padding:1.1rem;border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s;}
+.triage-level:hover{transform:translateY(-2px);}
+.tl-crit{background:linear-gradient(135deg,rgba(192,57,43,.15),rgba(192,57,43,.04));border-color:rgba(192,57,43,.3);}
+.tl-high{background:linear-gradient(135deg,rgba(211,84,0,.15),rgba(211,84,0,.04));border-color:rgba(211,84,0,.3);}
+.tl-med{background:linear-gradient(135deg,rgba(125,60,152,.15),rgba(125,60,152,.04));border-color:rgba(125,60,152,.3);}
+.tl-low{background:linear-gradient(135deg,rgba(30,132,73,.15),rgba(30,132,73,.04));border-color:rgba(30,132,73,.3);}
+.tl-range{font-family:var(--mono);font-size:.72rem;color:var(--text3);margin-bottom:.35rem;}
+.tl-name{font-size:1rem;font-weight:900;margin-bottom:.4rem;}
+.tl-crit .tl-name{color:#FF6B6B;} .tl-high .tl-name{color:#FFAA55;}
+.tl-med .tl-name{color:#CC88FF;} .tl-low .tl-name{color:#66DD88;}
+.tl-resp{font-size:.72rem;color:var(--text2);margin-bottom:.65rem;}
+.tl-vitals{font-size:.75rem;color:var(--text2);line-height:1.8;}
+.tl-vitals span{color:var(--text);font-weight:600;}
+.tl-count{position:absolute;top:.8rem;left:.8rem;font-size:1.8rem;font-weight:900;opacity:.1;font-family:var(--mono);}
+
+/* ── SIMULATOR ── */
+.sim-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-bottom:1rem;}
+.sim-title{font-size:.85rem;font-weight:700;margin-bottom:.85rem;color:var(--text2);}
+.slider-row{display:flex;align-items:center;gap:8px;margin-bottom:.7rem;}
+.slider-label{font-size:.75rem;color:var(--text2);min-width:105px;text-align:right;}
+.slider-val{font-family:var(--mono);font-size:.78rem;font-weight:600;min-width:55px;text-align:center;}
+input[type=range]{flex:1;height:4px;border-radius:2px;-webkit-appearance:none;appearance:none;background:var(--bg3);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--nhs);cursor:pointer;}
+.score-display{text-align:center;padding:1.25rem;border-radius:12px;margin-top:.75rem;transition:all .3s;}
+.score-num{font-size:3.5rem;font-weight:900;font-family:var(--mono);line-height:1;}
+.score-label{font-size:.85rem;font-weight:700;margin-top:.35rem;}
+.score-action{font-size:.75rem;color:var(--text2);margin-top:.4rem;}
+
+/* ── ALERTS PAGE ── */
+.alert-filters{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap;}
+.filter-btn{font-family:var(--font);font-size:.72rem;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .2s;}
+.filter-btn.active,.filter-btn:hover{background:var(--nhs);color:white;border-color:var(--nhs);}
+.alert-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;transition:all .2s;}
+.alert-card.ac-crit{border-right:3px solid var(--red);}
+.alert-card.ac-high{border-right:3px solid var(--amber);}
+.alert-card.ac-info{border-right:3px solid #4DA8FF;}
+.alert-card.ac-ok{border-right:3px solid var(--green);}
+.alert-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ai-crit{background:rgba(192,57,43,.2);} .ai-high{background:rgba(211,84,0,.2);}
+.ai-info{background:rgba(0,94,184,.2);} .ai-ok{background:rgba(30,132,73,.2);}
+.alert-body{flex:1;}
+.alert-title{font-size:.82rem;font-weight:700;margin-bottom:.2rem;}
+.alert-desc{font-size:.75rem;color:var(--text2);line-height:1.5;}
+.alert-meta{display:flex;gap:6px;margin-top:.4rem;flex-wrap:wrap;}
+.alert-tag{font-size:.65rem;padding:2px 7px;border-radius:20px;background:var(--bg3);color:var(--text3);}
+.alert-time-right{font-family:var(--mono);font-size:.68rem;color:var(--text3);flex-shrink:0;margin-top:2px;}
+.ack-btn{font-family:var(--font);font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;margin-top:5px;}
+.ack-btn:hover{background:var(--green);color:#000;border-color:var(--green);}
+
+/* ── ARCH PAGE ── */
+.arch-layer{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:7px;cursor:pointer;transition:all .25s;}
+.arch-layer:hover,.arch-layer.open{border-color:rgba(0,94,184,.5);}
+.arch-layer-header{display:flex;justify-content:space-between;align-items:center;}
+.arch-layer-title{font-size:.85rem;font-weight:700;display:flex;align-items:center;gap:7px;}
+.arch-layer-num{font-family:var(--mono);font-size:.65rem;color:var(--text3);background:var(--bg3);padding:2px 7px;border-radius:20px;}
+.arch-chevron{font-size:.75rem;color:var(--text3);transition:transform .2s;}
+.arch-layer.open .arch-chevron{transform:rotate(180deg);}
+.arch-body{display:none;margin-top:.85rem;}
+.arch-layer.open .arch-body{display:block;}
+.arch-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5rem;}
+.arch-chip{font-size:.73rem;padding:3px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+.arch-arrow{text-align:center;color:var(--text3);font-size:1rem;padding:1px;}
+
+/* ── ADMISSION PAGE ── */
+.admission-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:.72rem;font-weight:600;color:var(--text2);}
+.form-input,.form-select,.form-textarea{font-family:var(--font);font-size:.82rem;padding:.6rem .85rem;border:1px solid var(--border2);border-radius:9px;background:var(--bg3);color:var(--text);outline:none;transition:border .2s;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--nhs);}
+.form-textarea{resize:vertical;min-height:70px;}
+.submit-btn{width:100%;padding:.8rem;border-radius:10px;background:var(--nhs);color:#fff;border:none;font-family:var(--font);font-size:.9rem;font-weight:700;cursor:pointer;margin-top:.75rem;transition:all .2s;}
+.submit-btn:hover{background:var(--nhs-d);}
+.admitted-list{margin-top:1rem;}
+.admitted-item{display:flex;align-items:center;gap:10px;padding:.65rem .85rem;background:var(--bg3);border-radius:9px;margin-bottom:6px;font-size:.78rem;}
+.admitted-id{font-family:var(--mono);font-weight:700;color:var(--nhs);}
+
+/* ── REPORTS PAGE ── */
+.report-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+.report-title{font-size:.9rem;font-weight:700;margin-bottom:1rem;color:var(--text2);}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem;}
+.kpi-box{background:var(--bg3);border-radius:10px;padding:.8rem;text-align:center;}
+.kpi-val{font-family:var(--mono);font-size:1.4rem;font-weight:700;margin-bottom:.2rem;}
+.kpi-label{font-size:.68rem;color:var(--text3);}
+.chart-container{position:relative;height:200px;}
+.export-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-size:.78rem;font-weight:600;padding:.55rem 1rem;border-radius:9px;background:var(--nhs);color:#fff;border:none;cursor:pointer;margin-top:.75rem;transition:all .2s;}
+.export-btn:hover{background:var(--nhs-d);}
+
+/* ── AUDIT LOG PAGE ── */
+.audit-item{display:flex;gap:10px;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+.audit-time{font-family:var(--mono);font-size:.7rem;color:var(--text3);min-width:60px;flex-shrink:0;margin-top:1px;}
+.audit-user{color:var(--nhs);font-weight:600;min-width:90px;flex-shrink:0;}
+.audit-action{color:var(--text);}
+.audit-target{color:var(--text2);}
+
+/* ── PATIENT DETAIL MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.35rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;animation:modalIn .25s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.modal-title{font-size:.95rem;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--text3);font-size:1.1rem;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.vital-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.85rem;}
+.vital-box{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:.7rem;text-align:center;}
+.vb-label{font-size:.65rem;color:var(--text3);margin-bottom:.2rem;}
+.vb-val{font-family:var(--mono);font-size:1.3rem;font-weight:700;}
+.vb-unit{font-size:.62rem;color:var(--text3);}
+.trend-chart-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.85rem;margin-bottom:.85rem;}
+.trend-chart-title{font-size:.72rem;color:var(--text3);margin-bottom:.5rem;}
+.trend-canvas{height:120px;}
+
+/* ── SOUND INDICATOR ── */
+.sound-indicator{position:fixed;bottom:1rem;left:1rem;z-index:150;display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:.72rem;color:var(--text2);cursor:pointer;transition:all .2s;}
+.sound-indicator:hover{border-color:var(--border2);}
+.sound-icon{font-size:14px;}
+
+/* ── ABOUT ── */
+.about-hero{background:linear-gradient(135deg,var(--nhs-d),var(--nhs));border-radius:16px;padding:2rem 1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.about-hero::after{content:'TriageIQ';position:absolute;bottom:-15px;left:-5px;font-size:5rem;font-weight:900;opacity:.07;color:white;pointer-events:none;}
+.about-hero h1{font-size:1.6rem;font-weight:900;margin-bottom:.4rem;}
+.about-hero p{font-size:.82rem;opacity:.85;line-height:1.7;}
+.about-hero .eng{font-family:var(--mono);font-size:.75rem;margin-top:.85rem;opacity:.7;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+.info-icon{font-size:1.3rem;margin-bottom:.5rem;}
+.info-title{font-size:.82rem;font-weight:700;margin-bottom:.3rem;}
+.info-text{font-size:.75rem;color:var(--text2);line-height:1.6;}
+
+@media(max-width:600px){
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .form-group.full{grid-column:1;}
+  header{padding:0 .85rem;}
+  .user-chip .role-text{display:none;}
+  nav{padding:0 .5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">TriageIQ</div>
+    <div class="login-sub">منصة تصنيف الطوارئ الذكية · تسجيل الدخول</div>
+    <div class="login-roles">
+      <button class="role-btn selected" onclick="selectRole(this,'طبيب')">👨‍⚕️<br>طبيب</button>
+      <button class="role-btn" onclick="selectRole(this,'ممرضة')">👩‍⚕️<br>ممرضة</button>
+      <button class="role-btn" onclick="selectRole(this,'مشرف')">🛡️<br>مشرف</button>
+    </div>
+    <input class="login-input" type="text" placeholder="اسم المستخدم" id="login-user" value="ENG_ALAA MOHAMMED">
+    <input class="login-input" type="password" placeholder="كلمة المرور" id="login-pass" value="••••••••">
+    <button class="login-btn" onclick="doLogin()">دخول إلى النظام</button>
+    <div class="login-demo">نظام تجريبي — ENG_ALAA MOHAMMED © 2026</div>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header id="app-header" style="display:none">
+  <div class="logo"><span class="logo-dot"></span>TriageIQ</div>
+  <div class="header-right">
+    <div class="badge-live"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>مباشر</div>
+    <div class="user-chip"><span class="user-role" id="header-role">طبيب</span><span class="role-text" id="header-user">ENG_ALAA MOHAMMED</span></div>
+    <button class="icon-btn" onclick="toggleTheme()" title="تبديل الثيم">🌙</button>
+    <button class="icon-btn" onclick="toggleSound()" id="sound-btn" title="الصوت">🔔</button>
+    <button class="icon-btn" onclick="doLogout()" title="خروج">⏻</button>
+  </div>
+</header>
+<div id="refresh-bar" style="display:none"></div>
+
+<!-- ══ NAV ══ -->
+<nav id="app-nav" style="display:none">
+  <button class="nav-btn active" onclick="showPage('dashboard')" data-page="dashboard">📊 لوحة التحكم</button>
+  <button class="nav-btn" onclick="showPage('admission')" data-page="admission">🏥 استقبال</button>
+  <button class="nav-btn" onclick="showPage('triage')" data-page="triage">🎯 التصنيف</button>
+  <button class="nav-btn" onclick="showPage('alerts')" data-page="alerts">🔔 تنبيهات <span id="alert-badge" style="background:var(--red);color:#fff;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:20px;margin-right:2px;">3</span></button>
+  <button class="nav-btn" onclick="showPage('reports')" data-page="reports">📈 تقارير</button>
+  <button class="nav-btn" onclick="showPage('audit')" data-page="audit">🔐 سجل التدقيق</button>
+  <button class="nav-btn" onclick="showPage('architecture')" data-page="architecture">⚙️ البنية التقنية</button>
+  <button class="nav-btn" onclick="showPage('about')" data-page="about">ℹ️ عن المنصة</button>
+</nav>
+
+<main id="app-main" style="display:none">
+
+<!-- ══════ DASHBOARD ══════ -->
+<div class="page active" id="page-dashboard">
+  <div class="alert-strip">
+    <div class="alert-dot"></div>
+    <div class="alert-text"><strong>تنبيه حرج:</strong> المريض P-0041 — SpO₂ انخفض إلى 89٪ — تدهور سريع خلال 12 دقيقة</div>
+    <div class="alert-time-t" id="live-clock">--:--:--</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card blue"><div class="stat-label">إجمالي المرضى</div><div class="stat-val" id="s-total">14</div><div class="stat-sub">قسم الطوارئ</div></div>
+    <div class="stat-card red"><div class="stat-label">حرج P1</div><div class="stat-val" id="s-crit">1</div><div class="stat-sub">تدخل فوري</div></div>
+    <div class="stat-card amber"><div class="stat-label">عالٍ P2</div><div class="stat-val" id="s-high">2</div><div class="stat-sub">خلال 15 دقيقة</div></div>
+    <div class="stat-card green"><div class="stat-label">متوسط الانتظار</div><div class="stat-val">48</div><div class="stat-sub">دقيقة</div></div>
+    <div class="stat-card purple"><div class="stat-label">تنبيهات اليوم</div><div class="stat-val">7</div><div class="stat-sub">3 غير مؤكدة</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="section-title">المرضى المنتظرون — مرتبون حسب الخطر</div>
+      <div class="table-controls">
+        <select class="sort-select" onchange="sortPatients(this.value)">
+          <option value="risk">ترتيب: الخطر</option>
+          <option value="spo2">ترتيب: SpO₂</option>
+          <option value="hr">ترتيب: القلب</option>
+          <option value="wait">ترتيب: الانتظار</option>
+          <option value="temp">ترتيب: الحرارة</option>
+        </select>
+        <button class="refresh-btn" onclick="manualRefresh()">↻ تحديث</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="patient-table"><thead><tr>
+        <th onclick="sortPatients('id')">المريض</th>
+        <th onclick="sortPatients('risk')">مؤشر الخطر ↕</th>
+        <th onclick="sortPatients('spo2')">SpO₂ ↕</th>
+        <th onclick="sortPatients('hr')">القلب ↕</th>
+        <th onclick="sortPatients('temp')">الحرارة ↕</th>
+        <th onclick="sortPatients('wait')">الانتظار ↕</th>
+        <th>المتبقي</th>
+        <th>الحالة</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="patient-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card"><div class="chart-label">SpO₂ متوسط (30 دقيقة)</div><div class="mini-chart" id="chart-spo2"></div><div class="chart-val" style="color:var(--green)">96.4%</div></div>
+    <div class="chart-card"><div class="chart-label">معدل القلب متوسط</div><div class="mini-chart" id="chart-hr"></div><div class="chart-val" style="color:var(--amber)">88 bpm</div></div>
+    <div class="chart-card"><div class="chart-label">تنبيهات اليوم</div><div class="mini-chart" id="chart-alerts"></div><div class="chart-val" style="color:var(--red)">7 تنبيهات</div></div>
+    <div class="donut-card">
+      <div class="chart-label">توزيع المرضى</div>
+      <div class="donut-wrap">
+        <div class="donut-canvas-wrap"><canvas id="donut-chart"></canvas></div>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#FF6B6B"></div><span style="color:var(--text2)">حرج P1 — <strong id="dl-crit">1</strong></span></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#FFAA55"></div><span style="color:var(--text2)">عالٍ P2 — <strong id="dl-high">2</strong></span></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#CC88FF"></div><span style="color:var(--text2)">متوسط P3 — <strong id="dl-med">5</strong></span></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#66DD88"></div><span style="color:var(--text2)">منخفض P4 — <strong id="dl-low">6</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ADMISSION ══════ -->
+<div class="page" id="page-admission">
+  <div class="admission-card">
+    <div class="section-title" style="margin-bottom:1rem">📋 تسجيل مريض جديد</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">الاسم الكامل</label>
+        <input class="form-input" type="text" id="adm-name" placeholder="اسم المريض">
+      </div>
+      <div class="form-group">
+        <label class="form-label">رقم الهوية / الملف</label>
+        <input class="form-input" type="text" id="adm-id" placeholder="مثال: 1234567">
+      </div>
+      <div class="form-group">
+        <label class="form-label">العمر</label>
+        <input class="form-input" type="number" id="adm-age" placeholder="السنة" min="0" max="120">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الجنس</label>
+        <select class="form-select" id="adm-gender">
+          <option value="ذكر">ذكر</option>
+          <option value="أنثى">أنثى</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">SpO₂ الأولي (%)</label>
+        <input class="form-input" type="number" id="adm-spo2" placeholder="97" min="70" max="100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">معدل القلب (bpm)</label>
+        <input class="form-input" type="number" id="adm-hr" placeholder="80" min="20" max="200">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الحرارة (°م)</label>
+        <input class="form-input" type="number" id="adm-temp" placeholder="37.0" step="0.1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">معدل التنفس</label>
+        <input class="form-input" type="number" id="adm-rr" placeholder="16" min="4" max="60">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">الشكوى الرئيسية</label>
+        <textarea class="form-textarea" id="adm-complaint" placeholder="وصف سبب المراجعة..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">الأمراض المزمنة والأدوية</label>
+        <textarea class="form-textarea" id="adm-history" placeholder="السكري، ضغط الدم، أمراض القلب..."></textarea>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="admitPatient()">✓ تسجيل المريض وتعيين السوار الذكي</button>
+  </div>
+  <div class="admission-card">
+    <div class="section-title" style="margin-bottom:.75rem">المرضى المسجلون في هذه الجلسة</div>
+    <div class="admitted-list" id="admitted-list"><div style="font-size:.78rem;color:var(--text3);text-align:center;padding:1rem;">لا يوجد مرضى مسجلون بعد</div></div>
+  </div>
+</div>
+
+<!-- ══════ TRIAGE ══════ -->
+<div class="page" id="page-triage">
+  <div class="triage-grid">
+    <div class="triage-level tl-crit"><div class="tl-count">P1</div><div class="tl-range">80 — 100</div><div class="tl-name">حرج</div><div class="tl-resp">⚡ استجابة فورية</div><div class="tl-vitals">SpO₂: <span>أقل من 92%</span><br>القلب: <span>أكثر من 120 أو أقل من 45</span><br>التنفس: <span>أكثر من 25/دقيقة</span><br>الحرارة: <span>أكثر من 39.5°م أو أقل من 35°م</span></div></div>
+    <div class="triage-level tl-high"><div class="tl-count">P2</div><div class="tl-range">50 — 79</div><div class="tl-name">عالٍ</div><div class="tl-resp">⏱ أقل من 15 دقيقة</div><div class="tl-vitals">SpO₂: <span>92 — 94%</span><br>القلب: <span>100 — 120</span><br>التنفس: <span>20 — 25/دقيقة</span><br>الحرارة: <span>38.5 — 39.5°م</span></div></div>
+    <div class="triage-level tl-med"><div class="tl-count">P3</div><div class="tl-range">25 — 49</div><div class="tl-name">متوسط</div><div class="tl-resp">🕐 أقل من 60 دقيقة</div><div class="tl-vitals">SpO₂: <span>94 — 96%</span><br>القلب: <span>90 — 100</span><br>التنفس: <span>16 — 20/دقيقة</span><br>الحرارة: <span>37.5 — 38.5°م</span></div></div>
+    <div class="triage-level tl-low"><div class="tl-count">P4</div><div class="tl-range">0 — 24</div><div class="tl-name">منخفض</div><div class="tl-resp">✅ أقل من 4 ساعات</div><div class="tl-vitals">SpO₂: <span>96 — 100%</span><br>القلب: <span>60 — 90</span><br>التنفس: <span>12 — 16/دقيقة</span><br>الحرارة: <span>36 — 37.5°م</span></div></div>
+  </div>
+  <div class="sim-card">
+    <div class="sim-title">🧪 محاكي مؤشر الخطر — أدخل القيم وشاهد التصنيف الفوري</div>
+    <div class="slider-row"><span class="slider-label">SpO₂ (نسبة الأكسجين)</span><input type="range" min="80" max="100" value="97" id="sl-spo2" oninput="calcScore()"><span class="slider-val" id="v-spo2">97%</span></div>
+    <div class="slider-row"><span class="slider-label">معدل القلب</span><input type="range" min="30" max="160" value="80" id="sl-hr" oninput="calcScore()"><span class="slider-val" id="v-hr">80 bpm</span></div>
+    <div class="slider-row"><span class="slider-label">معدل التنفس</span><input type="range" min="6" max="40" value="16" id="sl-rr" oninput="calcScore()"><span class="slider-val" id="v-rr">16/دق</span></div>
+    <div class="slider-row"><span class="slider-label">درجة الحرارة</span><input type="range" min="340" max="410" value="370" id="sl-temp" oninput="calcScore()"><span class="slider-val" id="v-temp">37.0°م</span></div>
+    <div class="score-display" id="score-display">
+      <div class="score-num" id="score-num">12</div>
+      <div class="score-label" id="score-label">منخفض — P4</div>
+      <div class="score-action" id="score-action">جميع المؤشرات طبيعية · انتظار عادي</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ALERTS ══════ -->
+<div class="page" id="page-alerts">
+  <div class="alert-filters">
+    <button class="filter-btn active" onclick="filterAlerts('all',this)">الكل</button>
+    <button class="filter-btn" onclick="filterAlerts('crit',this)">حرج</button>
+    <button class="filter-btn" onclick="filterAlerts('high',this)">عالٍ</button>
+    <button class="filter-btn" onclick="filterAlerts('info',this)">معلومات</button>
+    <button class="filter-btn" onclick="filterAlerts('ok',this)">تم الحل</button>
+  </div>
+  <div id="alerts-list"></div>
+</div>
+
+<!-- ══════ REPORTS ══════ -->
+<div class="page" id="page-reports">
+  <div class="report-card">
+    <div class="report-title">📊 إحصائيات النوبة الحالية</div>
+    <div class="kpi-grid">
+      <div class="kpi-box"><div class="kpi-val" style="color:#4DA8FF">14</div><div class="kpi-label">إجمالي المرضى</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:var(--green)">42 د</div><div class="kpi-label">متوسط الانتظار</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:var(--amber)">3.2 د</div><div class="kpi-label">متوسط الاستجابة</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:var(--red)">7</div><div class="kpi-label">تنبيهات أُرسلت</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:#CC88FF">94%</div><div class="kpi-label">دقة التصنيف</div></div>
+      <div class="kpi-box"><div class="kpi-val" style="color:var(--green)">0</div><div class="kpi-label">حوادث فائتة</div></div>
+    </div>
+  </div>
+  <div class="report-card">
+    <div class="report-title">📉 توزيع مؤشرات الخطر عبر الزمن</div>
+    <div class="chart-container"><canvas id="line-chart"></canvas></div>
+  </div>
+  <div class="report-card">
+    <div class="report-title">⏱ أوقات الاستجابة للتنبيهات (بالدقائق)</div>
+    <div class="chart-container"><canvas id="bar-chart"></canvas></div>
+    <button class="export-btn" onclick="exportReport()">⬇ تصدير تقرير PDF</button>
+  </div>
+</div>
+
+<!-- ══════ AUDIT LOG ══════ -->
+<div class="page" id="page-audit">
+  <div class="table-wrap" style="padding:1rem 1.1rem">
+    <div class="section-title" style="margin-bottom:1rem">🔐 سجل التدقيق — جميع الإجراءات موثقة</div>
+    <div id="audit-log"></div>
+  </div>
+</div>
+
+<!-- ══════ ARCHITECTURE ══════ -->
+<div class="page" id="page-architecture">
+  <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.7">البنية التقنية من أربع طبقات. انقر على أي طبقة للتفاصيل.</p>
+  <div class="arch-layer open" onclick="toggleArch(this)">
+    <div class="arch-layer-header"><div class="arch-layer-title"><span style="width:9px;height:9px;border-radius:50%;background:#4DA8FF;display:inline-block"></span>الطبقة الأولى — حافة المريض<span class="arch-layer-num">EDGE</span></div><span class="arch-chevron">▼</span></div>
+    <div class="arch-body"><p style="font-size:.78rem;color:var(--text2);margin-bottom:.6rem">الأجهزة المتصلة بالمريض في غرفة الانتظار.</p><div class="arch-chips"><span class="arch-chip">⌚ سوار BLE ذكي</span><span class="arch-chip">💧 مستشعر SpO₂</span><span class="arch-chip">❤️ معدل القلب</span><span class="arch-chip">🌡️ درجة الحرارة</span><span class="arch-chip">🫁 معدل التنفس PPG</span><span class="arch-chip">📡 BLE → TLS 1.3</span><span class="arch-chip">⏱ تحديث 15 ثانية</span></div></div>
+  </div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-layer" onclick="toggleArch(this)">
+    <div class="arch-layer-header"><div class="arch-layer-title"><span style="width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block"></span>الطبقة الثانية — محرك الذكاء الاصطناعي<span class="arch-layer-num">AI ENGINE</span></div><span class="arch-chevron">▼</span></div>
+    <div class="arch-body"><p style="font-size:.78rem;color:var(--text2);margin-bottom:.6rem">نماذج الذكاء الاصطناعي التي تحلل البيانات.</p><div class="arch-chips"><span class="arch-chip">🧠 كشف الشذوذ</span><span class="arch-chip">📊 معايرة NEWS2</span><span class="arch-chip">📈 تحليل الاتجاه LSTM</span><span class="arch-chip">📋 مضاعف الخطر التاريخي</span><span class="arch-chip">⏰ تحديث 60 ثانية</span><span class="arch-chip">🔍 SHAP Explainability</span><span class="arch-chip">👶 نماذج الأطفال</span></div></div>
+  </div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-layer" onclick="toggleArch(this)">
+    <div class="arch-layer-header"><div class="arch-layer-title"><span style="width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block"></span>الطبقة الثالثة — الواجهة السريرية<span class="arch-layer-num">CLINICAL UI</span></div><span class="arch-chevron">▼</span></div>
+    <div class="arch-body"><p style="font-size:.78rem;color:var(--text2);margin-bottom:.6rem">واجهات الطاقم الطبي.</p><div class="arch-chips"><span class="arch-chip">💻 لوحة تحكم ويب</span><span class="arch-chip">📱 تطبيق iOS/Android</span><span class="arch-chip">🔔 إشعارات فورية</span><span class="arch-chip">📟 نداء الطبيب</span><span class="arch-chip">💡 مؤشر ضوئي</span><span class="arch-chip">🔄 كتابة عكسية للسجلات</span></div></div>
+  </div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-layer" onclick="toggleArch(this)">
+    <div class="arch-layer-header"><div class="arch-layer-title"><span style="width:9px;height:9px;border-radius:50%;background:#CC88FF;display:inline-block"></span>الطبقة الرابعة — نسيج البيانات<span class="arch-layer-num">DATA FABRIC</span></div><span class="arch-chevron">▼</span></div>
+    <div class="arch-body"><p style="font-size:.78rem;color:var(--text2);margin-bottom:.6rem">التكاملات والأمان والامتثال.</p><div class="arch-chips"><span class="arch-chip">🔗 FHIR R4 API</span><span class="arch-chip">☁️ Azure Government</span><span class="arch-chip">🏥 تكامل HIS</span><span class="arch-chip">🔒 GDPR متوافق</span><span class="arch-chip">📑 تصدير الحوكمة</span><span class="arch-chip">🛡️ AES-256</span></div></div>
+  </div>
+</div>
+
+<!-- ══════ ABOUT ══════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <h1>TriageIQ</h1>
+    <p>منصة مراقبة مرضى الطوارئ الذكية — تحوّل غرفة الانتظار من مساحة سلبية إلى منطقة مراقبة سريرية مستمرة.</p>
+    <div class="eng">ENG_ALAA MOHAMMED · مارس 2026</div>
+  </div>
+  <div class="info-grid">
+    <div class="info-card"><div class="info-icon">🎯</div><div class="info-title">المشكلة التي نحلها</div><div class="info-text">التصنيف يتم مرة واحدة عند الوصول. لا يوجد رصد للتدهور في غرفة الانتظار.</div></div>
+    <div class="info-card"><div class="info-icon">⌚</div><div class="info-title">السوار الذكي</div><div class="info-text">يقيس 4 مؤشرات حيوية كل 15 ثانية ويرسلها مشفّرة للنظام فور تركيبه.</div></div>
+    <div class="info-card"><div class="info-icon">🧠</div><div class="info-title">الذكاء الاصطناعي</div><div class="info-text">نموذج معايَر بـ NEWS2. يحسب مؤشر خطر ويراقب سرعة التدهور لا فقط القيمة.</div></div>
+    <div class="info-card"><div class="info-icon">🔔</div><div class="info-title">نظام التنبيه</div><div class="info-text">تنبيهات متدرجة وموجهة. نداء فوري للطبيب في الحالات الحرجة. كل تنبيه مُوثَّق.</div></div>
+    <div class="info-card"><div class="info-icon">💰</div><div class="info-title">الفرصة التجارية</div><div class="info-text">سوق يتجاوز 85 مليون دولار في المملكة المتحدة. SaaS + عقد توريد السوار.</div></div>
+    <div class="info-card"><div class="info-icon">🌍</div><div class="info-title">التوسع الإقليمي</div><div class="info-text">قابل للتكيف مع السياق العراقي. تخصيص العتبات وفق احتياجات كل مستشفى.</div></div>
+  </div>
+  <div style="margin-top:1.25rem;padding:1.1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;text-align:center;">
+    <div style="font-size:.72rem;color:var(--text3);margin-bottom:.35rem">الشعار التشغيلي</div>
+    <div style="font-size:1rem;font-weight:700;color:var(--text2)">السوار يراقب ◄ الذكاء الاصطناعي يُقيّم ◄ النظام يُنبّه</div>
+  </div>
+</div>
+
+</main>
+
+<!-- PATIENT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">تفاصيل المريض</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="vital-grid" id="modal-vitals"></div>
+    <div id="modal-risk-display"></div>
+    <div class="trend-chart-wrap">
+      <div class="trend-chart-title">📈 تغيّر SpO₂ خلال آخر 30 دقيقة</div>
+      <div class="trend-canvas"><canvas id="trend-chart"></canvas></div>
+    </div>
+    <div style="margin-top:.75rem;font-size:.76rem;color:var(--text2);line-height:1.7;background:var(--bg3);padding:.85rem;border-radius:9px;" id="modal-notes"></div>
+    <button onclick="closeModal()" style="width:100%;margin-top:.85rem;padding:.65rem;border-radius:9px;background:var(--nhs);color:white;border:none;font-family:var(--font);font-size:.82rem;font-weight:700;cursor:pointer;">إغلاق</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const patients = [
+  {id:'P-0041',gender:'ذكر',age:67,risk:94,level:'crit',spo2:89,hr:118,temp:37.9,rr:22,waitMin:102,flag:'SpO₂ انخفاض سريع',spo2Trend:'down',hrTrend:'up',notes:'انخفض SpO₂ بمقدار 8 نقاط في 12 دقيقة. تاريخ مرضي: أمراض القلب، مرض السكري. نُودي الطبيب المسؤول.',targetMin:0},
+  {id:'P-0038',gender:'أنثى',age:54,risk:71,level:'high',spo2:94,hr:104,temp:38.6,rr:21,waitMin:52,flag:'ارتفاع الحرارة',spo2Trend:'flat',hrTrend:'up',notes:'حرارة ترتفع تدريجيًا مع تسارع القلب. يُوصى باستبعاد الإنتان. مريضة بالسكري من النوع الثاني.',targetMin:15},
+  {id:'P-0044',gender:'ذكر',age:34,risk:58,level:'high',spo2:93,hr:102,temp:38.1,rr:20,waitMin:28,flag:'تنفس متسارع',spo2Trend:'flat',hrTrend:'flat',notes:'شاب يعاني من ضيق في التنفس بعد مجهود. SpO₂ عند الحدود الدنيا.',targetMin:15},
+  {id:'P-0035',gender:'ذكر',age:29,risk:42,level:'med',spo2:97,hr:88,temp:37.2,rr:17,waitMin:34,flag:'مستقر',spo2Trend:'flat',hrTrend:'flat',notes:'مريض يشكو من آلام في البطن. المؤشرات ضمن الحدود المقبولة.',targetMin:60},
+  {id:'P-0039',gender:'أنثى',age:61,risk:38,level:'med',spo2:96,hr:91,temp:37.8,rr:18,waitMin:41,flag:'اتجاه بطيء',spo2Trend:'flat',hrTrend:'up',notes:'مريضة تعاني من آلام في الصدر. ECG أولي طبيعي.',targetMin:60},
+  {id:'P-0033',gender:'أنثى',age:41,risk:18,level:'low',spo2:99,hr:72,temp:36.9,rr:14,waitMin:18,flag:'طبيعي',spo2Trend:'flat',hrTrend:'flat',notes:'مريضة تشكو من كسر مشتبه به في الرسغ. المؤشرات طبيعية.',targetMin:240},
+  {id:'P-0040',gender:'ذكر',age:15,risk:14,level:'low',spo2:99,hr:80,temp:37.1,rr:15,waitMin:12,flag:'طبيعي',spo2Trend:'flat',hrTrend:'flat',notes:'مريض ذكر في سن المراهقة. جرح بسيط. جميع المؤشرات طبيعية.',targetMin:240},
+];
+
+const alertsData = [
+  {type:'crit',icon:'🚨',title:'P-0041 — SpO₂ 89% انخفاض حرج',desc:'انخفض SpO₂ بمقدار 8 نقاط في 12 دقيقة. نُودي الطبيب المسؤول.',tags:['P1 حرج','SpO₂','تنبيه مُرسَل'],time:'14:31:04',ack:false},
+  {type:'high',icon:'⚠️',title:'P-0038 — ارتفاع حرارة + تسارع قلب',desc:'الحرارة 38.6°م وتسارع القلب 104. يُوصى باستبعاد الإنتان.',tags:['P2 عالٍ','إنتان مشتبه'],time:'14:28:41',ack:false},
+  {type:'high',icon:'⚠️',title:'P-0044 — SpO₂ عند الحد الأدنى',desc:'SpO₂ 93% وتنفس 20/دقيقة. تدهور بطيء.',tags:['P2 عالٍ','تنفس'],time:'14:25:18',ack:false},
+  {type:'info',icon:'ℹ️',title:'P-0029 — رُفع مؤشر الخطر P4 → P3',desc:'معدل التنفس ارتفع من 16 إلى 21 خلال 40 دقيقة.',tags:['إعادة تصنيف'],time:'14:19:55',ack:true},
+  {type:'ok',icon:'✅',title:'P-0022 — مستقر، نُقل للغرفة',desc:'المريض فُحص. مؤشر الخطر استقر بعد التدخل.',tags:['تم الحل'],time:'14:14:02',ack:true},
+  {type:'info',icon:'ℹ️',title:'نظام — تحديث معايرة الذكاء الاصطناعي',desc:'إصدار NEWS2-calibrated v2.1.4 مُفعَّل.',tags:['نظام','تحديث'],time:'13:58:00',ack:true},
+];
+
+const auditData = [
+  {time:'14:31:04',user:'النظام',action:'تنبيه حرج أُرسل للطبيب',target:'P-0041'},
+  {time:'14:31:22',user:'د. عمر خالد',action:'تأكيد استلام التنبيه',target:'P-0041'},
+  {time:'14:29:00',user:'النظام',action:'رُفع مؤشر الخطر إلى P2',target:'P-0038'},
+  {time:'14:28:41',user:'النظام',action:'تنبيه عالٍ أُرسل للممرضة',target:'P-0038'},
+  {time:'14:25:18',user:'النظام',action:'تنبيه عالٍ — SpO₂ عند الحد',target:'P-0044'},
+  {time:'14:19:55',user:'النظام',action:'إعادة تصنيف P4 → P3',target:'P-0029'},
+  {time:'14:15:00',user:'م. سارة أحمد',action:'تسجيل مريض جديد',target:'P-0044'},
+  {time:'14:14:02',user:'د. ليلى حسن',action:'نقل المريض للغرفة',target:'P-0022'},
+  {time:'14:10:30',user:'ENG_ALAA MOHAMMED',action:'تسجيل دخول إلى النظام',target:'النظام'},
+  {time:'13:58:00',user:'النظام',action:'تحديث نموذج الذكاء الاصطناعي v2.1.4',target:'المنصة'},
+];
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let soundOn = true;
+let isLight = false;
+let currentRole = 'طبيب';
+let currentUser = 'ENG_ALAA MOHAMMED';
+let admittedPatients = [];
+let trendChartInstance = null;
+let donutChartInstance = null;
+let lineChartInstance = null;
+let barChartInstance = null;
+let autoRefreshInterval = null;
+
+// ══════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════
+function selectRole(btn, role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentRole = role;
+}
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  if (!u) { alert('أدخل اسم المستخدم'); return; }
+  currentUser = u;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-header').style.display = 'flex';
+  document.getElementById('app-nav').style.display = 'flex';
+  document.getElementById('app-main').style.display = 'block';
+  document.getElementById('refresh-bar').style.display = 'block';
+  document.getElementById('header-role').textContent = currentRole;
+  document.getElementById('header-user').textContent = currentUser;
+  addAudit('تسجيل دخول', 'النظام');
+  initApp();
+}
+function doLogout() {
+  if (!confirm('هل تريد تسجيل الخروج؟')) return;
+  addAudit('تسجيل خروج', 'النظام');
+  location.reload();
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+function initApp() {
+  renderPatients();
+  renderMiniCharts();
+  renderDonut();
+  renderAlerts();
+  renderAudit();
+  calcScore();
+  startClock();
+  startAutoRefresh();
+  setTimeout(renderReports, 300);
+}
+
+// ══════════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════════
+function startClock() {
+  function tick() {
+    const n = new Date();
+    const t = [n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+    const el = document.getElementById('live-clock');
+    if (el) el.textContent = t;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ══════════════════════════════════════════
+//  AUTO REFRESH (60s)
+// ══════════════════════════════════════════
+function startAutoRefresh() {
+  autoRefreshInterval = setInterval(() => {
+    patients.forEach(p => {
+      p.spo2 = Math.max(85, Math.min(100, p.spo2 + Math.round((Math.random()-.5)*2)));
+      p.hr   = Math.max(40, Math.min(150, p.hr + Math.round((Math.random()-.5)*4)));
+      p.temp = Math.max(35, Math.min(41, parseFloat((p.temp + (Math.random()-.5)*.2).toFixed(1))));
+      p.waitMin++;
+      recalcRisk(p);
+    });
+    renderPatients();
+    renderDonut();
+    // restart bar animation
+    const bar = document.getElementById('refresh-bar');
+    bar.style.animation='none'; bar.offsetHeight;
+    bar.style.animation='refreshAnim 60s linear infinite';
+  }, 60000);
+}
+function manualRefresh() {
+  patients.forEach(p => {
+    p.spo2 = Math.max(85, Math.min(100, p.spo2 + Math.round((Math.random()-.5)*3)));
+    p.hr   = Math.max(40, Math.min(150, p.hr + Math.round((Math.random()-.5)*5)));
+    recalcRisk(p);
+  });
+  renderPatients();
+  renderDonut();
+  addAudit('تحديث يدوي للبيانات', 'لوحة التحكم');
+}
+function recalcRisk(p) {
+  let s=0;
+  if(p.spo2<92)s+=40; else if(p.spo2<94)s+=25; else if(p.spo2<96)s+=10;
+  if(p.hr>120||p.hr<45)s+=30; else if(p.hr>100||p.hr<60)s+=18;
+  if(p.rr>25)s+=20; else if(p.rr>20)s+=12;
+  if(p.temp>39.5||p.temp<35)s+=18; else if(p.temp>38.5)s+=10;
+  p.risk=Math.min(100,s);
+  p.level=p.risk>=80?'crit':p.risk>=50?'high':p.risk>=25?'med':'low';
+  p.targetMin=p.level==='crit'?0:p.level==='high'?15:p.level==='med'?60:240;
+}
+
+// ══════════════════════════════════════════
+//  PATIENTS TABLE
+// ══════════════════════════════════════════
+let sortKey='risk', sortDir=-1;
+function sortPatients(key) {
+  if(sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=-1;}
+  renderPatients();
+}
+function renderPatients() {
+  const sorted=[...patients].sort((a,b)=>{
+    let av=a[sortKey]??0, bv=b[sortKey]??0;
+    if(typeof av==='string') return av.localeCompare(bv)*sortDir;
+    return (av-bv)*sortDir;
+  });
+  const tbody=document.getElementById('patient-tbody');
+  if(!tbody)return;
+  tbody.innerHTML='';
+  sorted.forEach(p=>{
+    const bc={crit:'rb-crit',high:'rb-high',med:'rb-med',low:'rb-low'}[p.level];
+    const bt={crit:'حرج '+p.risk,high:'عالٍ '+p.risk,med:'متوسط '+p.risk,low:'منخفض '+p.risk}[p.level];
+    const rc={crit:'crit',high:'high-r',med:'',low:''}[p.level];
+    const sc=p.spo2<92?'v-bad':p.spo2<95?'v-warn':'v-ok';
+    const hc=p.hr>120||p.hr<45?'v-bad':p.hr>100?'v-warn':'v-ok';
+    const tc=p.temp>39.5||p.temp<35?'v-bad':p.temp>38.5?'v-warn':'v-ok';
+    const remaining=p.targetMin-p.waitMin;
+    let cdClass='cd-green', cdText='—';
+    if(p.level==='crit'){cdText='فوري';cdClass='cd-red';}
+    else if(remaining<=0){cdText='تأخر!';cdClass='cd-red';}
+    else if(remaining<15){cdText=remaining+'د';cdClass='cd-amber';}
+    else{cdText=remaining+'د';cdClass='cd-green';}
+    const wh=Math.floor(p.waitMin/60), wm=p.waitMin%60;
+    const waitStr=wh>0?`${wh}س ${wm}د`:`${wm} د`;
+    tbody.innerHTML+=`<tr class="${rc}">
+      <td><strong style="font-family:var(--mono);font-size:.78rem">${p.id}</strong><br><span style="font-size:.68rem;color:var(--text3)">${p.gender}، ${p.age}س</span></td>
+      <td><span class="risk-badge ${bc}">${bt}</span></td>
+      <td><span class="vital ${sc}">${p.spo2}%</span></td>
+      <td><span class="vital ${hc}">${p.hr}</span></td>
+      <td><span class="vital ${tc}">${p.temp}°م</span></td>
+      <td style="font-size:.75rem;color:var(--text2)">${waitStr}</td>
+      <td><span class="countdown ${cdClass}">${cdText}</span></td>
+      <td style="font-size:.7rem;color:${p.level==='crit'?'var(--red)':p.level==='high'?'var(--amber)':'var(--text3)'}">${p.flag}</td>
+      <td><button onclick="openPatient('${p.id}')" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:.68rem;padding:3px 7px;cursor:pointer;font-family:var(--font)">عرض</button></td>
+    </tr>`;
+  });
+  // update stats
+  const c=patients.filter(p=>p.level==='crit').length;
+  const h=patients.filter(p=>p.level==='high').length;
+  const el=document.getElementById('s-crit'); if(el)el.textContent=c;
+  const el2=document.getElementById('s-high'); if(el2)el2.textContent=h;
+}
+
+// ══════════════════════════════════════════
+//  MINI CHARTS
+// ══════════════════════════════════════════
+function renderMiniCharts() {
+  const spo2=[96,96,97,96,95,96,97,96,94,95,96,97,96];
+  const hr=[78,80,82,85,88,86,90,88,92,89,87,88,85];
+  const alt=[1,0,2,1,1,3,2,1,0,2,1,2,3];
+  function mc(id,data,color){
+    const el=document.getElementById(id); if(!el)return;
+    const mx=Math.max(...data),mn=Math.min(...data);
+    el.innerHTML=data.map(v=>{const h=Math.max(4,Math.round(((v-mn)/(mx-mn+.01))*26+4));return`<div class="mini-bar" style="height:${h}px;background:${color};opacity:${.4+(v-mn)/(mx-mn+.01)*.6}"></div>`;}).join('');
+  }
+  mc('chart-spo2',spo2,'#4DA8FF');
+  mc('chart-hr',hr,'#FFAA55');
+  mc('chart-alerts',alt,'#FF6B6B');
+}
+
+// ══════════════════════════════════════════
+//  DONUT CHART
+// ══════════════════════════════════════════
+function renderDonut() {
+  const c=patients.filter(p=>p.level==='crit').length;
+  const h=patients.filter(p=>p.level==='high').length;
+  const m=patients.filter(p=>p.level==='med').length;
+  const l=patients.filter(p=>p.level==='low').length;
+  ['dl-crit','dl-high','dl-med','dl-low'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=[c,h,m,l][i];});
+  const canvas=document.getElementById('donut-chart'); if(!canvas)return;
+  if(donutChartInstance){donutChartInstance.data.datasets[0].data=[c,h,m,l];donutChartInstance.update();return;}
+  donutChartInstance=new Chart(canvas,{type:'doughnut',data:{datasets:[{data:[c,h,m,l],backgroundColor:['#FF6B6B','#FFAA55','#CC88FF','#66DD88'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:true,cutout:'72%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' مريض'}}}}});
+}
+
+// ══════════════════════════════════════════
+//  REPORTS CHARTS
+// ══════════════════════════════════════════
+function renderReports() {
+  const lineCanvas=document.getElementById('line-chart');
+  const barCanvas=document.getElementById('bar-chart');
+  const labels=['08:00','09:00','10:00','11:00','12:00','13:00','14:00'];
+  const cfg={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8B9BB4',font:{family:'Cairo',size:11}}}},scales:{x:{ticks:{color:'#5A6A80',font:{family:'Cairo',size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#5A6A80',font:{family:'Cairo',size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}};
+  if(lineCanvas&&!lineChartInstance){
+    lineChartInstance=new Chart(lineCanvas,{type:'line',data:{labels,datasets:[{label:'P1 حرج',data:[0,1,0,1,1,1,1],borderColor:'#FF6B6B',backgroundColor:'rgba(255,107,107,.1)',tension:.4,fill:true},{label:'P2 عالٍ',data:[1,2,1,2,3,2,2],borderColor:'#FFAA55',backgroundColor:'rgba(255,170,85,.1)',tension:.4,fill:true}]},options:cfg});
+  }
+  if(barCanvas&&!barChartInstance){
+    barChartInstance=new Chart(barCanvas,{type:'bar',data:{labels:['P-0041','P-0038','P-0044','P-0029','P-0022'],datasets:[{label:'وقت الاستجابة (دقائق)',data:[1.2,3.5,4.1,8.2,2.8],backgroundColor:['rgba(255,107,107,.7)','rgba(255,170,85,.7)','rgba(255,170,85,.7)','rgba(204,136,255,.7)','rgba(102,221,136,.7)'],borderRadius:6}]},options:{...cfg,plugins:{...cfg.plugins,legend:{display:false}}}});
+  }
+}
+
+// ══════════════════════════════════════════
+//  ALERTS
+// ══════════════════════════════════════════
+function renderAlerts(filter='all') {
+  const list=document.getElementById('alerts-list'); if(!list)return;
+  const fd=filter==='all'?alertsData:alertsData.filter(a=>a.type===filter);
+  list.innerHTML=fd.map((a,i)=>`
+    <div class="alert-card ac-${a.type}">
+      <div class="alert-icon ai-${a.type}">${a.icon}</div>
+      <div class="alert-body">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-meta">${a.tags.map(t=>`<span class="alert-tag">${t}</span>`).join('')}</div>
+        ${!a.ack?`<button class="ack-btn" onclick="ackAlert(${alertsData.indexOf(a)})">✓ تأكيد الاستلام</button>`:'<span style="font-size:.7rem;color:var(--green);margin-top:5px;display:block">✓ تم التأكيد</span>'}
+      </div>
+      <div class="alert-time-right">${a.time}</div>
+    </div>`).join('');
+}
+function filterAlerts(type,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAlerts(type);
+}
+function ackAlert(i){
+  alertsData[i].ack=true;
+  addAudit('تأكيد تنبيه','تنبيهات');
+  renderAlerts('all');
+  const u=alertsData.filter(a=>!a.ack).length;
+  const bd=document.getElementById('alert-badge');
+  if(bd){bd.textContent=u;bd.style.display=u===0?'none':'inline';}
+  if(soundOn&&u<alertsData.filter(a=>!a.ack).length+1) playBeep(200,0.05);
+}
+
+// ══════════════════════════════════════════
+//  AUDIT LOG
+// ══════════════════════════════════════════
+function addAudit(action,target){
+  const n=new Date();
+  const t=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  auditData.unshift({time:t,user:currentUser,action,target});
+  renderAudit();
+}
+function renderAudit(){
+  const el=document.getElementById('audit-log'); if(!el)return;
+  el.innerHTML=auditData.map(a=>`
+    <div class="audit-item">
+      <span class="audit-time">${a.time}</span>
+      <span class="audit-user">${a.user}</span>
+      <span class="audit-action">${a.action} — <span class="audit-target">${a.target}</span></span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  SIMULATOR
+// ══════════════════════════════════════════
+function calcScore(){
+  const spo2=parseInt(document.getElementById('sl-spo2').value);
+  const hr=parseInt(document.getElementById('sl-hr').value);
+  const rr=parseInt(document.getElementById('sl-rr').value);
+  const temp=parseInt(document.getElementById('sl-temp').value)/10;
+  document.getElementById('v-spo2').textContent=spo2+'%';
+  document.getElementById('v-hr').textContent=hr+' bpm';
+  document.getElementById('v-rr').textContent=rr+'/دق';
+  document.getElementById('v-temp').textContent=temp.toFixed(1)+'°م';
+  let s=0;
+  if(spo2<92)s+=40;else if(spo2<94)s+=25;else if(spo2<96)s+=10;
+  if(hr>120||hr<45)s+=30;else if(hr>100||hr<60)s+=18;
+  if(rr>25)s+=20;else if(rr>20)s+=12;
+  if(temp>39.5||temp<35)s+=18;else if(temp>38.5)s+=10;
+  s=Math.min(100,s);
+  const d=document.getElementById('score-display');
+  const num=document.getElementById('score-num');
+  const lbl=document.getElementById('score-label');
+  const act=document.getElementById('score-action');
+  num.textContent=s;
+  if(s>=80){d.style.cssText='text-align:center;padding:1.25rem;border-radius:12px;margin-top:.75rem;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3)';num.style.color='#FF6B6B';lbl.style.color='#FF6B6B';lbl.textContent='حرج — P1';act.textContent='⚡ تنبيه فوري — ينادى الطبيب المسؤول';}
+  else if(s>=50){d.style.cssText='text-align:center;padding:1.25rem;border-radius:12px;margin-top:.75rem;background:rgba(211,84,0,.15);border:1px solid rgba(211,84,0,.3)';num.style.color='#FFAA55';lbl.style.color='#FFAA55';lbl.textContent='عالٍ — P2';act.textContent='⏱ مراجعة خلال 15 دقيقة';}
+  else if(s>=25){d.style.cssText='text-align:center;padding:1.25rem;border-radius:12px;margin-top:.75rem;background:rgba(125,60,152,.15);border:1px solid rgba(125,60,152,.3)';num.style.color='#CC88FF';lbl.style.color='#CC88FF';lbl.textContent='متوسط — P3';act.textContent='🕐 مراجعة خلال ساعة';}
+  else{d.style.cssText='text-align:center;padding:1.25rem;border-radius:12px;margin-top:.75rem;background:rgba(30,132,73,.15);border:1px solid rgba(30,132,73,.3)';num.style.color='#66DD88';lbl.style.color='#66DD88';lbl.textContent='منخفض — P4';act.textContent='✅ جميع المؤشرات طبيعية';}
+}
+
+// ══════════════════════════════════════════
+//  ADMISSION
+// ══════════════════════════════════════════
+let admCounter=50;
+function admitPatient(){
+  const name=document.getElementById('adm-name').value.trim();
+  const spo2=parseInt(document.getElementById('adm-spo2').value)||97;
+  const hr=parseInt(document.getElementById('adm-hr').value)||80;
+  const temp=parseFloat(document.getElementById('adm-temp').value)||37.0;
+  const rr=parseInt(document.getElementById('adm-rr').value)||16;
+  const age=parseInt(document.getElementById('adm-age').value)||30;
+  const gender=document.getElementById('adm-gender').value;
+  const complaint=document.getElementById('adm-complaint').value||'غير محدد';
+  if(!name){alert('أدخل اسم المريض');return;}
+  admCounter++;
+  const id=`P-00${admCounter}`;
+  let s=0;
+  if(spo2<92)s+=40;else if(spo2<94)s+=25;else if(spo2<96)s+=10;
+  if(hr>120||hr<45)s+=30;else if(hr>100||hr<60)s+=18;
+  if(rr>25)s+=20;else if(rr>20)s+=12;
+  if(temp>39.5||temp<35)s+=18;else if(temp>38.5)s+=10;
+  s=Math.min(100,s);
+  const level=s>=80?'crit':s>=50?'high':s>=25?'med':'low';
+  const newP={id,gender,age,risk:s,level,spo2,hr,temp,rr,waitMin:0,flag:complaint.substring(0,15),spo2Trend:'flat',hrTrend:'flat',notes:`${complaint}`,targetMin:level==='crit'?0:level==='high'?15:level==='med'?60:240};
+  patients.unshift(newP);
+  admittedPatients.unshift({id,name,level,time:new Date().toLocaleTimeString('ar')});
+  renderPatients();
+  renderDonut();
+  renderAdmittedList();
+  addAudit(`تسجيل مريض جديد (${level})`,id);
+  if(soundOn&&(level==='crit'||level==='high')) playBeep(level==='crit'?880:660,0.15);
+  ['adm-name','adm-id','adm-age','adm-spo2','adm-hr','adm-temp','adm-rr','adm-complaint','adm-history'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  alert(`✅ تم تسجيل المريض ${name} — ${id}\nمستوى الخطر: ${level==='crit'?'حرج P1':level==='high'?'عالٍ P2':level==='med'?'متوسط P3':'منخفض P4'}`);
+}
+function renderAdmittedList(){
+  const el=document.getElementById('admitted-list'); if(!el)return;
+  if(admittedPatients.length===0){el.innerHTML='<div style="font-size:.78rem;color:var(--text3);text-align:center;padding:1rem;">لا يوجد مرضى مسجلون بعد</div>';return;}
+  el.innerHTML=admittedPatients.map(p=>`
+    <div class="admitted-item">
+      <span class="admitted-id">${p.id}</span>
+      <span style="flex:1">${p.name}</span>
+      <span class="risk-badge ${p.level==='crit'?'rb-crit':p.level==='high'?'rb-high':p.level==='med'?'rb-med':'rb-low'}">${p.level==='crit'?'حرج':p.level==='high'?'عالٍ':p.level==='med'?'متوسط':'منخفض'}</span>
+      <span style="font-size:.68rem;color:var(--text3);font-family:var(--mono)">${p.time}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  PATIENT MODAL + TREND CHART
+// ══════════════════════════════════════════
+function openPatient(id){
+  const p=patients.find(x=>x.id===id); if(!p)return;
+  const bc={crit:'rb-crit',high:'rb-high',med:'rb-med',low:'rb-low'}[p.level];
+  const bt={crit:'حرج',high:'عالٍ',med:'متوسط',low:'منخفض'}[p.level];
+  document.getElementById('modal-title').textContent=`${p.id} — ${p.gender}، ${p.age} سنة`;
+  document.getElementById('modal-vitals').innerHTML=`
+    <div class="vital-box"><div class="vb-label">SpO₂</div><div class="vb-val" style="color:${p.spo2<92?'var(--red)':p.spo2<95?'var(--amber)':'var(--green)'}">${p.spo2}</div><div class="vb-unit">%</div></div>
+    <div class="vital-box"><div class="vb-label">معدل القلب</div><div class="vb-val" style="color:${p.hr>120||p.hr<45?'var(--red)':p.hr>100?'var(--amber)':'var(--green)'}">${p.hr}</div><div class="vb-unit">bpm</div></div>
+    <div class="vital-box"><div class="vb-label">الحرارة</div><div class="vb-val" style="color:${p.temp>39.5?'var(--red)':p.temp>38.5?'var(--amber)':'var(--green)'}">${p.temp}</div><div class="vb-unit">°م</div></div>
+    <div class="vital-box"><div class="vb-label">التنفس</div><div class="vb-val" style="color:${p.rr>25?'var(--red)':p.rr>20?'var(--amber)':'var(--green)'}">${p.rr}</div><div class="vb-unit">/دق</div></div>`;
+  document.getElementById('modal-risk-display').innerHTML=`
+    <div style="text-align:center;padding:.85rem;background:var(--bg3);border-radius:9px;margin:.5rem 0;">
+      <div style="font-size:.65rem;color:var(--text3);margin-bottom:.2rem">مؤشر الخطر</div>
+      <div style="font-size:2.2rem;font-weight:900;font-family:var(--mono)">${p.risk}</div>
+      <span class="risk-badge ${bc}" style="margin-top:.25rem;display:inline-flex">${bt} — P${p.level==='crit'?1:p.level==='high'?2:p.level==='med'?3:4}</span>
+    </div>`;
+  document.getElementById('modal-notes').innerHTML=`<strong>ملاحظات سريرية:</strong><br>${p.notes}`;
+
+  // Trend chart
+  const trendCanvas=document.getElementById('trend-chart');
+  if(trendChartInstance){trendChartInstance.destroy();trendChartInstance=null;}
+  const base=p.spo2; const labels=[];const data=[];
+  for(let i=29;i>=0;i--){labels.push(i===0?'الآن':`${i}د`);data.push(Math.max(80,Math.min(100,base+(i===0?0:Math.round((Math.random()-.4)*(30-i)*0.3)))));}
+  data[data.length-1]=p.spo2;
+  trendChartInstance=new Chart(trendCanvas,{type:'line',data:{labels,datasets:[{label:'SpO₂',data,borderColor:p.spo2<92?'#FF6B6B':p.spo2<95?'#FFAA55':'#00D4AA',backgroundColor:p.spo2<92?'rgba(255,107,107,.1)':p.spo2<95?'rgba(255,170,85,.1)':'rgba(0,212,170,.1)',tension:.4,fill:true,pointRadius:0,pointHoverRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#5A6A80',maxTicksLimit:6,font:{size:9}},grid:{display:false}},y:{min:Math.max(78,p.spo2-12),max:101,ticks:{color:'#5A6A80',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  document.getElementById('modal').classList.add('open');
+  addAudit(`عرض ملف المريض`,p.id);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+// ══════════════════════════════════════════
+//  SOUND
+// ══════════════════════════════════════════
+let audioCtx=null;
+function playBeep(freq=440,vol=0.1){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.frequency.value=freq;g.gain.value=vol;
+    o.start();g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.4);
+    o.stop(audioCtx.currentTime+.4);
+  }catch(e){}
+}
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById('sound-btn').textContent=soundOn?'🔔':'🔕';
+  addAudit(soundOn?'تفعيل الصوت':'إيقاف الصوت','الإعدادات');
+}
+// Play alert sound on load
+setTimeout(()=>{if(soundOn)playBeep(880,0.08);},1500);
+
+// ══════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════
+function toggleTheme(){
+  isLight=!isLight;
+  document.body.classList.toggle('light-mode',isLight);
+  const btn=document.querySelector('.icon-btn[onclick="toggleTheme()"]');
+  if(btn)btn.textContent=isLight?'🌙':'☀️';
+  addAudit(isLight?'تفعيل الوضع النهاري':'تفعيل الوضع الليلي','الإعدادات');
+}
+
+// ══════════════════════════════════════════
+//  ARCH TOGGLE
+// ══════════════════════════════════════════
+function toggleArch(el){el.classList.toggle('open');}
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const btn=document.querySelector(`[data-page="${id}"]`);
+  if(btn)btn.classList.add('active');
+  if(id==='reports')setTimeout(renderReports,100);
+  addAudit(`فتح صفحة: ${id}`,'التنقل');
+}
+
+// ══════════════════════════════════════════
+//  EXPORT REPORT
+// ══════════════════════════════════════════
+function exportReport(){
+  const content=`تقرير النوبة - TriageIQ\nENG_ALAA MOHAMMED\n${new Date().toLocaleString('ar')}\n\n`+
+    `إجمالي المرضى: 14\nمتوسط الانتظار: 42 دقيقة\nمتوسط الاستجابة: 3.2 دقيقة\nتنبيهات أُرسلت: 7\nدقة التصنيف: 94%\n\n`+
+    `تفاصيل المرضى:\n`+patients.map(p=>`${p.id} | ${p.gender} ${p.age}س | خطر: ${p.risk} (${p.level}) | SpO₂: ${p.spo2}% | HR: ${p.hr}`).join('\n');
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`TriageIQ_Report_${new Date().toISOString().slice(0,10)}.txt`;a.click();
+  addAudit('تصدير تقرير النوبة','التقارير');
+}
+</script>
+</body>
+</html>

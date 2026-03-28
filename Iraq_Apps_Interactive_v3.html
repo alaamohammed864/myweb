@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقات العراق الذكية | النسخة التفاعلية 3.0</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Noto Sans Arabic,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.inset-y-0{top:0;bottom:0}.bottom-0{bottom:0}.left-0{left:0}.left-4{left:1rem}.right-0{right:0}.top-0{top:0}.top-4{top:1rem}.top-8{top:2rem}.z-0{z-index:0}.z-10{z-index:10}.z-40{z-index:40}.z-50{z-index:50}.col-span-2{grid-column:span 2/span 2}.mx-auto{margin-left:auto;margin-right:auto}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.ml-2{margin-left:.5rem}.mr-1{margin-right:.25rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-auto{margin-top:auto}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.aspect-\[3\/4\]{aspect-ratio:3/4}.h-0\.5{height:.125rem}.h-10{height:2.5rem}.h-12{height:3rem}.h-16{height:4rem}.h-3{height:.75rem}.h-32{height:8rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-full{height:100%}.h-px{height:1px}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-12{width:3rem}.w-16{width:4rem}.w-3{width:.75rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-7xl{max-width:80rem}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.flex-grow{flex-grow:1}.table-auto{table-layout:auto}.translate-x-\[-5px\]{--tw-translate-x:-5px}.rotate-3,.translate-x-\[-5px\]{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-3{--tw-rotate:3deg}.scale-100{--tw-scale-x:1;--tw-scale-y:1}.scale-100,.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}.animate-fade-in{animation:fadeIn .5s ease-out}@keyframes pulse{50%{opacity:.5}}.animate-pulse-slow{animation:pulse 3s cubic-bezier(.4,0,.6,1) infinite}@keyframes slideUp{0%{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}.animate-slide-up{animation:slideUp .4s ease-out}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}.resize-none{resize:none}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.gap-1{gap:.25rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-x-2{-moz-column-gap:.5rem;column-gap:.5rem}.gap-y-2{row-gap:.5rem}.space-x-1>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(.25rem*var(--tw-space-x-reverse));margin-left:calc(.25rem*(1 - var(--tw-space-x-reverse)))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-10>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2.5rem*var(--tw-space-y-reverse))}.space-y-12>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(3rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(3rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.space-x-reverse>:not([hidden])~:not([hidden]){--tw-space-x-reverse:1}.divide-y>:not([hidden])~:not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px*(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px*var(--tw-divide-y-reverse))}.divide-gray-200>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(229 231 235/var(--tw-divide-opacity,1))}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-pre{white-space:pre}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l{border-left-width:1px}.border-t{border-top-width:1px}.border-amber-100{--tw-border-opacity:1;border-color:rgb(254 243 199/var(--tw-border-opacity,1))}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11/var(--tw-border-opacity,1))}.border-amber-800{--tw-border-opacity:1;border-color:rgb(146 64 14/var(--tw-border-opacity,1))}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254/var(--tw-border-opacity,1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254/var(--tw-border-opacity,1))}.border-blue-800{--tw-border-opacity:1;border-color:rgb(30 64 175/var(--tw-border-opacity,1))}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229/var(--tw-border-opacity,1))}.border-emerald-500{--tw-border-opacity:1;border-color:rgb(16 185 129/var(--tw-border-opacity,1))}.border-emerald-800{--tw-border-opacity:1;border-color:rgb(6 95 70/var(--tw-border-opacity,1))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246/var(--tw-border-opacity,1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235/var(--tw-border-opacity,1))}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219/var(--tw-border-opacity,1))}.border-gray-600{--tw-border-opacity:1;border-color:rgb(75 85 99/var(--tw-border-opacity,1))}.border-gray-700{--tw-border-opacity:1;border-color:rgb(55 65 81/var(--tw-border-opacity,1))}.border-gray-800{--tw-border-opacity:1;border-color:rgb(31 41 55/var(--tw-border-opacity,1))}.border-primary-100{--tw-border-opacity:1;border-color:rgb(219 234 254/var(--tw-border-opacity,1))}.border-primary-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.border-primary-900{--tw-border-opacity:1;border-color:rgb(30 58 138/var(--tw-border-opacity,1))}.border-red-200{--tw-border-opacity:1;border-color:rgb(254 202 202/var(--tw-border-opacity,1))}.border-red-500{--tw-border-opacity:1;border-color:rgb(239 68 68/var(--tw-border-opacity,1))}.border-white\/20{border-color:hsla(0,0%,100%,.2)}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199/var(--tw-bg-opacity,1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6/var(--tw-bg-opacity,1))}.bg-amber-800{--tw-bg-opacity:1;background-color:rgb(146 64 14/var(--tw-bg-opacity,1))}.bg-amber-900\/20{background-color:rgba(120,53,15,.2)}.bg-amber-900\/30{background-color:rgba(120,53,15,.3)}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.bg-blue-200{--tw-bg-opacity:1;background-color:rgb(191 219 254/var(--tw-bg-opacity,1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-800{--tw-bg-opacity:1;background-color:rgb(30 64 175/var(--tw-bg-opacity,1))}.bg-blue-900\/20{background-color:rgba(30,58,138,.2)}.bg-blue-900\/30{background-color:rgba(30,58,138,.3)}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229/var(--tw-bg-opacity,1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245/var(--tw-bg-opacity,1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105/var(--tw-bg-opacity,1))}.bg-emerald-800{--tw-bg-opacity:1;background-color:rgb(6 95 70/var(--tw-bg-opacity,1))}.bg-emerald-900\/20{background-color:rgba(6,78,59,.2)}.bg-emerald-900\/30{background-color:rgba(6,78,59,.3)}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246/var(--tw-bg-opacity,1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235/var(--tw-bg-opacity,1))}.bg-gray-300{--tw-bg-opacity:1;background-color:rgb(209 213 219/var(--tw-bg-opacity,1))}.bg-gray-400{--tw-bg-opacity:1;background-color:rgb(156 163 175/var(--tw-bg-opacity,1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251/var(--tw-bg-opacity,1))}.bg-gray-700{--tw-bg-opacity:1;background-color:rgb(55 65 81/var(--tw-bg-opacity,1))}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55/var(--tw-bg-opacity,1))}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39/var(--tw-bg-opacity,1))}.bg-gray-900\/30{background-color:rgba(17,24,39,.3)}.bg-gray-900\/50{background-color:rgba(17,24,39,.5)}.bg-gray-900\/60{background-color:rgba(17,24,39,.6)}.bg-green-100{--tw-bg-opacity:1;background-color:rgb(220 252 231/var(--tw-bg-opacity,1))}.bg-green-700{--tw-bg-opacity:1;background-color:rgb(21 128 61/var(--tw-bg-opacity,1))}.bg-green-900\/30{background-color:rgba(20,83,45,.3)}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity,1))}.bg-orange-100{--tw-bg-opacity:1;background-color:rgb(255 237 213/var(--tw-bg-opacity,1))}.bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity,1))}.bg-pink-600{--tw-bg-opacity:1;background-color:rgb(219 39 119/var(--tw-bg-opacity,1))}.bg-primary-100{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.bg-primary-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-primary-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-primary-700{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.bg-primary-900{--tw-bg-opacity:1;background-color:rgb(30 58 138/var(--tw-bg-opacity,1))}.bg-purple-100{--tw-bg-opacity:1;background-color:rgb(243 232 255/var(--tw-bg-opacity,1))}.bg-purple-800{--tw-bg-opacity:1;background-color:rgb(107 33 168/var(--tw-bg-opacity,1))}.bg-purple-900\/30{background-color:rgba(88,28,135,.3)}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity,1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68/var(--tw-bg-opacity,1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38/var(--tw-bg-opacity,1))}.bg-teal-100{--tw-bg-opacity:1;background-color:rgb(204 251 241/var(--tw-bg-opacity,1))}.bg-teal-600{--tw-bg-opacity:1;background-color:rgb(13 148 136/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/10{background-color:hsla(0,0%,100%,.1)}.bg-white\/20{background-color:hsla(0,0%,100%,.2)}.bg-yellow-100{--tw-bg-opacity:1;background-color:rgb(254 249 195/var(--tw-bg-opacity,1))}.bg-\[url\(\'https\:\/\/www\.transparenttextures\.com\/patterns\/cubes\.png\'\)\]{background-image:url(https://www.transparenttextures.com/patterns/cubes.png)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops))}.from-amber-600{--tw-gradient-from:#d97706 var(--tw-gradient-from-position);--tw-gradient-to:rgba(217,119,6,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgba(5,150,105,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-primary-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgba(37,99,235,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-primary-700{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgba(29,78,216,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-primary-600{--tw-gradient-to:rgba(37,99,235,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#2563eb var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-amber-800{--tw-gradient-to:#92400e var(--tw-gradient-to-position)}.to-blue-800{--tw-gradient-to:#1e40af var(--tw-gradient-to-position)}.to-emerald-800{--tw-gradient-to:#065f46 var(--tw-gradient-to-position)}.p-10{padding:2.5rem}.p-12{padding:3rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-24{padding-bottom:6rem}.pb-8{padding-bottom:2rem}.pl-10{padding-left:2.5rem}.pl-4{padding-left:1rem}.pr-10{padding-right:2.5rem}.pr-3{padding-right:.75rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-heading{font-family:Cairo,sans-serif}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-\[10px\]{font-size:10px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:.025em}.text-amber-100{--tw-text-opacity:1;color:rgb(254 243 199/var(--tw-text-opacity,1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14/var(--tw-text-opacity,1))}.text-blue-100{--tw-text-opacity:1;color:rgb(219 234 254/var(--tw-text-opacity,1))}.text-blue-200{--tw-text-opacity:1;color:rgb(191 219 254/var(--tw-text-opacity,1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253/var(--tw-text-opacity,1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity,1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138/var(--tw-text-opacity,1))}.text-emerald-100{--tw-text-opacity:1;color:rgb(209 250 229/var(--tw-text-opacity,1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105/var(--tw-text-opacity,1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87/var(--tw-text-opacity,1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70/var(--tw-text-opacity,1))}.text-gray-100{--tw-text-opacity:1;color:rgb(243 244 246/var(--tw-text-opacity,1))}.text-gray-200{--tw-text-opacity:1;color:rgb(229 231 235/var(--tw-text-opacity,1))}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219/var(--tw-text-opacity,1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175/var(--tw-text-opacity,1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128/var(--tw-text-opacity,1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55/var(--tw-text-opacity,1))}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39/var(--tw-text-opacity,1))}.text-green-300{--tw-text-opacity:1;color:rgb(134 239 172/var(--tw-text-opacity,1))}.text-green-800{--tw-text-opacity:1;color:rgb(22 101 52/var(--tw-text-opacity,1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163/var(--tw-text-opacity,1))}.text-orange-800{--tw-text-opacity:1;color:rgb(154 52 18/var(--tw-text-opacity,1))}.text-pink-300{--tw-text-opacity:1;color:rgb(249 168 212/var(--tw-text-opacity,1))}.text-pink-600{--tw-text-opacity:1;color:rgb(219 39 119/var(--tw-text-opacity,1))}.text-primary-300{--tw-text-opacity:1;color:rgb(147 197 253/var(--tw-text-opacity,1))}.text-primary-400{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.text-primary-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-primary-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-primary-700{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.text-purple-300{--tw-text-opacity:1;color:rgb(216 180 254/var(--tw-text-opacity,1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234/var(--tw-text-opacity,1))}.text-purple-800{--tw-text-opacity:1;color:rgb(107 33 168/var(--tw-text-opacity,1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27/var(--tw-text-opacity,1))}.text-teal-600{--tw-text-opacity:1;color:rgb(13 148 136/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-yellow-800{--tw-text-opacity:1;color:rgb(133 77 14/var(--tw-text-opacity,1))}.placeholder-gray-400::-moz-placeholder{--tw-placeholder-opacity:1;color:rgb(156 163 175/var(--tw-placeholder-opacity,1))}.placeholder-gray-400::placeholder{--tw-placeholder-opacity:1;color:rgb(156 163 175/var(--tw-placeholder-opacity,1))}.opacity-0{opacity:0}.opacity-10{opacity:.1}.opacity-90{opacity:.9}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color)}.shadow,.shadow-2xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgba(0,0,0,.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color)}.shadow-inner,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-green-500\/30{--tw-shadow-color:rgba(34,197,94,.3);--tw-shadow:var(--tw-shadow-colored)}.shadow-primary-500\/30{--tw-shadow-color:rgba(59,130,246,.3);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-primary-500{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246/var(--tw-ring-opacity,1))}.ring-offset-2{--tw-ring-offset-width:2px}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.backdrop-blur-md,.backdrop-blur-sm{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-shadow{transition-property:box-shadow;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1)}.duration-150,.transition-transform{transition-duration:.15s}.duration-200{transition-duration:.2s}.duration-300{transition-duration:.3s}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.checked\:bg-primary-600:checked{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.hover\:rotate-0:hover{--tw-rotate:0deg}.hover\:rotate-0:hover,.hover\:scale-105:hover{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05}.hover\:border-amber-500:hover{--tw-border-opacity:1;border-color:rgb(245 158 11/var(--tw-border-opacity,1))}.hover\:border-emerald-500:hover{--tw-border-opacity:1;border-color:rgb(16 185 129/var(--tw-border-opacity,1))}.hover\:border-primary-500:hover{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.hover\:bg-gray-100:hover{--tw-bg-opacity:1;background-color:rgb(243 244 246/var(--tw-bg-opacity,1))}.hover\:bg-gray-200:hover{--tw-bg-opacity:1;background-color:rgb(229 231 235/var(--tw-bg-opacity,1))}.hover\:bg-gray-50:hover{--tw-bg-opacity:1;background-color:rgb(249 250 251/var(--tw-bg-opacity,1))}.hover\:bg-green-700:hover{--tw-bg-opacity:1;background-color:rgb(21 128 61/var(--tw-bg-opacity,1))}.hover\:bg-primary-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\:bg-white\/20:hover{background-color:hsla(0,0%,100%,.2)}.hover\:text-gray-600:hover{--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81/var(--tw-text-opacity,1))}.hover\:text-primary-500:hover{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.hover\:underline:hover{text-decoration-line:underline}.hover\:shadow-lg:hover{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.focus\:border-transparent:focus{border-color:transparent}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-amber-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(245 158 11/var(--tw-ring-opacity,1))}.focus\:ring-emerald-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(16 185 129/var(--tw-ring-opacity,1))}.focus\:ring-green-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(34 197 94/var(--tw-ring-opacity,1))}.focus\:ring-offset-2:focus{--tw-ring-offset-width:2px}.group:hover .group-hover\:translate-x-\[-5px\]{--tw-translate-x:-5px}.group:hover .group-hover\:scale-110,.group:hover .group-hover\:translate-x-\[-5px\]{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1}.group:hover .group-hover\:border-primary-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.group:hover .group-hover\:bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6/var(--tw-bg-opacity,1))}.group:hover .group-hover\:bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105/var(--tw-bg-opacity,1))}.group:hover .group-hover\:text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.dark\:divide-gray-700:is(.dark *)>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(55 65 81/var(--tw-divide-opacity,1))}.dark\:border-amber-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(146 64 14/var(--tw-border-opacity,1))}.dark\:border-blue-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(30 64 175/var(--tw-border-opacity,1))}.dark\:border-emerald-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(6 95 70/var(--tw-border-opacity,1))}.dark\:border-gray-600:is(.dark *){--tw-border-opacity:1;border-color:rgb(75 85 99/var(--tw-border-opacity,1))}.dark\:border-gray-700:is(.dark *){--tw-border-opacity:1;border-color:rgb(55 65 81/var(--tw-border-opacity,1))}.dark\:border-gray-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(31 41 55/var(--tw-border-opacity,1))}.dark\:border-primary-900:is(.dark *){--tw-border-opacity:1;border-color:rgb(30 58 138/var(--tw-border-opacity,1))}.dark\:bg-amber-900\/20:is(.dark *){background-color:rgba(120,53,15,.2)}.dark\:bg-amber-900\/30:is(.dark *){background-color:rgba(120,53,15,.3)}.dark\:bg-blue-900\/20:is(.dark *){background-color:rgba(30,58,138,.2)}.dark\:bg-emerald-900\/20:is(.dark *){background-color:rgba(6,78,59,.2)}.dark\:bg-emerald-900\/30:is(.dark *){background-color:rgba(6,78,59,.3)}.dark\:bg-gray-700:is(.dark *){--tw-bg-opacity:1;background-color:rgb(55 65 81/var(--tw-bg-opacity,1))}.dark\:bg-gray-800:is(.dark *){--tw-bg-opacity:1;background-color:rgb(31 41 55/var(--tw-bg-opacity,1))}.dark\:bg-gray-900:is(.dark *){--tw-bg-opacity:1;background-color:rgb(17 24 39/var(--tw-bg-opacity,1))}.dark\:bg-gray-900\/30:is(.dark *){background-color:rgba(17,24,39,.3)}.dark\:bg-gray-900\/50:is(.dark *){background-color:rgba(17,24,39,.5)}.dark\:bg-primary-900\/30:is(.dark *){background-color:rgba(30,58,138,.3)}.dark\:bg-slate-900:is(.dark *){--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.dark\:text-amber-300:is(.dark *){--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.dark\:text-amber-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.dark\:text-blue-100:is(.dark *){--tw-text-opacity:1;color:rgb(219 234 254/var(--tw-text-opacity,1))}.dark\:text-blue-300:is(.dark *){--tw-text-opacity:1;color:rgb(147 197 253/var(--tw-text-opacity,1))}.dark\:text-blue-400:is(.dark *){--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.dark\:text-emerald-300:is(.dark *){--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.dark\:text-emerald-400:is(.dark *){--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.dark\:text-gray-100:is(.dark *){--tw-text-opacity:1;color:rgb(243 244 246/var(--tw-text-opacity,1))}.dark\:text-gray-200:is(.dark *){--tw-text-opacity:1;color:rgb(229 231 235/var(--tw-text-opacity,1))}.dark\:text-gray-300:is(.dark *){--tw-text-opacity:1;color:rgb(209 213 219/var(--tw-text-opacity,1))}.dark\:text-gray-400:is(.dark *){--tw-text-opacity:1;color:rgb(156 163 175/var(--tw-text-opacity,1))}.dark\:text-gray-600:is(.dark *){--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.dark\:text-primary-400:is(.dark *){--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.dark\:text-white:is(.dark *){--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.dark\:hover\:border-primary-500:hover:is(.dark *){--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.dark\:hover\:bg-gray-700:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(55 65 81/var(--tw-bg-opacity,1))}.dark\:hover\:bg-gray-800:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(31 41 55/var(--tw-bg-opacity,1))}.dark\:hover\:text-gray-200:hover:is(.dark *){--tw-text-opacity:1;color:rgb(229 231 235/var(--tw-text-opacity,1))}.group:hover .dark\:group-hover\:text-amber-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.group:hover .dark\:group-hover\:text-emerald-400:is(.dark *){--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:block{display:block}.sm\:p-6{padding:1.5rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}}@media (min-width:768px){.md\:block{display:block}.md\:flex{display:flex}.md\:hidden{display:none}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.md\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:p-12{padding:3rem}.md\:pb-8{padding-bottom:2rem}.md\:text-5xl{font-size:3rem;line-height:1}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\:px-8{padding-left:2rem;padding-right:2rem}}
+        ::-webkit-scrollbar{width:8px;height:8px}
+        ::-webkit-scrollbar-track{background:#f1f1f1}
+        .dark ::-webkit-scrollbar-track{background:#1e293b}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+        .dark ::-webkit-scrollbar-thumb{background:#475569}
+        body{font-family:'Noto Sans Arabic',sans-serif}
+        h1,h2,h3,h4,h5,h6{font-family:'Cairo',sans-serif}
+        .glass-panel{background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+        .dark .glass-panel{background:rgba(15,23,42,0.9)}
+        .code-block{font-family:'Courier New',Courier,monospace;white-space:pre-wrap;word-break:break-word}
+        .card-hover{transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+        .card-hover:hover{transform:translateY(-5px);box-shadow:0 10px 25px -5px rgba(0,0,0,0.1)}
+        .dark .card-hover:hover{box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)}
+        input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#e2e8f0;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#2563eb;cursor:pointer;box-shadow:0 0 0 3px rgba(37,99,235,0.2)}
+        .dark input[type=range]{background:#374151}
+        @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+        @keyframes slideUp{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+        .animate-fade-in{animation:fadeIn 0.5s ease-out}
+        .animate-slide-up{animation:slideUp 0.4s ease-out}
+        .animate-pulse-slow{animation:pulse 3s cubic-bezier(0.4,0,0.6,1) infinite}
+        .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;border-radius:10px;background:#1e293b;color:white;font-size:14px;animation:slideUp 0.3s ease-out}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col">
+<div id="root" class="flex-grow"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+// =====================================================================
+// DATA LAYER
+// =====================================================================
+const APP_DATA = {
+    meta: { title: "تطبيقات العراق الذكية", version: "3.0.0", author: "ENG_ALAA MOHAMMED" },
+    tabs: [
+        { id: 'overview',   label: 'نظرة عامة',   icon: '📊', color: 'text-blue-600' },
+        { id: 'housing',    label: 'المنزل الذكي', icon: '🏠', color: 'text-emerald-600' },
+        { id: 'logistics',  label: 'تتبع+',       icon: '📦', color: 'text-amber-600' },
+        { id: 'prompts',    label: 'البرومبتات',   icon: '📋', color: 'text-purple-600' },
+        { id: 'screens',    label: 'الشاشات',      icon: '📱', color: 'text-pink-600' },
+    ],
+    techStack: [
+        { name: 'React Native', category: 'Frontend',  desc: 'لبناء واجهات المستخدم عبر المنصات', icon: '⚛️',  url: 'https://reactnative.dev' },
+        { name: 'Flutter',      category: 'Frontend',  desc: 'بديل قوي مع أداء عالي',            icon: '🐦',  url: 'https://flutter.dev' },
+        { name: 'Node.js',      category: 'Backend',   desc: 'خادم سريع وغير متزامن',            icon: '🟢',  url: 'https://nodejs.org' },
+        { name: 'PostgreSQL',   category: 'Database',  desc: 'قاعدة بيانات علائقية قوية',        icon: '🐘',  url: 'https://www.postgresql.org' },
+        { name: 'Firebase',     category: 'BaaS',      desc: 'للمصادقة والإشعارات الفورية',      icon: '🔥',  url: 'https://firebase.google.com' },
+        { name: 'ZainCash',     category: 'Payment',   desc: 'بوابة الدفع المحلية الرائدة',      icon: '💳',  url: 'https://www.zaincash.iq' },
+        { name: 'Google Maps',  category: 'API',       desc: 'لتتبع المواقع وعرض المشاريع',      icon: '🗺️',  url: 'https://developers.google.com/maps' },
+        { name: 'JWT',          category: 'Security',  desc: 'لإدارة جلسات المستخدمين',          icon: '🔒',  url: 'https://jwt.io' },
+    ],
+    housingFlow: [
+        { step:1, title:'التسجيل والدخول', desc:'إنشاء حساب باستخدام رقم الهاتف العراقي', tags:['OTP','Auth'],        screenId:'h_login' },
+        { step:2, title:'حاسبة الجدوى',   desc:'تحليل القدرة المالية للعميل',            tags:['Math','UI'],          screenId:'h_calc'  },
+        { step:3, title:'اختيار المصرف',   desc:'الربط مع الرافدين أو الإسكان',          tags:['API','Banking'],      screenId:'h_banks' },
+        { step:4, title:'رفع المستندات',   desc:'تصوير الهوية والراتب',                  tags:['Camera','OCR'],       screenId:'h_docs'  },
+        { step:5, title:'سوق المقاولين',   desc:'اختيار شركة البناء',                    tags:['Marketplace'],         screenId:'h_market'},
+        { step:6, title:'المتابعة',        desc:'تتبع حالة القرض',                       tags:['Timeline'],            screenId:'h_track' },
+    ],
+    logisticsFlow: [
+        { step:1, title:'مسح المخزون',   desc:'استخدام الكاميرا لمسح الباركود',   tags:['Scanner'],         screenId:'l_scan'     },
+        { step:2, title:'إدخال البيانات', desc:'تسجيل الكميات والأسعار',           tags:['Form'],            screenId:'l_inv'      },
+        { step:3, title:'لوحة التحكم',   desc:'عرض الإحصائيات العامة',            tags:['Dashboard'],       screenId:'l_dash'     },
+        { step:4, title:'التنبؤ',        desc:'توقع النقص في المواد',             tags:['AI','Chart'],     screenId:'l_forecast' },
+        { step:5, title:'التنبيهات',     desc:'إشعارات عند نفاد الكمية',          tags:['Notification'],    screenId:'l_inv'      },
+        { step:6, title:'التقارير',      desc:'تصدير بيانات PDF',                 tags:['Export'],          screenId:'l_report'   },
+    ],
+    banks: [
+        { id:'b1', name:'مصرف الرافدين',       type:'حكومي',   status:'متاح',   rate:4.5, logo:'🏦', url:'https://www.rafidain-bank.com' },
+        { id:'b2', name:'مصرف الإسكان',        type:'حكومي',   status:'متاح',   rate:5.0, logo:'🏠', url:'http://www.housing.iq' },
+        { id:'b3', name:'المصرف الأهلي العراقي', type:'أهلي',    status:'متاح',   rate:5.5, logo:'💼', url:'https://www.anb.iq' },
+        { id:'b4', name:'مصرف بغداد',           type:'أهلي',    status:'متاح',   rate:6.0, logo:'⚜️', url:'https://www.bankofbaghdad.com.iq' },
+        { id:'b5', name:'بنك الخليج التجاري',   type:'إسلامي', status:'صيانة',  rate:0,   logo:'🌙', url:'#' },
+        { id:'b6', name:'مصرف الشرق الأوسط',   type:'إسلامي', status:'متاح',   rate:4.8, logo:'🕌', url:'#' },
+    ],
+    contractors: [
+        { id:'c1', name:'شركة الفردوس للمقاولات', location:'الكرادة، بغداد',   rating:4.8, projects:42, specialty:'سكني',     whatsapp:'9647801234567' },
+        { id:'c2', name:'مجموعة النخيل العمرانية', location:'المنصور، بغداد',  rating:4.6, projects:35, specialty:'تجاري',    whatsapp:'9647801234568' },
+        { id:'c3', name:'الهندسة والتطوير',       location:'الجادرية، بغداد', rating:4.9, projects:58, specialty:'فاخر',     whatsapp:'9647801234569' },
+        { id:'c4', name:'بيتك للبناء والتصميم',   location:'الكرخ، بغداد',    rating:4.3, projects:20, specialty:'اقتصادي',  whatsapp:'9647801234570' },
+    ],
+    inventory: [
+        { id:'p1', sku:'WD-001', name:'أسمنت بغداد 50كغ',    qty:320, min:50,  price:22000, unit:'كيس',  category:'مواد بناء' },
+        { id:'p2', sku:'WD-002', name:'حديد تسليح 12مم',      qty:15,  min:20,  price:85000, unit:'طن',   category:'معادن' },
+        { id:'p3', sku:'WD-003', name:'طابوق طين أحمر',       qty:5000,min:500, price:250,   unit:'قطعة', category:'مواد بناء' },
+        { id:'p4', sku:'WD-004', name:'رمل ناعم',              qty:8,   min:10,  price:45000, unit:'م³',   category:'مواد خام' },
+        { id:'p5', sku:'WD-005', name:'دهان أبيض 20 لتر',     qty:45,  min:20,  price:32000, unit:'دلو',  category:'تشطيب' },
+        { id:'p6', sku:'WD-006', name:'أنابيب PVC 3 بوصة',    qty:180, min:30,  price:8500,  unit:'متر',  category:'سباكة' },
+        { id:'p7', sku:'WD-007', name:'بلاط سيراميك 60×60',   qty:200, min:100, price:18000, unit:'م²',   category:'تشطيب' },
+        { id:'p8', sku:'WD-008', name:'لوح جبسوم بورد',        qty:7,   min:15,  price:12000, unit:'لوح',  category:'تشطيب' },
+    ],
+    warehouseMap: [
+        { shelf:'A1', status:'full',    items:25, capacity:25 },
+        { shelf:'A2', status:'partial', items:12, capacity:25 },
+        { shelf:'A3', status:'empty',   items:0,  capacity:25 },
+        { shelf:'B1', status:'full',    items:30, capacity:30 },
+        { shelf:'B2', status:'partial', items:8,  capacity:30 },
+        { shelf:'B3', status:'partial', items:20, capacity:30 },
+        { shelf:'C1', status:'empty',   items:0,  capacity:20 },
+        { shelf:'C2', status:'full',    items:20, capacity:20 },
+        { shelf:'C3', status:'partial', items:5,  capacity:20 },
+    ],
+    housingScreens: [
+        { id:'h_splash', title:'شاشة الترحيب',    category:'Onboarding', description:'الشاشة الأولى عند فتح التطبيق.',         component:'SplashDemo' },
+        { id:'h_login',  title:'تسجيل الدخول',    category:'Auth',       description:'شاشة المصادقة برقم الهاتف العراقي.',      component:'LoginDemo'  },
+        { id:'h_calc',   title:'حاسبة القرض',     category:'Core',       description:'أداة تفاعلية لحساب الأقساط الشهرية.',      component:'CalcDemo'   },
+        { id:'h_banks',  title:'قائمة المصارف',   category:'Integration',description:'عرض المصارف مع حالة الخدمة وروابطها.',    component:'BanksDemo'  },
+        { id:'h_docs',   title:'رفع المستندات',   category:'Utility',    description:'واجهة رفع وإدارة الوثائق الثبوتية.',       component:'DocsDemo'   },
+        { id:'h_market', title:'سوق المقاولين',   category:'Social',     description:'تصفح شركات البناء والتواصل معها.',          component:'MarketDemo' },
+        { id:'h_track',  title:'تتبع المعاملة',   category:'Status',     description:'الخط الزمني لحالة طلب القرض.',             component:'TrackDemo'  },
+        { id:'h_profile',title:'الملف الشخصي',   category:'User',       description:'إعدادات المستخدم والحساب الشخصي.',          component:'ProfileDemo'},
+    ],
+    logisticsScreens: [
+        { id:'l_dash',     title:'لوحة القيادة',           category:'Analytics',     description:'نظرة عامة على المخزون والإحصائيات.',   component:'DashDemo'     },
+        { id:'l_scan',     title:'ماسح الباركود',          category:'Hardware',      description:'واجهة مسح الباركود والـ QR.',           component:'ScanDemo'     },
+        { id:'l_inv',      title:'قائمة المخزون',          category:'Data',          description:'جدول المنتجات مع البحث والتصفية.',       component:'InvDemo'      },
+        { id:'l_forecast', title:'تنبؤ الذكاء الاصطناعي',  category:'AI',            description:'توقعات الطلب بالذكاء الاصطناعي.',       component:'ForecastDemo' },
+        { id:'l_map',      title:'خريطة المستودع',         category:'Visualization', description:'تخطيط الرفوف التفاعلي.',                component:'MapDemo'      },
+        { id:'l_report',   title:'التقارير',                category:'Export',        description:'توليد وتصدير تقارير PDF وExcel.',        component:'ReportDemo'   },
+    ],
+    npmPackages: {
+        housing:   ['react-native','@react-navigation/native','react-native-reanimated','react-native-image-picker','react-native-slider','@react-native-firebase/app'],
+        logistics: ['flutter','firebase_core','mobile_scanner','flutter_svg','syncfusion_flutter_charts','pdf'],
+    },
+};
+
+// =====================================================================
+// ICON COMPONENT
+// =====================================================================
+const Icon = ({ name, className="w-6 h-6", strokeWidth=2 }) => {
+    const icons = {
+        check:       <path d="M20 6L9 17l-5-5" />,
+        copy:        <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 4h2a2 2 0 0 1 2 2v4M21 14H11a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l5 5v6z" />,
+        close:       <path d="M18 6L6 18M6 6l12 12" />,
+        moon:        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />,
+        sun:         <><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></>,
+        link:        <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+        code:        <><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>,
+        search:      <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
+        menu:        <><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></>,
+        chevronLeft: <polyline points="15 18 9 12 15 6" />,
+        home:        <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
+        layers:      <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
+        external:    <><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>,
+        phone:       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />,
+        download:    <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+        trash:       <><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></>,
+        edit:        <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
+        star:        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />,
+        bell:        <><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,
+        package:     <><line x1="16.5" y1="9.4" x2="7.55" y2="4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></>,
+        camera:      <><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></>,
+        settings:    <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>,
+        logout:      <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
+        user:        <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+        trending:    <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>,
+        zap:         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+        alert:       <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
+        map:         <><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></>,
+        barChart:    <><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>,
+        refresh:     <><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.72"/></>,
+        npm:         <path d="M0 0h24v24H0z"/>,
+        github:      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />,
+    };
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+            {icons[name] || <circle cx="12" cy="12" r="10"/>}
+        </svg>
+    );
+};
+
+const Badge = ({ children, color='blue' }) => {
+    const colors = {
+        blue:   'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+        green:  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+        amber:  'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+        purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+        gray:   'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+        red:    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+        teal:   'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300',
+    };
+    return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[color]||colors.gray}`}>{children}</span>;
+};
+
+const Button = ({ children, onClick, variant='primary', className='', icon, href, target }) => {
+    const base = "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    const variants = {
+        primary:   "bg-blue-600 hover:bg-blue-700 text-white shadow-lg focus:ring-blue-500",
+        secondary: "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-500",
+        success:   "bg-emerald-600 hover:bg-green-700 text-white shadow-lg focus:ring-green-500",
+        danger:    "bg-red-600 hover:bg-red-700 text-white shadow-lg focus:ring-red-500",
+        ghost:     "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800",
+        amber:     "bg-amber-500 hover:bg-amber-600 text-white shadow-lg focus:ring-amber-500",
+    };
+    if (href) return <a href={href} target={target||'_blank'} rel="noopener noreferrer" className={`${base} ${variants[variant]||variants.primary} ${className}`}>{icon}{children}</a>;
+    return <button onClick={onClick} className={`${base} ${variants[variant]||variants.primary} ${className}`}>{icon}{children}</button>;
+};
+
+// Toast notification
+const useToast = () => {
+    const [toast, setToast] = useState(null);
+    const show = (msg, type='success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 2500);
+    };
+    const ToastEl = toast ? (
+        <div className="toast" style={{background: toast.type==='error'?'#dc2626':'#1e293b'}}>
+            {toast.msg}
+        </div>
+    ) : null;
+    return { show, ToastEl };
+};
+
+// =====================================================================
+// SCREEN DEMO COMPONENTS — each screen is now interactive
+// =====================================================================
+
+// h_splash
+const SplashDemo = () => (
+    <div className="flex flex-col items-center justify-center h-72 rounded-2xl overflow-hidden relative" style={{background:'linear-gradient(135deg,#1e3a8a,#3b82f6)'}}>
+        <div className="animate-pulse-slow text-7xl mb-4">🏠</div>
+        <h2 className="text-white text-2xl font-bold font-heading">المنزل الذكي</h2>
+        <p className="text-blue-200 mt-2 text-sm">مرحباً بكم في مستقبل السكن في العراق</p>
+        <div className="mt-6">
+            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+        <p className="text-blue-300 text-xs mt-3">جارٍ التحميل...</p>
+    </div>
+);
+
+// h_login
+const LoginDemo = () => {
+    const [phone, setPhone] = useState('');
+    const [step, setStep] = useState('phone');
+    const [otp, setOtp] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const handleSend = () => {
+        if (!/^07[0-9]{8}$/.test(phone)) { setError('رقم الهاتف يجب أن يبدأ بـ 07 ويتكون من 10 أرقام'); return; }
+        setError(''); setLoading(true);
+        setTimeout(() => { setLoading(false); setStep('otp'); }, 1500);
+    };
+    const handleVerify = () => {
+        if (otp.length !== 6) { setError('الرمز يجب أن يكون 6 أرقام'); return; }
+        setError(''); setLoading(true);
+        setTimeout(() => { setLoading(false); setStep('done'); }, 1200);
+    };
+    if (step==='done') return (
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-3xl">✅</div>
+            <p className="text-green-600 font-bold text-lg">تم تسجيل الدخول بنجاح!</p>
+            <Button variant="secondary" onClick={()=>{setStep('phone');setPhone('');setOtp('');}}>تسجيل الخروج</Button>
+        </div>
+    );
+    return (
+        <div className="space-y-4 max-w-xs mx-auto py-4">
+            <h3 className="text-center font-bold text-lg">{step==='phone'?'تسجيل الدخول':'رمز التحقق'}</h3>
+            {step==='phone' ? (
+                <>
+                    <div className="flex border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden">
+                        <span className="bg-gray-100 dark:bg-gray-700 px-3 flex items-center text-sm font-mono text-gray-600 dark:text-gray-300 border-l border-gray-300 dark:border-gray-600">🇮🇶 +964</span>
+                        <input type="tel" placeholder="07XXXXXXXXX" value={phone} onChange={e=>setPhone(e.target.value)} maxLength={10}
+                            className="flex-1 px-3 py-3 bg-white dark:bg-gray-800 outline-none text-sm"/>
+                    </div>
+                    {error && <p className="text-red-500 text-xs">{error}</p>}
+                    <Button variant="primary" className="w-full" onClick={handleSend}>
+                        {loading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جارٍ الإرسال...</> : 'إرسال رمز التحقق'}
+                    </Button>
+                    <p className="text-center text-xs text-gray-500">
+                        <a href="https://firebase.google.com/docs/auth/web/phone-auth" target="_blank" className="text-blue-500 hover:underline flex items-center justify-center gap-1">
+                            <Icon name="external" className="w-3 h-3"/> مصادقة Firebase
+                        </a>
+                    </p>
+                </>
+            ) : (
+                <>
+                    <p className="text-center text-sm text-gray-500">تم إرسال الرمز إلى: <span className="font-bold">+964 {phone}</span></p>
+                    <input type="text" placeholder="------" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/,''))} maxLength={6}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 text-center text-2xl tracking-widest bg-white dark:bg-gray-800 outline-none"/>
+                    {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+                    <Button variant="success" className="w-full" onClick={handleVerify}>
+                        {loading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جارٍ التحقق...</> : 'تحقق من الرمز'}
+                    </Button>
+                    <button className="w-full text-xs text-gray-500 hover:text-blue-500" onClick={()=>setStep('phone')}>← تغيير الرقم</button>
+                </>
+            )}
+        </div>
+    );
+};
+
+// h_calc — Loan Calculator
+const CalcDemo = () => {
+    const [amount, setAmount] = useState(50);
+    const [years, setYears] = useState(10);
+    const [rate, setRate] = useState(5);
+    const monthly = useMemo(() => {
+        const r = rate / 100 / 12;
+        const n = years * 12;
+        if (r===0) return (amount * 1e6) / n;
+        return (amount * 1e6 * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+    }, [amount, years, rate]);
+    const total = monthly * years * 12;
+    const interest = total - amount * 1e6;
+    const pct = Math.round((interest / total) * 100);
+    const fmt = n => n >= 1e6 ? (n/1e6).toFixed(2)+' م' : Math.round(n).toLocaleString('ar-IQ');
+    return (
+        <div className="space-y-5">
+            <div className="space-y-1">
+                <div className="flex justify-between text-sm"><span>مبلغ القرض</span><span className="font-bold text-blue-600">{amount} مليون د.ع</span></div>
+                <input type="range" min={10} max={100} step={5} value={amount} onChange={e=>setAmount(+e.target.value)} className="w-full"/>
+            </div>
+            <div className="space-y-1">
+                <div className="flex justify-between text-sm"><span>مدة السداد</span><span className="font-bold text-blue-600">{years} سنة</span></div>
+                <input type="range" min={5} max={20} step={1} value={years} onChange={e=>setYears(+e.target.value)} className="w-full"/>
+            </div>
+            <div className="space-y-1">
+                <div className="flex justify-between text-sm"><span>نسبة الفائدة</span><span className="font-bold text-blue-600">{rate}%</span></div>
+                <input type="range" min={1} max={12} step={0.5} value={rate} onChange={e=>setRate(+e.target.value)} className="w-full"/>
+            </div>
+            <div className="bg-gradient-to-r from-emerald-500 to-blue-600 rounded-2xl p-4 text-white">
+                <p className="text-xs opacity-80">القسط الشهري</p>
+                <p className="text-3xl font-bold mt-1">{Math.round(monthly).toLocaleString('ar-IQ')} <span className="text-lg">د.ع</span></p>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-white/10 rounded-lg p-2"><p className="opacity-70">إجمالي الأقساط</p><p className="font-bold">{fmt(total)} د.ع</p></div>
+                    <div className="bg-white/10 rounded-lg p-2"><p className="opacity-70">الفوائد الكلية</p><p className="font-bold">{fmt(interest)} د.ع</p></div>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <div className="relative w-16 h-16 flex-shrink-0">
+                    <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" strokeWidth="3.5"/>
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#2563eb" strokeWidth="3.5"
+                            strokeDasharray={`${pct} ${100-pct}`} strokeLinecap="round"/>
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">{pct}%</span>
+                </div>
+                <div className="text-xs space-y-1">
+                    <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> فوائد: {pct}%</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-gray-300 inline-block"></span> أصل: {100-pct}%</div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// h_banks
+const BanksDemo = ({ onTabChange }) => {
+    const [filter, setFilter] = useState('الكل');
+    const [selected, setSelected] = useState(null);
+    const types = ['الكل','حكومي','أهلي','إسلامي'];
+    const filtered = filter==='الكل' ? APP_DATA.banks : APP_DATA.banks.filter(b=>b.type===filter);
+    return (
+        <div className="space-y-3">
+            <div className="flex gap-2 flex-wrap">
+                {types.map(t=>(
+                    <button key={t} onClick={()=>setFilter(t)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${filter===t?'bg-blue-600 text-white':'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                        {t}
+                    </button>
+                ))}
+            </div>
+            <div className="space-y-2">
+                {filtered.map(b=>(
+                    <div key={b.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selected===b.id?'border-blue-500 bg-blue-50 dark:bg-blue-900/20':'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}
+                        onClick={()=>setSelected(selected===b.id?null:b.id)}>
+                        <span className="text-2xl w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-xl">{b.logo}</span>
+                        <div className="flex-1">
+                            <p className="font-bold text-sm">{b.name}</p>
+                            <p className="text-xs text-gray-500">{b.type} {b.status==='متاح'?'• فائدة '+b.rate+'%':''}</p>
+                        </div>
+                        <span className={`w-2 h-2 rounded-full ${b.status==='متاح'?'bg-green-500':'bg-red-500'}`}></span>
+                    </div>
+                ))}
+            </div>
+            {selected && (() => {
+                const b = APP_DATA.banks.find(x=>x.id===selected);
+                return b ? (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 space-y-2">
+                        <p className="font-bold text-blue-800 dark:text-blue-300">{b.name}</p>
+                        <div className="flex gap-2 flex-wrap">
+                            {b.status==='متاح' ? (
+                                <>
+                                    <Button variant="primary" href={b.url} icon={<Icon name="external" className="w-3 h-3"/>}>الموقع الرسمي</Button>
+                                    <Button variant="success" onClick={()=>onTabChange && onTabChange('housing')} icon={<Icon name="edit" className="w-3 h-3"/>}>تقديم طلب</Button>
+                                </>
+                            ) : <Badge color="red">خدمة الصيانة مؤقتاً</Badge>}
+                        </div>
+                    </div>
+                ) : null;
+            })()}
+        </div>
+    );
+};
+
+// h_docs
+const DocsDemo = () => {
+    const [docs, setDocs] = useState([
+        { id:'d1', name:'الهوية الوطنية',         uploaded: false, file: null },
+        { id:'d2', name:'كتاب التعيين / الراتب',  uploaded: false, file: null },
+        { id:'d3', name:'عقد البيع الأولي',        uploaded: false, file: null },
+    ]);
+    const [uploading, setUploading] = useState(null);
+    const fileRef = useRef({});
+    const handleUpload = (id, e) => {
+        const f = e.target.files[0]; if (!f) return;
+        setUploading(id);
+        setTimeout(()=>{
+            setDocs(prev=>prev.map(d=>d.id===id?{...d,uploaded:true,file:f.name}:d));
+            setUploading(null);
+        }, 1500);
+    };
+    const handleDelete = id => setDocs(prev=>prev.map(d=>d.id===id?{...d,uploaded:false,file:null}:d));
+    const done = docs.filter(d=>d.uploaded).length;
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full transition-all" style={{width:`${(done/docs.length)*100}%`}}></div>
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{done}/{docs.length}</span>
+            </div>
+            {docs.map(doc=>(
+                <div key={doc.id} className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${doc.uploaded?'bg-green-100 dark:bg-green-900/30':'bg-gray-100 dark:bg-gray-700'}`}>
+                        {doc.uploaded ? '✅' : '📄'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">{doc.name}</p>
+                        {doc.uploaded && <p className="text-xs text-gray-500 truncate">{doc.file}</p>}
+                        {uploading===doc.id && <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1"><div className="bg-blue-600 h-1.5 rounded-full animate-pulse" style={{width:'60%'}}></div></div>}
+                    </div>
+                    {doc.uploaded ? (
+                        <button onClick={()=>handleDelete(doc.id)} className="text-red-400 hover:text-red-600 p-1"><Icon name="trash" className="w-4 h-4"/></button>
+                    ) : (
+                        <>
+                            <input type="file" accept="image/*,application/pdf" ref={el=>fileRef.current[doc.id]=el} onChange={e=>handleUpload(doc.id,e)} className="hidden"/>
+                            <button onClick={()=>fileRef.current[doc.id]?.click()}
+                                className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 flex items-center gap-1">
+                                <Icon name="camera" className="w-3 h-3"/> رفع
+                            </button>
+                        </>
+                    )}
+                </div>
+            ))}
+            {done===docs.length && (
+                <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200">
+                    <p className="text-green-700 dark:text-green-300 font-bold">✅ جميع المستندات مكتملة!</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// h_market
+const MarketDemo = () => {
+    const [selectedC, setSelectedC] = useState(null);
+    return (
+        <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+                {APP_DATA.contractors.map(c=>(
+                    <div key={c.id} onClick={()=>setSelectedC(c)} className={`cursor-pointer p-3 border rounded-xl transition-all ${selectedC?.id===c.id?'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20':'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
+                        <div className="text-2xl mb-1">🏗️</div>
+                        <p className="font-bold text-sm leading-tight">{c.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">📍 {c.location}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                            <Icon name="star" className="w-3 h-3 text-amber-400" strokeWidth={0} style={{fill:'#fbbf24'}}/>
+                            <span className="text-xs font-bold">{c.rating}</span>
+                            <span className="text-xs text-gray-400">({c.projects} مشروع)</span>
+                        </div>
+                        <Badge color="teal" className="mt-1">{c.specialty}</Badge>
+                    </div>
+                ))}
+            </div>
+            {selectedC && (
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 space-y-2">
+                    <p className="font-bold">{selectedC.name}</p>
+                    <div className="flex gap-2 flex-wrap">
+                        <Button variant="success" href={`https://wa.me/${selectedC.whatsapp}`} icon={<span>💬</span>}>تواصل واتساب</Button>
+                        <Button variant="secondary" href="https://www.google.com/maps/search/مقاولات+بغداد" icon={<Icon name="map" className="w-3 h-3"/>}>عرض على الخريطة</Button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// h_track
+const TrackDemo = () => {
+    const stages = [
+        { label:'تم التقديم',    date:'2025-01-05', done:true  },
+        { label:'تحت التدقيق',   date:'2025-01-12', done:true  },
+        { label:'الموافقة الأولية',date:'2025-01-20',done:true  },
+        { label:'الفحص الميداني', date:'2025-02-01', done:false, active:true },
+        { label:'الموافقة النهائية',date:'---',     done:false },
+        { label:'صرف القرض',      date:'---',       done:false },
+    ];
+    const [detail, setDetail] = useState(null);
+    return (
+        <div className="space-y-2">
+            {stages.map((s,i)=>(
+                <div key={i} className="flex gap-3 cursor-pointer" onClick={()=>setDetail(detail===i?null:i)}>
+                    <div className="flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${s.done?'bg-green-500 border-green-500 text-white':s.active?'bg-blue-500 border-blue-500 text-white animate-pulse-slow':'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-400'}`}>
+                            {s.done ? '✓' : i+1}
+                        </div>
+                        {i<stages.length-1 && <div className={`w-0.5 h-8 mt-1 ${s.done?'bg-green-400':'bg-gray-200 dark:bg-gray-700'}`}></div>}
+                    </div>
+                    <div className="pb-4 flex-1">
+                        <p className={`font-medium text-sm ${s.active?'text-blue-600 dark:text-blue-400':s.done?'text-gray-700 dark:text-gray-300':'text-gray-400'}`}>{s.label}</p>
+                        <p className="text-xs text-gray-400">{s.date}</p>
+                        {detail===i && s.done && <p className="text-xs text-green-600 dark:text-green-400 mt-1 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">تمت هذه المرحلة بنجاح بتاريخ {s.date}</p>}
+                        {detail===i && s.active && <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">📍 المرحلة الحالية — جارٍ المعالجة</p>}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// h_profile
+const ProfileDemo = ({ onDark, dark }) => {
+    const [notif, setNotif] = useState(true);
+    const [lang, setLang] = useState('ar');
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-l from-blue-50 dark:from-blue-900/20 to-transparent rounded-xl">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">م</div>
+                <div>
+                    <p className="font-bold">محمد كاظم الشمري</p>
+                    <p className="text-sm text-gray-500">📞 +964 7801234567</p>
+                    <Badge color="green">مستخدم موثّق</Badge>
+                </div>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-xl divide-y divide-gray-100 dark:divide-gray-700">
+                <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-sm flex items-center gap-2"><Icon name="bell" className="w-4 h-4 text-gray-400"/> الإشعارات</span>
+                    <button onClick={()=>setNotif(!notif)} className={`w-10 h-5 rounded-full transition-colors relative ${notif?'bg-blue-600':'bg-gray-300'}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${notif?'right-0.5':'left-0.5'}`}></span>
+                    </button>
+                </div>
+                <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-sm flex items-center gap-2"><Icon name="moon" className="w-4 h-4 text-gray-400"/> الوضع الليلي</span>
+                    <button onClick={onDark} className={`w-10 h-5 rounded-full transition-colors relative ${dark?'bg-blue-600':'bg-gray-300'}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${dark?'right-0.5':'left-0.5'}`}></span>
+                    </button>
+                </div>
+                <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-sm flex items-center gap-2"><Icon name="external" className="w-4 h-4 text-gray-400"/> اللغة</span>
+                    <select value={lang} onChange={e=>setLang(e.target.value)} className="text-sm bg-transparent border-none outline-none text-blue-600">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                        <option value="ku">کوردی</option>
+                    </select>
+                </div>
+                <div className="px-4 py-3">
+                    <a href="mailto:support@alaa-engineering.iq" className="text-sm flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600">
+                        <Icon name="phone" className="w-4 h-4 text-gray-400"/> الدعم الفني
+                    </a>
+                </div>
+            </div>
+            <button className="w-full py-2.5 text-red-500 border border-red-200 dark:border-red-900 rounded-xl text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center gap-2">
+                <Icon name="logout" className="w-4 h-4"/> تسجيل الخروج
+            </button>
+        </div>
+    );
+};
+
+// l_dash
+const DashDemo = () => {
+    const inv = APP_DATA.inventory;
+    const lowStock = inv.filter(i=>i.qty<i.min);
+    const totalVal = inv.reduce((a,i)=>a+i.qty*i.price,0);
+    const chartData = [
+        {label:'الإثنين',  in:45, out:30},
+        {label:'الثلاثاء', in:30, out:55},
+        {label:'الأربعاء',in:60, out:25},
+        {label:'الخميس',  in:20, out:40},
+        {label:'الجمعة',  in:50, out:35},
+        {label:'السبت',   in:40, out:60},
+        {label:'الأحد',   in:35, out:20},
+    ];
+    const maxVal = Math.max(...chartData.flatMap(d=>[d.in,d.out]));
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800">
+                    <p className="text-xs text-blue-600 dark:text-blue-400">إجمالي المنتجات</p>
+                    <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">{inv.length}</p>
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-100 dark:border-emerald-800">
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400">قيمة المخزون</p>
+                    <p className="text-lg font-bold text-emerald-800 dark:text-emerald-200">{(totalVal/1e6).toFixed(1)}م د.ع</p>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-100 dark:border-amber-800">
+                    <p className="text-xs text-amber-600 dark:text-amber-400">طلبات نشطة</p>
+                    <p className="text-2xl font-bold text-amber-800 dark:text-amber-200">12</p>
+                </div>
+                <div className={`rounded-xl p-3 border ${lowStock.length>0?'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800':'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+                    <p className={`text-xs ${lowStock.length>0?'text-red-600 dark:text-red-400':'text-gray-500'}`}>تنبيهات النقص</p>
+                    <p className={`text-2xl font-bold ${lowStock.length>0?'text-red-700 dark:text-red-300':'text-gray-400'}`}>{lowStock.length}</p>
+                </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-bold mb-3 text-gray-700 dark:text-gray-300">حركة المخزون - آخر 7 أيام</p>
+                <div className="flex items-end gap-2 h-24">
+                    {chartData.map((d,i)=>(
+                        <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                            <div className="w-full flex gap-0.5 items-end" style={{height:'80px'}}>
+                                <div className="flex-1 bg-blue-400 rounded-t transition-all" style={{height:`${(d.in/maxVal)*100}%`}}></div>
+                                <div className="flex-1 bg-amber-400 rounded-t transition-all" style={{height:`${(d.out/maxVal)*100}%`}}></div>
+                            </div>
+                            <p className="text-[9px] text-gray-400">{d.label.slice(0,3)}</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex gap-3 mt-2 text-xs text-gray-500">
+                    <span className="flex items-center gap-1"><span className="w-3 h-2 bg-blue-400 rounded inline-block"></span> وارد</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-2 bg-amber-400 rounded inline-block"></span> صادر</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// l_scan
+const ScanDemo = () => {
+    const [scanning, setScanning] = useState(false);
+    const [result, setResult] = useState(null);
+    const [flash, setFlash] = useState(false);
+    const [manual, setManual] = useState('');
+    const mockScan = () => {
+        setScanning(true); setResult(null);
+        setTimeout(()=>{
+            const item = APP_DATA.inventory[Math.floor(Math.random()*APP_DATA.inventory.length)];
+            setResult(item); setScanning(false);
+        }, 2000);
+    };
+    const lookupManual = () => {
+        const item = APP_DATA.inventory.find(i=>i.sku===manual.toUpperCase());
+        setResult(item || { name:'غير موجود', qty:0, price:0, sku:manual, unit:'-' });
+    };
+    return (
+        <div className="space-y-4">
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+                <div className="text-center">
+                    {scanning ? (
+                        <>
+                            <div className="w-24 h-24 border-2 border-green-400 rounded mx-auto relative">
+                                <div className="absolute top-0 left-0 right-0 h-0.5 bg-green-400 animate-bounce"></div>
+                            </div>
+                            <p className="text-green-400 text-sm mt-2 animate-pulse">🔍 جارٍ المسح...</p>
+                        </>
+                    ) : result ? (
+                        <div className="text-center p-4">
+                            <div className="text-3xl mb-2">✅</div>
+                            <p className="text-white font-bold">{result.name}</p>
+                            <p className="text-green-400 text-sm">الكمية: {result.qty} {result.unit}</p>
+                            <p className="text-gray-400 text-xs">{result.sku}</p>
+                        </div>
+                    ) : (
+                        <div className="text-gray-500 text-center">
+                            <div className="text-4xl mb-2">📷</div>
+                            <p className="text-sm">اضغط للمسح</p>
+                        </div>
+                    )}
+                </div>
+                <div className="absolute top-3 left-3 flex gap-2">
+                    <button onClick={()=>setFlash(!flash)} className={`p-1.5 rounded-full ${flash?'bg-yellow-400 text-black':'bg-white/20 text-white'}`}>
+                        <Icon name="zap" className="w-4 h-4"/>
+                    </button>
+                </div>
+            </div>
+            <Button variant="primary" className="w-full" onClick={mockScan}>
+                {scanning?<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جارٍ المسح...</>:'🔍 مسح باركود (محاكاة)'}
+            </Button>
+            <div className="flex gap-2">
+                <input value={manual} onChange={e=>setManual(e.target.value)} placeholder="أدخل SKU يدوياً (WD-001)" 
+                    className="flex-1 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 outline-none font-mono"/>
+                <Button variant="secondary" onClick={lookupManual}>بحث</Button>
+            </div>
+            <p className="text-xs text-gray-400 text-center">مثال: WD-001 أو WD-002</p>
+        </div>
+    );
+};
+
+// l_inv
+const InvDemo = () => {
+    const [search, setSearch] = useState('');
+    const [sort, setSort] = useState('default');
+    const [editing, setEditing] = useState(null);
+    const [items, setItems] = useState(APP_DATA.inventory);
+    let filtered = items.filter(i=>i.name.includes(search)||i.sku.includes(search.toUpperCase()));
+    if (sort==='low') filtered = [...filtered].sort((a,b)=>a.qty-b.qty);
+    if (sort==='name') filtered = [...filtered].sort((a,b)=>a.name.localeCompare(b.name));
+    return (
+        <div className="space-y-3">
+            <div className="flex gap-2">
+                <div className="relative flex-1">
+                    <Icon name="search" className="w-4 h-4 absolute right-2.5 top-2.5 text-gray-400"/>
+                    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="بحث..." className="w-full border border-gray-300 dark:border-gray-600 rounded-xl pr-8 pl-3 py-2 text-sm bg-white dark:bg-gray-800 outline-none"/>
+                </div>
+                <select value={sort} onChange={e=>setSort(e.target.value)} className="border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 outline-none">
+                    <option value="default">ترتيب افتراضي</option>
+                    <option value="low">الأقل كمية</option>
+                    <option value="name">أبجدي</option>
+                </select>
+            </div>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+                {filtered.map(item=>(
+                    <div key={item.id} className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
+                        <div className={`w-2 h-10 rounded-full flex-shrink-0 ${item.qty<item.min?'bg-red-500':item.qty<item.min*2?'bg-amber-400':'bg-green-500'}`}></div>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{item.name}</p>
+                            <p className="text-xs text-gray-400 font-mono">{item.sku} • {item.category}</p>
+                        </div>
+                        {editing===item.id ? (
+                            <input type="number" defaultValue={item.qty} onBlur={e=>{
+                                const v = parseInt(e.target.value);
+                                setItems(prev=>prev.map(i=>i.id===item.id?{...i,qty:v}:i));
+                                setEditing(null);
+                            }} className="w-16 border border-blue-400 rounded px-1 py-0.5 text-sm text-center bg-white dark:bg-gray-700 outline-none" autoFocus/>
+                        ) : (
+                            <div className="text-right">
+                                <p className={`font-bold text-sm ${item.qty<item.min?'text-red-500':'text-gray-800 dark:text-gray-200'}`}>{item.qty}</p>
+                                <p className="text-xs text-gray-400">{item.unit}</p>
+                            </div>
+                        )}
+                        <button onClick={()=>setEditing(item.id)} className="p-1 text-gray-400 hover:text-blue-600">
+                            <Icon name="edit" className="w-4 h-4"/>
+                        </button>
+                    </div>
+                ))}
+            </div>
+            {filtered.filter(i=>i.qty<i.min).length>0 && (
+                <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <Icon name="alert" className="w-4 h-4 text-red-500 flex-shrink-0"/>
+                    <p className="text-xs text-red-600 dark:text-red-400">{filtered.filter(i=>i.qty<i.min).length} منتج تحت الحد الأدنى</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// l_forecast
+const ForecastDemo = () => {
+    const forecasts = [
+        { name:'حديد تسليح 12مم',    prob:92, days:3  },
+        { name:'رمل ناعم',            prob:78, days:5  },
+        { name:'لوح جبسوم بورد',      prob:71, days:7  },
+        { name:'أسمنت بغداد 50كغ',   prob:45, days:14 },
+        { name:'دهان أبيض 20 لتر',   prob:30, days:21 },
+    ];
+    const [ordered, setOrdered] = useState([]);
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center gap-2 p-3 rounded-xl" style={{background:'linear-gradient(135deg,#312e81,#4338ca)'}}>
+                <Icon name="zap" className="w-5 h-5 text-purple-300"/>
+                <div>
+                    <p className="text-white font-bold text-sm">توقعات الشهر القادم</p>
+                    <p className="text-purple-300 text-xs">بناءً على بيانات 90 يوم الماضية</p>
+                </div>
+            </div>
+            {forecasts.map((f,i)=>(
+                <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-start mb-2">
+                        <div>
+                            <p className="font-medium text-sm">{f.name}</p>
+                            <p className="text-xs text-gray-400">خلال {f.days} أيام</p>
+                        </div>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${f.prob>70?'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300':f.prob>40?'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300':'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'}`}>{f.prob}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
+                        <div className={`h-1.5 rounded-full transition-all ${f.prob>70?'bg-red-500':f.prob>40?'bg-amber-500':'bg-green-500'}`} style={{width:`${f.prob}%`}}></div>
+                    </div>
+                    <button onClick={()=>setOrdered(p=>ordered.includes(i)?p.filter(x=>x!==i):[...p,i])}
+                        className={`text-xs px-3 py-1 rounded-lg transition-colors ${ordered.includes(i)?'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300':'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100'}`}>
+                        {ordered.includes(i)?'✅ تم طلب التوريد':'طلب توريد تلقائي'}
+                    </button>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// l_map
+const MapDemo = () => {
+    const [selected, setSelected] = useState(null);
+    const colorMap = { full:'#ef4444', partial:'#3b82f6', empty:'#22c55e' };
+    const labelMap = { full:'ممتلئ', partial:'جزئي', empty:'فارغ' };
+    const rows = ['A','B','C'];
+    const cols = [1,2,3];
+    return (
+        <div className="space-y-4">
+            <div className="flex gap-3 text-xs flex-wrap">
+                {Object.entries(labelMap).map(([k,v])=>(
+                    <div key={k} className="flex items-center gap-1">
+                        <span className="w-3 h-3 rounded inline-block" style={{background:colorMap[k]}}></span> {v}
+                    </div>
+                ))}
+            </div>
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl p-4">
+                <p className="text-xs text-center text-gray-400 mb-3">🚪 مدخل المستودع</p>
+                <div className="grid grid-cols-3 gap-3">
+                    {rows.map(r=>cols.map(c=>{
+                        const s = APP_DATA.warehouseMap.find(x=>x.shelf===`${r}${c}`);
+                        if(!s) return null;
+                        return (
+                            <button key={s.shelf} onClick={()=>setSelected(selected===s.shelf?null:s.shelf)}
+                                className={`rounded-xl p-3 border-2 transition-all text-center ${selected===s.shelf?'border-gray-800 dark:border-white scale-105':'border-transparent'}`}
+                                style={{background:colorMap[s.status]+'33',borderColor:selected===s.shelf?undefined:colorMap[s.status]}}>
+                                <p className="font-bold text-sm">{s.shelf}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{s.items}/{s.capacity}</p>
+                            </button>
+                        );
+                    }))}
+                </div>
+                <p className="text-xs text-center text-gray-400 mt-3">📦 منطقة التحميل والتفريغ</p>
+            </div>
+            {selected && (() => {
+                const s = APP_DATA.warehouseMap.find(x=>x.shelf===selected);
+                const items = APP_DATA.inventory.slice(0, s.items>0?Math.min(3,s.items):0);
+                return (
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+                        <p className="font-bold text-sm mb-2">رف {s.shelf} — {labelMap[s.status]} ({s.items}/{s.capacity})</p>
+                        {items.length>0 ? items.map(i=>(
+                            <div key={i.id} className="flex justify-between text-xs py-1 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                <span>{i.name}</span><span className="font-mono text-gray-500">{i.qty} {i.unit}</span>
+                            </div>
+                        )) : <p className="text-xs text-gray-400">الرف فارغ</p>}
+                    </div>
+                );
+            })()}
+        </div>
+    );
+};
+
+// l_report
+const ReportDemo = () => {
+    const [type, setType] = useState('يومي');
+    const [format, setFormat] = useState('PDF');
+    const [preview, setPreview] = useState(false);
+    const [generating, setGenerating] = useState(false);
+    const generate = () => {
+        setGenerating(true);
+        setTimeout(()=>{setGenerating(false);setPreview(true);},1500);
+    };
+    const inv = APP_DATA.inventory;
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+                <div>
+                    <label className="text-xs text-gray-500 mb-1 block">نوع التقرير</label>
+                    <select value={type} onChange={e=>setType(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 outline-none">
+                        {['يومي','أسبوعي','شهري'].map(t=><option key={t}>{t}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-xs text-gray-500 mb-1 block">صيغة التصدير</label>
+                    <select value={format} onChange={e=>setFormat(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 outline-none">
+                        {['PDF','Excel','CSV'].map(f=><option key={f}>{f}</option>)}
+                    </select>
+                </div>
+            </div>
+            <Button variant="primary" className="w-full" onClick={generate}>
+                {generating?<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جارٍ التوليد...</>:<><Icon name="barChart" className="w-4 h-4"/> توليد التقرير</>}
+            </Button>
+            {preview && (
+                <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                    <div className="bg-gray-800 p-4 text-white text-sm flex justify-between items-center">
+                        <span>📄 تقرير {type} — {new Date().toLocaleDateString('ar-IQ')}</span>
+                        <Badge color="green">{format}</Badge>
+                    </div>
+                    <div className="p-4 bg-white dark:bg-gray-900 space-y-2">
+                        <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">ملخص المخزون</p>
+                        <table className="w-full text-xs">
+                            <thead><tr className="border-b border-gray-200 dark:border-gray-700">
+                                <th className="text-right py-1 text-gray-500">المنتج</th>
+                                <th className="text-center py-1 text-gray-500">الكمية</th>
+                                <th className="text-left py-1 text-gray-500">الحالة</th>
+                            </tr></thead>
+                            <tbody>{inv.slice(0,5).map(i=>(
+                                <tr key={i.id} className="border-b border-gray-100 dark:border-gray-800">
+                                    <td className="py-1.5 truncate max-w-[120px]">{i.name}</td>
+                                    <td className="py-1.5 text-center">{i.qty} {i.unit}</td>
+                                    <td className="py-1.5 text-left"><span className={`text-[10px] px-1.5 py-0.5 rounded-full ${i.qty<i.min?'bg-red-100 text-red-600':'bg-green-100 text-green-600'}`}>{i.qty<i.min?'نقص':'جيد'}</span></td>
+                                </tr>
+                            ))}</tbody>
+                        </table>
+                        <Button variant="secondary" className="w-full mt-2 text-xs" icon={<Icon name="download" className="w-3 h-3"/>}
+                            onClick={()=>alert(`سيتم تحميل تقرير ${type} بصيغة ${format} — هذه محاكاة`)}>
+                            تحميل {format}
+                        </Button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Screen component dispatcher
+const ScreenDemo = ({ id, onDark, dark, onTabChange }) => {
+    const map = {
+        h_splash: <SplashDemo/>,
+        h_login:  <LoginDemo/>,
+        h_calc:   <CalcDemo/>,
+        h_banks:  <BanksDemo onTabChange={onTabChange}/>,
+        h_docs:   <DocsDemo/>,
+        h_market: <MarketDemo/>,
+        h_track:  <TrackDemo/>,
+        h_profile:<ProfileDemo onDark={onDark} dark={dark}/>,
+        l_dash:   <DashDemo/>,
+        l_scan:   <ScanDemo/>,
+        l_inv:    <InvDemo/>,
+        l_forecast:<ForecastDemo/>,
+        l_map:    <MapDemo/>,
+        l_report: <ReportDemo/>,
+    };
+    return map[id] || <p className="text-gray-400 text-sm text-center py-8">لا يوجد عرض متاح</p>;
+};
+
+// =====================================================================
+// SCREEN DETAIL MODAL (replaces PromptModal — no prompts, pure interactive)
+// =====================================================================
+const ScreenModal = ({ isOpen, onClose, data, onDark, dark, onTabChange }) => {
+    const [tab, setTab] = useState('demo');
+    useEffect(()=>{ if(data) setTab('demo'); }, [data?.id]);
+    if (!isOpen || !data) return null;
+    const techLinks = {
+        h_splash:  [{ label:'React Native Reanimated', url:'https://docs.swmansion.com/react-native-reanimated/' }, {label:'Expo Splash Screen', url:'https://docs.expo.dev/versions/latest/sdk/splash-screen/'}],
+        h_login:   [{ label:'Firebase Auth — Phone',    url:'https://firebase.google.com/docs/auth/web/phone-auth' }, {label:'Regex Iraq Phone', url:'https://regex101.com'}],
+        h_calc:    [{ label:'PMT Formula Reference',    url:'https://support.microsoft.com/en-us/office/pmt-function-0214da64-9a63-4996-bc20-214433fa6441' }, {label:'React Native Slider', url:'https://github.com/callstack/react-native-slider'}],
+        h_banks:   [{ label:'مصرف الرافدين',            url:'https://www.rafidain-bank.com' }, {label:'مصرف الإسكان', url:'http://www.housing.iq'}, {label:'بنك بغداد', url:'https://www.bankofbaghdad.com.iq'}],
+        h_docs:    [{ label:'react-native-image-picker', url:'https://github.com/react-native-image-picker/react-native-image-picker' }, {label:'react-native-compressor', url:'https://github.com/numandev1/react-native-compressor'}],
+        h_market:  [{ label:'WhatsApp Business API',    url:'https://developers.facebook.com/docs/whatsapp' }, {label:'Google Maps Places', url:'https://developers.google.com/maps/documentation/places/web-service'}],
+        h_track:   [{ label:'React Native Animated',    url:'https://reactnative.dev/docs/animated' }],
+        h_profile: [{ label:'AsyncStorage',              url:'https://react-native-async-storage.github.io/async-storage/' }, {label:'React Native Context', url:'https://reactnative.dev/docs/context'}],
+        l_dash:    [{ label:'Victory Native Charts',     url:'https://formidable.com/open-source/victory/docs/native' }, {label:'react-native-chart-kit', url:'https://github.com/indiespirit/react-native-chart-kit'}],
+        l_scan:    [{ label:'react-native-vision-camera', url:'https://mrousavy.com/react-native-vision-camera/' }, {label:'mobile_scanner (Flutter)', url:'https://pub.dev/packages/mobile_scanner'}],
+        l_inv:     [{ label:'FlashList (Shopify)',        url:'https://shopify.github.io/flash-list/' }, {label:'React Native FlatList', url:'https://reactnative.dev/docs/flatlist'}],
+        l_forecast:[{ label:'TensorFlow Lite Mobile',    url:'https://www.tensorflow.org/lite' }, {label:'Python FastAPI Backend', url:'https://fastapi.tiangolo.com'}],
+        l_map:     [{ label:'react-native-svg',           url:'https://github.com/software-mansion/react-native-svg' }, {label:'flutter_svg', url:'https://pub.dev/packages/flutter_svg'}],
+        l_report:  [{ label:'react-native-pdf',           url:'https://github.com/wonday/react-native-pdf' }, {label:'pdf (Flutter)', url:'https://pub.dev/packages/pdf'}],
+    };
+    const links = techLinks[data.id] || [];
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+            <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose}></div>
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-up">
+                <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white font-heading">{data.title}</h3>
+                        <p className="text-sm text-gray-500">{data.category} • {data.description}</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
+                        <Icon name="close" className="w-5 h-5"/>
+                    </button>
+                </div>
+                <div className="flex border-b border-gray-200 dark:border-gray-700">
+                    {[{id:'demo',label:'🎮 تجربة تفاعلية'},{id:'links',label:'🔗 روابط ذات صلة'}].map(t=>(
+                        <button key={t.id} onClick={()=>setTab(t.id)}
+                            className={`flex-1 py-3 text-sm font-medium text-center border-b-2 transition-colors ${tab===t.id?'border-blue-500 text-blue-600 dark:text-blue-400':'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="flex-1 overflow-y-auto p-5">
+                    {tab==='demo' ? (
+                        <ScreenDemo id={data.id} onDark={onDark} dark={dark} onTabChange={onTabChange}/>
+                    ) : (
+                        <div className="space-y-3">
+                            <p className="text-sm text-gray-500 mb-3">مكتبات ووثائق ذات صلة مباشرة بهذه الشاشة:</p>
+                            {links.map((l,i)=>(
+                                <a key={i} href={l.url} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
+                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <Icon name="external" className="w-4 h-4"/>
+                                    </div>
+                                    <span className="font-medium text-sm text-gray-800 dark:text-gray-200 group-hover:text-blue-700 dark:group-hover:text-blue-400">{l.label}</span>
+                                    <Icon name="chevronLeft" className="w-4 h-4 text-gray-300 mr-auto"/>
+                                </a>
+                            ))}
+                            {links.length===0 && <p className="text-gray-400 text-sm text-center py-8">لا توجد روابط محددة لهذه الشاشة</p>}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// =====================================================================
+// MAIN APP
+// =====================================================================
+const App = () => {
+    const [activeTab, setActiveTab]       = useState('overview');
+    const [darkMode, setDarkMode]         = useState(false);
+    const [selectedScreen, setSelectedScreen] = useState(null);
+    const [searchTerm, setSearchTerm]     = useState('');
+    const { show: showToast, ToastEl }    = useToast();
+
+    const handleTabChange = (tabId) => { setActiveTab(tabId); setSearchTerm(''); };
+
+    useEffect(()=>{ if(window.matchMedia('(prefers-color-scheme: dark)').matches) setDarkMode(true); }, []);
+
+    const filteredHousing   = useMemo(()=>APP_DATA.housingScreens.filter(s=>s.title.includes(searchTerm)||s.category.includes(searchTerm)),[searchTerm]);
+    const filteredLogistics = useMemo(()=>APP_DATA.logisticsScreens.filter(s=>s.title.includes(searchTerm)||s.category.includes(searchTerm)),[searchTerm]);
+
+    // ---- render helpers ----
+    const renderOverview = () => (
+        <div className="space-y-10 animate-fade-in">
+            <div className="relative overflow-hidden rounded-3xl text-white shadow-2xl p-8 md:p-12" style={{background:'linear-gradient(135deg,#1e3a8a,#2563eb,#1e40af)'}}>
+                <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{backgroundImage:'radial-gradient(circle,#fff 1px,transparent 1px)',backgroundSize:'30px 30px'}}></div>
+                <div className="relative z-10 max-w-3xl">
+                    <Badge color="amber">الإصدار 3.0 — تفاعلي</Badge>
+                    <h1 className="text-4xl md:text-5xl font-bold mt-4 mb-4 font-heading leading-tight">دليل بناء تطبيقات <br/><span style={{color:'#93c5fd'}}>العراق الذكية</span></h1>
+                    <p className="text-blue-100 text-lg leading-relaxed mb-8 max-w-2xl">منصة تفاعلية شاملة — كل شاشة قابلة للتجربة المباشرة مع روابط للمكتبات والمصارف العراقية.</p>
+                    <div className="flex flex-wrap gap-3">
+                        <Button variant="secondary" className="bg-white/10 text-white border-white/20 hover:bg-white/20" onClick={()=>handleTabChange('housing')}>🏠 المنزل الذكي</Button>
+                        <Button variant="secondary" className="bg-white/10 text-white border-white/20 hover:bg-white/20" onClick={()=>handleTabChange('logistics')}>📦 تتبع+</Button>
+                        <Button variant="secondary" className="bg-white/10 text-white border-white/20 hover:bg-white/20" href="https://reactnative.dev" icon={<Icon name="external" className="w-4 h-4"/>}>React Native Docs</Button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white font-heading flex items-center gap-2"><Icon name="layers" className="text-blue-500"/> التقنيات المستخدمة</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {APP_DATA.techStack.map((tech,idx)=>(
+                        <a key={idx} href={tech.url} target="_blank" rel="noopener noreferrer"
+                            className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group block card-hover">
+                            <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">{tech.icon}</div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">{tech.name}</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tech.category}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 leading-snug">{tech.desc}</p>
+                            <div className="flex items-center gap-1 mt-2 text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Icon name="external" className="w-3 h-3"/> الوثائق
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+                <h2 className="text-2xl font-bold mb-2 text-center font-heading">خارطة طريق المنزل الذكي</h2>
+                <p className="text-center text-sm text-gray-500 mb-8">اضغط على أي خطوة للانتقال مباشرة إلى الشاشة</p>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-6 relative">
+                    <div className="hidden md:block absolute top-8 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700 z-0"></div>
+                    {APP_DATA.housingFlow.map((item)=>(
+                        <div key={item.step} onClick={()=>{const s=APP_DATA.housingScreens.find(x=>x.id===item.screenId);if(s)setSelectedScreen(s);}}
+                            className="relative z-10 flex flex-col items-center text-center group cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-white dark:bg-gray-900 border-4 border-blue-100 dark:border-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl shadow-lg group-hover:border-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">{item.step}</div>
+                            <h3 className="mt-4 font-bold text-gray-900 dark:text-white text-sm">{item.title}</h3>
+                            <p className="text-xs text-gray-500 mt-1 px-1">{item.desc}</p>
+                            <div className="flex gap-1 mt-2 flex-wrap justify-center">
+                                {item.tags.map(tag=><span key={tag} className="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">{tag}</span>)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-bold mb-4 font-heading flex items-center gap-2"><Icon name="package" className="text-amber-500"/> حزم npm / pub.dev الأساسية</h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                    {[{title:'المنزل الذكي (React Native)', pkgs: APP_DATA.npmPackages.housing, color:'emerald'},
+                      {title:'تتبع+ (Flutter)',              pkgs: APP_DATA.npmPackages.logistics, color:'amber'}].map(({title,pkgs,color})=>(
+                        <div key={title} className={`bg-${color}-50 dark:bg-${color}-900/20 rounded-xl p-4 border border-${color}-100 dark:border-${color}-800`}>
+                            <p className={`font-bold text-${color}-700 dark:text-${color}-300 mb-3 text-sm`}>{title}</p>
+                            <div className="flex flex-wrap gap-2">
+                                {pkgs.map(p=>(
+                                    <a key={p} href={p==='flutter'?'https://flutter.dev':`https://www.npmjs.com/package/${p}`} target="_blank" rel="noopener noreferrer"
+                                        className="text-xs px-2 py-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg font-mono hover:border-blue-400 hover:text-blue-600 transition-colors">
+                                        {p}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+
+    const ScreenCard = ({ screen, color='emerald', iconName='home' }) => (
+        <div onClick={()=>setSelectedScreen(screen)}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer card-hover group flex flex-col h-full">
+            <div className="flex justify-between items-start mb-4">
+                <div className={`p-3 bg-${color}-100 dark:bg-${color}-900/30 rounded-xl text-${color}-600 dark:text-${color}-400 group-hover:bg-${color}-600 group-hover:text-white transition-colors duration-300`}>
+                    <Icon name={iconName} className="w-6 h-6"/>
+                </div>
+                <Badge color="gray">{screen.category}</Badge>
+            </div>
+            <h3 className={`text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-${color}-600 dark:group-hover:text-${color}-400 transition-colors`}>{screen.title}</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 flex-grow">{screen.description}</p>
+            <div className={`pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center text-${color}-600 dark:text-${color}-400 font-medium text-sm group-hover:translate-x-[-5px] transition-transform`}>
+                تجربة مباشرة <Icon name="chevronLeft" className="w-4 h-4 mr-1"/>
+            </div>
+        </div>
+    );
+
+    const renderHousing = () => (
+        <div className="space-y-8 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                <div>
+                    <h2 className="text-3xl font-bold text-emerald-800 dark:text-emerald-400 font-heading">🏠 المنزل الذكي</h2>
+                    <p className="text-emerald-700 dark:text-emerald-300 mt-1">تطبيق القروض السكنية المتكامل للعراق</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                    <Badge color="green">React Native</Badge>
+                    <Badge color="blue">Firebase</Badge>
+                    <Badge color="amber">ZainCash</Badge>
+                    <a href="https://reactnative.dev" target="_blank" className="text-xs text-blue-500 hover:underline flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> Docs</a>
+                </div>
+            </div>
+            <div className="relative max-w-md">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><Icon name="search" className="w-5 h-5"/></div>
+                <input type="text" placeholder="بحث..." className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredHousing.map(s=><ScreenCard key={s.id} screen={s} color="emerald" iconName="home"/>)}
+            </div>
+        </div>
+    );
+
+    const renderLogistics = () => (
+        <div className="space-y-8 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-100 dark:border-amber-800">
+                <div>
+                    <h2 className="text-3xl font-bold text-amber-800 dark:text-amber-400 font-heading">📦 تتبع+</h2>
+                    <p className="text-amber-700 dark:text-amber-300 mt-1">نظام إدارة المخزون واللوجستيات الذكي</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                    <Badge color="purple">Flutter</Badge>
+                    <Badge color="blue">PostgreSQL</Badge>
+                    <Badge color="green">AI Forecast</Badge>
+                    <a href="https://flutter.dev" target="_blank" className="text-xs text-blue-500 hover:underline flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> Docs</a>
+                </div>
+            </div>
+            <div className="relative max-w-md">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><Icon name="search" className="w-5 h-5"/></div>
+                <input type="text" placeholder="بحث..." className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-amber-500 outline-none"
+                    value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredLogistics.map(s=><ScreenCard key={s.id} screen={s} color="amber" iconName="layers"/>)}
+            </div>
+        </div>
+    );
+
+    const renderPrompts = () => (
+        <div className="space-y-8 animate-fade-in max-w-5xl mx-auto">
+            <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold font-heading mb-4">مكتبة البرومبتات الشاملة</h2>
+                <p className="text-gray-600 dark:text-gray-400">استخدم هذه البرومبتات في ChatGPT-4 أو Claude للحصول على كود كامل للتطبيق.</p>
+            </div>
+            {[{
+                title:'البرومبت الكامل: تطبيق المنزل الذكي', icon:'🏠', color:'emerald',
+                text:`Act as a Senior React Native Developer. I need you to build a complete "Smart Home Loan App" for the Iraqi market.
+
+PROJECT REQUIREMENTS:
+1. Tech Stack: React Native (Expo), Node.js (Backend), PostgreSQL (Database).
+2. Language: Arabic (RTL support is mandatory).
+3. Authentication: Phone number login (+964) with OTP verification.
+
+CORE FEATURES:
+- Loan Calculator: Interactive sliders (10M-100M IQD, 5-20 years, 5% interest).
+- Bank Integration: Mock API for Rafidain and Housing banks.
+- Document Upload: Camera integration with compression.
+- Contractor Marketplace: Grid view with ratings.
+- Status Tracking: Vertical timeline component.
+
+DELIVERABLES:
+1. Project folder structure.
+2. Database Schema (SQL).
+3. Loan Calculator component code.
+4. Vertical timeline component code.`
+            },{
+                title:'البرومبت الكامل: تطبيق تتبع+', icon:'📦', color:'amber',
+                text:`Act as a Senior Flutter Developer. Build a "Logistics Asset Tracking App" called "Tatbaa+".
+
+PROJECT REQUIREMENTS:
+1. Tech Stack: Flutter, Firebase (Auth & DB), Google Maps API.
+2. Target: Warehouse managers in Iraq.
+3. Performance: Offline-first with sync.
+
+CORE FEATURES:
+- QR Scanner: mobile_scanner package with flashlight toggle.
+- Inventory Dashboard: Real-time charts with low-stock alerts.
+- AI Forecasting: UI for ML demand prediction (Python API).
+- Warehouse Map: 2D SVG shelf map (A1, B2...).
+- Reports: PDF generation for daily movements.
+
+DELIVERABLES:
+1. Flutter Clean Architecture structure.
+2. Firebase Security Rules.
+3. QR Scanner screen code.
+4. Warehouse Map using flutter_svg.`
+            }].map(({title,icon,color,text})=>{
+                const [copied, setCopied] = useState(false);
+                return (
+                    <div key={title} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div className={`bg-gradient-to-r from-${color}-600 to-${color}-800 p-6 text-white`}>
+                            <h3 className="text-xl font-bold flex items-center gap-2"><span className="text-2xl">{icon}</span>{title}</h3>
+                        </div>
+                        <div className="p-6">
+                            <pre className="bg-gray-900 text-gray-300 rounded-xl p-4 text-xs font-mono overflow-x-auto mb-4 leading-relaxed max-h-48 overflow-y-auto">{text}</pre>
+                            <div className="flex gap-3">
+                                <Button variant={copied?'success':'primary'} className="flex-1" icon={copied?<Icon name="check" className="w-4 h-4"/>:<Icon name="copy" className="w-4 h-4"/>}
+                                    onClick={()=>{navigator.clipboard.writeText(text);setCopied(true);showToast('تم النسخ!');setTimeout(()=>setCopied(false),2500);}}>
+                                    {copied?'تم النسخ!':'نسخ البرومبت'}
+                                </Button>
+                                <Button variant="secondary" href={`https://claude.ai/new?q=${encodeURIComponent(text.slice(0,200))}`} icon={<Icon name="external" className="w-4 h-4"/>}>فتح في Claude</Button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+
+    const renderScreens = () => (
+        <div className="space-y-12 animate-fade-in">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold font-heading mb-2">معرض الشاشات التفاعلي</h2>
+                <p className="text-gray-600 dark:text-gray-400">اضغط على أي شاشة لتجربتها مباشرة</p>
+            </div>
+            {[{label:'شاشات المنزل الذكي',screens:APP_DATA.housingScreens,color:'emerald'},{label:'شاشات تتبع+',screens:APP_DATA.logisticsScreens,color:'amber'}].map(({label,screens,color})=>(
+                <div key={label}>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                        <h3 className={`text-xl font-bold text-${color}-600 dark:text-${color}-400`}>{label}</h3>
+                        <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {screens.map(screen=>(
+                            <button key={screen.id} onClick={()=>setSelectedScreen(screen)}
+                                className={`aspect-[3/4] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center p-4 hover:border-${color}-500 hover:shadow-lg transition-all group`}>
+                                <div className={`w-12 h-12 bg-${color}-100 dark:bg-${color}-900/30 rounded-full flex items-center justify-center text-${color}-600 mb-3 group-hover:scale-110 transition-transform`}>
+                                    <Icon name={color==='emerald'?'home':'layers'} className="w-6 h-6"/>
+                                </div>
+                                <span className="text-xs font-bold text-center text-gray-800 dark:text-gray-200">{screen.title}</span>
+                                <span className="text-[10px] text-gray-400 mt-1">اضغط للتجربة</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
+    return (
+        <div className={`min-h-screen flex flex-col ${darkMode?'dark':''}`}>
+            {ToastEl}
+            <header className="sticky top-0 z-40 glass-panel border-b border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={()=>handleTabChange('overview')}>
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg" style={{background:'linear-gradient(135deg,#2563eb,#1e40af)'}}>ع</div>
+                            <div className="hidden sm:block">
+                                <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-white font-heading">تطبيقات العراق الذكية</h1>
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-mono">v3.0.0 | Interactive | <span className="text-blue-500 font-semibold">ENG_ALAA MOHAMMED</span></p>
+                            </div>
+                        </div>
+                        <nav className="hidden md:flex space-x-1 space-x-reverse">
+                            {APP_DATA.tabs.map(tab=>(
+                                <button key={tab.id} onClick={()=>handleTabChange(tab.id)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab===tab.id?'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300':'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                                    <span className="ml-2">{tab.icon}</span>{tab.label}
+                                </button>
+                            ))}
+                        </nav>
+                        <button onClick={()=>setDarkMode(!darkMode)} className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <Icon name={darkMode?'sun':'moon'} className="w-5 h-5"/>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8 w-full">
+                {activeTab==='overview'   && renderOverview()}
+                {activeTab==='housing'    && renderHousing()}
+                {activeTab==='logistics'  && renderLogistics()}
+                {activeTab==='prompts'    && renderPrompts()}
+                {activeTab==='screens'    && renderScreens()}
+            </main>
+
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-50">
+                <div className="flex justify-around items-center h-16">
+                    {APP_DATA.tabs.map(tab=>(
+                        <button key={tab.id} onClick={()=>handleTabChange(tab.id)}
+                            className={`flex flex-col items-center justify-center w-full h-full space-y-0.5 ${activeTab===tab.id?'text-blue-600 dark:text-blue-400':'text-gray-500 dark:text-gray-400'}`}>
+                            <span className="text-xl">{tab.icon}</span>
+                            <span className="text-[10px] font-medium">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </nav>
+
+            <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6 mt-auto hidden md:block">
+                <div className="max-w-7xl mx-auto px-4 text-center">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        © 2025 تطبيقات العراق الذكية | <span className="text-blue-500 font-bold">ENG_ALAA MOHAMMED</span>
+                    </p>
+                    <div className="flex justify-center gap-6 mt-3 flex-wrap">
+                        <a href="https://reactnative.dev"           target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> React Native</a>
+                        <a href="https://flutter.dev"               target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> Flutter</a>
+                        <a href="https://firebase.google.com"       target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> Firebase</a>
+                        <a href="https://www.zaincash.iq"           target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> ZainCash</a>
+                        <a href="https://developers.google.com/maps" target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="external" className="w-3 h-3"/> Google Maps</a>
+                        <a href="https://github.com"                target="_blank" className="text-xs text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"><Icon name="github" className="w-3 h-3"/> GitHub</a>
+                    </div>
+                </div>
+            </footer>
+
+            <ScreenModal
+                isOpen={!!selectedScreen}
+                onClose={()=>setSelectedScreen(null)}
+                data={selectedScreen}
+                onDark={()=>setDarkMode(d=>!d)}
+                dark={darkMode}
+                onTabChange={handleTabChange}
+            />
+        </div>
+    );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

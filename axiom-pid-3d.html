@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXIOM Engineering Suite — P&ID + 3D Plant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   AXIOM ENGINEERING SUITE — GLOBAL STYLES
+   ENG_ALAA MOHAMMED | AXIOM Engineering Suite
+═══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap');
+
+:root {
+  --bg-0: #040810;
+  --bg-1: #080f1a;
+  --bg-2: #0d1526;
+  --bg-3: #111d33;
+  --cyan: #00d4ff;
+  --cyan-dim: #0099bb;
+  --orange: #ff6b00;
+  --orange-dim: #cc5500;
+  --green: #00ff88;
+  --green-dim: #00aa55;
+  --yellow: #ffd700;
+  --red: #ff3344;
+  --text-bright: #e8f4ff;
+  --text-mid: #8ab0cc;
+  --text-dim: #3d5f7a;
+  --border: #1a3050;
+  --border-bright: #2a4a70;
+  --glow-cyan: 0 0 20px rgba(0,212,255,0.4);
+  --glow-orange: 0 0 20px rgba(255,107,0,0.4);
+  --glow-green: 0 0 15px rgba(0,255,136,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--bg-0);
+  color: var(--text-bright);
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+}
+
+/* ─── SCANLINE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── LAYOUT ─── */
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+/* ─── HEADER ─── */
+#header {
+  height: 52px;
+  background: linear-gradient(90deg, var(--bg-1) 0%, #0a1828 50%, var(--bg-1) 100%);
+  border-bottom: 1px solid var(--cyan-dim);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+}
+#header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: scanH 4s linear infinite;
+}
+@keyframes scanH {
+  0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; }
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-right: 1px solid var(--border-bright);
+  padding-right: 16px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: conic-gradient(var(--cyan), var(--orange), var(--cyan));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: spinLogo 8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spinLogo { to { transform: rotate(360deg); } }
+.logo-text {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  line-height: 1.2;
+}
+.logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--orange);
+  letter-spacing: 3px;
+}
+
+.header-tabs {
+  display: flex;
+  gap: 4px;
+}
+.tab-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  transition: all 0.2s;
+}
+.tab-btn.active, .tab-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,212,255,0.08);
+  text-shadow: var(--glow-cyan);
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: var(--glow-green); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.eng-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--orange);
+  letter-spacing: 2px;
+  border: 1px solid var(--orange-dim);
+  padding: 3px 10px;
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+}
+
+/* ─── MAIN WORKSPACE ─── */
+#workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── SIDEBAR ─── */
+#sidebar {
+  width: 240px;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sidebar-section {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  padding: 10px 14px 8px;
+  background: rgba(0,212,255,0.04);
+  border-bottom: 1px solid var(--border);
+}
+.comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 8px;
+}
+.comp-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  cursor: pointer;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+}
+.comp-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,212,255,0.08);
+  box-shadow: inset 0 0 10px rgba(0,212,255,0.05);
+}
+.comp-icon { font-size: 18px; line-height: 1; }
+
+#props-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+#props-panel::-webkit-scrollbar { width: 4px; }
+#props-panel::-webkit-scrollbar-track { background: var(--bg-0); }
+#props-panel::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 2px; }
+
+.prop-header {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  color: var(--orange);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.prop-id {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 20px;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  margin-bottom: 6px;
+}
+.prop-label {
+  font-size: 11px;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.prop-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+}
+.prop-key { color: var(--text-dim); font-family: 'Share Tech Mono', monospace; }
+.prop-val { color: var(--green); font-family: 'Share Tech Mono', monospace; }
+
+.fluid-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 9px;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+.fluid-oil { background: rgba(255,107,0,0.15); border: 1px solid var(--orange); color: var(--orange); }
+.fluid-gas { background: rgba(255,215,0,0.15); border: 1px solid var(--yellow); color: var(--yellow); }
+.fluid-water { background: rgba(0,150,255,0.15); border: 1px solid #0096ff; color: #0096ff; }
+.fluid-mixed { background: rgba(0,212,255,0.1); border: 1px solid var(--cyan); color: var(--cyan); }
+
+.no-select-msg {
+  color: var(--text-dim);
+  font-size: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  text-align: center;
+  padding: 20px 10px;
+  line-height: 1.8;
+}
+
+/* ─── MAIN PANELS ─── */
+#main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#view-controls {
+  height: 36px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.view-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.view-btn.active, .view-btn:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(255,107,0,0.08);
+}
+.vline { width: 1px; height: 20px; background: var(--border); }
+.view-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-left: auto;
+}
+
+#panels {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ─── P&ID PANEL ─── */
+#pid-panel {
+  flex: 1;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-0);
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+#pid-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+}
+#pid-canvas-wrap.panning { cursor: grabbing; }
+
+#pid-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform-origin: 0 0;
+}
+
+.pid-panel-label {
+  position: absolute;
+  top: 10px; left: 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── 3D PANEL ─── */
+#model-panel {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-0);
+}
+
+#three-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.model-panel-label {
+  position: absolute;
+  top: 10px; left: 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--orange);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.model-controls-hint {
+  position: absolute;
+  bottom: 10px; right: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  text-align: right;
+  line-height: 1.8;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── TOOLTIP ─── */
+#tooltip {
+  position: fixed;
+  background: var(--bg-2);
+  border: 1px solid var(--cyan-dim);
+  padding: 8px 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-bright);
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+  box-shadow: var(--glow-cyan);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  max-width: 200px;
+  line-height: 1.6;
+}
+
+/* ─── STATUS BAR ─── */
+#statusbar {
+  height: 24px;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.sb-item span { color: var(--cyan); }
+.sb-sep { color: var(--border-bright); }
+
+/* ─── MODAL ─── */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 5000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#modal-overlay.open { display: flex; }
+#modal {
+  background: var(--bg-2);
+  border: 1px solid var(--cyan-dim);
+  box-shadow: var(--glow-cyan), 0 20px 60px rgba(0,0,0,0.8);
+  padding: 24px;
+  width: 380px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+.modal-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.form-row { margin-bottom: 12px; }
+.form-row label {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.form-row input, .form-row select {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--border-bright);
+  color: var(--text-bright);
+  padding: 7px 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-row input:focus, .form-row select:focus { border-color: var(--cyan); }
+.form-row select option { background: var(--bg-2); }
+.modal-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+.btn-cancel, .btn-confirm {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 8px 20px;
+  cursor: pointer;
+  border: none;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+.btn-cancel { background: var(--bg-3); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-cancel:hover { color: var(--text-mid); }
+.btn-confirm { background: rgba(0,212,255,0.15); color: var(--cyan); border: 1px solid var(--cyan-dim); }
+.btn-confirm:hover { background: rgba(0,212,255,0.25); }
+
+/* ─── FLOW ANIMATION ─── */
+@keyframes flowAnim {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
+}
+.flow-line { animation: flowAnim 0.8s linear infinite; }
+.flow-line-gas { animation: flowAnim 0.5s linear infinite; }
+.flow-line-water { animation: flowAnim 1.2s linear infinite; }
+
+/* ─── PID SELECTION ─── */
+.pid-equip:hover { filter: brightness(1.4); cursor: pointer; }
+.pid-equip.selected rect, .pid-equip.selected circle, .pid-equip.selected ellipse, .pid-equip.selected polygon, .pid-equip.selected path { stroke: var(--yellow) !important; stroke-width: 2px !important; filter: drop-shadow(0 0 6px gold); }
+
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div class="logo-block">
+      <div class="logo-icon"></div>
+      <div>
+        <div class="logo-text">AXIOM</div>
+        <div class="logo-sub">ENGINEERING SUITE</div>
+      </div>
+    </div>
+    <div class="header-tabs">
+      <button class="tab-btn active" onclick="setView('split')">◧ SPLIT VIEW</button>
+      <button class="tab-btn" onclick="setView('pid')">▣ P&ID ONLY</button>
+      <button class="tab-btn" onclick="setView('3d')">⬡ 3D ONLY</button>
+    </div>
+    <div class="header-right">
+      <div class="status-dot"></div>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:1px">SYSTEM ONLINE</span>
+      <div class="eng-badge">ENG_ALAA MOHAMMED</div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div id="workspace">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">▸ ADD EQUIPMENT</div>
+        <div class="comp-grid" id="comp-grid">
+          <button class="comp-btn" onclick="showAddModal('pump')"><span class="comp-icon">⚙</span>PUMP</button>
+          <button class="comp-btn" onclick="showAddModal('compressor')"><span class="comp-icon">🔄</span>COMP.</button>
+          <button class="comp-btn" onclick="showAddModal('heatexchanger')"><span class="comp-icon">♨</span>HEX</button>
+          <button class="comp-btn" onclick="showAddModal('separator')"><span class="comp-icon">⊘</span>SEP.</button>
+          <button class="comp-btn" onclick="showAddModal('tank')"><span class="comp-icon">🛢</span>TANK</button>
+          <button class="comp-btn" onclick="showAddModal('column')"><span class="comp-icon">↕</span>COL.</button>
+          <button class="comp-btn" onclick="showAddModal('valve')"><span class="comp-icon">⊳</span>VALVE</button>
+          <button class="comp-btn" onclick="showAddModal('flare')"><span class="comp-icon">🔥</span>FLARE</button>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">▸ SELECTED ITEM</div>
+      </div>
+      <div id="props-panel">
+        <div class="no-select-msg">— NO SELECTION —<br><br>Click equipment in<br>P&ID or 3D view</div>
+      </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div id="main-area">
+      <div id="view-controls">
+        <button class="view-btn active" onclick="toggleFlowAnim()">▶ FLOW ANIM</button>
+        <div class="vline"></div>
+        <button class="view-btn" onclick="resetPIDView()">⊡ FIT P&ID</button>
+        <button class="view-btn" onclick="resetCameraView()">⊡ FIT 3D</button>
+        <div class="vline"></div>
+        <button class="view-btn" onclick="saveProject()">⬇ SAVE</button>
+        <button class="view-btn" onclick="loadProject()">⬆ LOAD</button>
+        <div class="view-label">AXIOM P&ID + 3D ENGINE v4.0</div>
+      </div>
+
+      <div id="panels">
+        <!-- P&ID PANEL -->
+        <div id="pid-panel">
+          <div class="pid-panel-label">P&ID DIAGRAM — ISA 5.1</div>
+          <div id="pid-canvas-wrap">
+            <svg id="pid-svg" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arrow-oil" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" fill="#ff6b00"/>
+                </marker>
+                <marker id="arrow-gas" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" fill="#ffd700"/>
+                </marker>
+                <marker id="arrow-water" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" fill="#0096ff"/>
+                </marker>
+                <marker id="arrow-mixed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" fill="#00d4ff"/>
+                </marker>
+                <filter id="glow-cyan">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow-orange">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <g id="pid-connections-layer"></g>
+              <g id="pid-equipment-layer"></g>
+              <g id="pid-instruments-layer"></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 3D MODEL PANEL -->
+        <div id="model-panel">
+          <div class="model-panel-label">3D PLANT MODEL — THREE.JS</div>
+          <canvas id="three-canvas"></canvas>
+          <div class="model-controls-hint">
+            LEFT DRAG — ROTATE<br>
+            RIGHT DRAG — PAN<br>
+            SCROLL — ZOOM<br>
+            CLICK — SELECT
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="statusbar">
+    <div class="sb-item">EQUIPMENT: <span id="sb-equip">0</span></div>
+    <div class="sb-sep">|</div>
+    <div class="sb-item">LINES: <span id="sb-lines">0</span></div>
+    <div class="sb-sep">|</div>
+    <div class="sb-item">SELECTED: <span id="sb-sel">NONE</span></div>
+    <div class="sb-sep">|</div>
+    <div class="sb-item">PROJECT: <span id="sb-proj">AXIOM PROCESS PLANT</span></div>
+    <div class="sb-sep">|</div>
+    <div style="margin-left:auto;color:var(--orange);letter-spacing:2px">ENG_ALAA MOHAMMED — AXIOM ENGINEERING SUITE</div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<!-- ADD MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-title">▸ ADD EQUIPMENT UNIT</div>
+    <div class="form-row">
+      <label>EQUIPMENT ID</label>
+      <input id="m-id" type="text" placeholder="e.g. P-201">
+    </div>
+    <div class="form-row">
+      <label>EQUIPMENT TYPE</label>
+      <select id="m-type">
+        <option value="pump">Pump (Centrifugal)</option>
+        <option value="compressor">Compressor</option>
+        <option value="heatexchanger">Heat Exchanger</option>
+        <option value="separator">Separator (3-Phase)</option>
+        <option value="tank">Storage Tank</option>
+        <option value="column">Distillation Column</option>
+        <option value="valve">Control Valve</option>
+        <option value="flare">Flare Stack</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>LABEL / DESCRIPTION</label>
+      <input id="m-label" type="text" placeholder="Equipment description">
+    </div>
+    <div class="form-row">
+      <label>PROCESS FLUID</label>
+      <select id="m-fluid">
+        <option value="oil">Crude Oil</option>
+        <option value="gas">Gas</option>
+        <option value="water">Water</option>
+        <option value="mixed">Mixed / Multiphase</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>PROCESS PHASE</label>
+      <select id="m-phase">
+        <option value="upstream">Upstream</option>
+        <option value="midstream">Midstream</option>
+        <option value="downstream">Downstream</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">CANCEL</button>
+      <button class="btn-confirm" onclick="confirmAddEquipment()">ADD UNIT</button>
+    </div>
+  </div>
+</div>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  AXIOM ENGINEERING SUITE — P&ID + 3D PLANT ENGINE
+//  ENG_ALAA MOHAMMED | AXIOM Engineering Suite
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── GLOBAL STATE ─────────────────────────────────────────────────────────
+let processData = null;
+let selectedId = null;
+let flowAnimEnabled = true;
+let currentView = 'split';
+let pendingEquipType = null;
+
+// P&ID pan/zoom state
+let pidScale = 1, pidOffX = 40, pidOffY = 40;
+let pidPanning = false, pidLastX = 0, pidLastY = 0;
+
+// ─── FLUID COLORS ──────────────────────────────────────────────────────────
+const FLUID_COLOR = {
+  oil:   '#ff6b00',
+  gas:   '#ffd700',
+  water: '#0096ff',
+  mixed: '#00d4ff'
+};
+const FLUID_COLOR_3D = {
+  oil:   0xff6b00,
+  gas:   0xffd700,
+  water: 0x0096ff,
+  mixed: 0x00d4ff
+};
+
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadProcessData();
+  initPID();
+  initThree();
+  initPIDPanInteraction();
+});
+
+// ─── DATA LOADING ──────────────────────────────────────────────────────────
+async function loadProcessData() {
+  try {
+    const resp = await fetch('http://localhost:3001/api/process');
+    processData = await resp.json();
+  } catch(e) {
+    // fallback to embedded data
+    processData = getEmbeddedData();
+  }
+  updateStatusBar();
+}
+
+function updateStatusBar() {
+  document.getElementById('sb-equip').textContent = processData.equipment.length;
+  document.getElementById('sb-lines').textContent = processData.connections.length;
+  document.getElementById('sb-proj').textContent = processData.project || 'AXIOM PLANT';
+}
+
+async function saveProject() {
+  const blob = new Blob([JSON.stringify(processData, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'axiom-process.json';
+  a.click();
+}
+
+function loadProject() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = async (e) => {
+    const text = await e.target.files[0].text();
+    processData = JSON.parse(text);
+    renderPID();
+    rebuildThreeScene();
+    updateStatusBar();
+  };
+  inp.click();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  P&ID ENGINE
+// ══════════════════════════════════════════════════════════════════════════
+
+// Layout constants
+const PID_EQ_W = 80, PID_EQ_H = 50;
+const PID_MARGIN_X = 140, PID_MARGIN_Y = 90;
+const PID_COL = { upstream: 0, midstream: 1, downstream: 2 };
+
+function initPID() {
+  renderPID();
+}
+
+function renderPID() {
+  const svg = document.getElementById('pid-svg');
+  const connLayer  = document.getElementById('pid-connections-layer');
+  const equipLayer = document.getElementById('pid-equipment-layer');
+  const instLayer  = document.getElementById('pid-instruments-layer');
+  connLayer.innerHTML = '';
+  equipLayer.innerHTML = '';
+  instLayer.innerHTML = '';
+
+  // Auto-layout: assign positions by phase column
+  const colCounts = {upstream:0, midstream:0, downstream:0};
+  const positions = {};
+
+  processData.equipment.forEach(eq => {
+    const phase = eq.phase || 'midstream';
+    const col = PID_COL[phase] ?? 1;
+    const row = colCounts[phase]++;
+    positions[eq.id] = {
+      x: 80 + col * PID_MARGIN_X,
+      y: 70 + row * PID_MARGIN_Y
+    };
+  });
+
+  // Draw connections first (behind equipment)
+  processData.connections.forEach(conn => {
+    const fromEq = processData.equipment.find(e => e.id === conn.from);
+    const toEq   = processData.equipment.find(e => e.id === conn.to);
+    if (!fromEq || !toEq) return;
+
+    const fromPos = positions[conn.from];
+    const toPos   = positions[conn.to];
+    if (!fromPos || !toPos) return;
+
+    const x1 = fromPos.x + PID_EQ_W;
+    const y1 = fromPos.y + PID_EQ_H/2;
+    const x2 = toPos.x;
+    const y2 = toPos.y + PID_EQ_H/2;
+    const color = FLUID_COLOR[conn.fluid] || '#00d4ff';
+    const animClass = conn.fluid === 'gas' ? 'flow-line-gas' : conn.fluid === 'water' ? 'flow-line-water' : 'flow-line';
+
+    // Orthogonal routing with midpoint
+    const mx = (x1 + x2) / 2;
+    const pathD = `M ${x1},${y1} L ${mx},${y1} L ${mx},${y2} L ${x2},${y2}`;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', '2.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '8 4');
+    path.setAttribute('marker-end', `url(#arrow-${conn.fluid || 'mixed'})`);
+    if (flowAnimEnabled) path.classList.add(animClass);
+    path.setAttribute('data-id', conn.id);
+    connLayer.appendChild(path);
+
+    // Line label (size)
+    if (conn.size) {
+      const lx = mx - 2, ly = (y1+y2)/2 - 6;
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x', lx); txt.setAttribute('y', ly);
+      txt.setAttribute('fill', color);
+      txt.setAttribute('font-size', '8');
+      txt.setAttribute('font-family', 'Share Tech Mono, monospace');
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('opacity', '0.7');
+      txt.textContent = conn.size;
+      connLayer.appendChild(txt);
+    }
+  });
+
+  // Draw equipment
+  processData.equipment.forEach(eq => {
+    const pos = positions[eq.id];
+    if (!pos) return;
+    const g = drawPIDEquipment(eq, pos.x, pos.y);
+    g.setAttribute('data-equip-id', eq.id);
+    g.classList.add('pid-equip');
+    if (eq.id === selectedId) g.classList.add('selected');
+    g.addEventListener('click', (e) => { e.stopPropagation(); selectItem(eq.id); });
+    g.addEventListener('mouseenter', (e) => showTooltip(e, eq));
+    g.addEventListener('mouseleave', hideTooltip);
+    equipLayer.appendChild(g);
+  });
+
+  // Draw instruments
+  processData.instruments?.forEach(inst => {
+    const eq = processData.equipment.find(e => e.id === inst.equipmentId);
+    if (!eq) return;
+    const pos = positions[eq.id];
+    if (!pos) return;
+    const ig = drawInstrument(inst, pos.x + PID_EQ_W + 10, pos.y - 20);
+    instLayer.appendChild(ig);
+  });
+}
+
+function drawPIDEquipment(eq, x, y) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `translate(${x},${y})`);
+
+  const color = FLUID_COLOR[eq.fluid] || '#00d4ff';
+  const W = PID_EQ_W, H = PID_EQ_H;
+
+  const glow = eq.id === selectedId ? 'url(#glow-orange)' : 'none';
+
+  switch(eq.type) {
+    case 'separator': {
+      // Horizontal vessel
+      const ell = mkSvg('ellipse', {cx:8,cy:H/2,rx:8,ry:H/2-2,fill:'none',stroke:color,'stroke-width':1.5});
+      const rect = mkSvg('rect', {x:8,y:2,width:W-16,height:H-4,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      const ellR = mkSvg('ellipse', {cx:W-8,cy:H/2,rx:8,ry:H/2-2,fill:'none',stroke:color,'stroke-width':1.5});
+      // Internal level line
+      const lvl = mkSvg('line', {x1:8,y1:H*0.55,x2:W-8,y2:H*0.55,stroke:'#0096ff','stroke-width':1,'stroke-dasharray':'3 2',opacity:'0.6'});
+      // Boot
+      const boot = mkSvg('rect', {x:W*0.7,y:H-2,width:10,height:10,fill:'none',stroke:'#0096ff','stroke-width':1});
+      [ell,rect,ellR,lvl,boot].forEach(el => g.appendChild(el));
+      break;
+    }
+    case 'pump': {
+      // Centrifugal pump symbol
+      const circ = mkSvg('circle', {cx:W/2,cy:H/2,r:H/2-2,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      // Arrow inside
+      const arr = mkSvg('path', {d:`M ${W/2-6},${H/2} L ${W/2+6},${H/2} M ${W/2+2},${H/2-4} L ${W/2+6},${H/2} L ${W/2+2},${H/2+4}`,stroke:color,'stroke-width':1.5,fill:'none'});
+      // Suction nozzle
+      const s1 = mkSvg('line', {x1:0,y1:H/2,x2:W/2-H/2+2,y2:H/2,stroke:color,'stroke-width':2});
+      // Discharge nozzle (up)
+      const d1 = mkSvg('line', {x1:W/2,y1:2,x2:W/2,y2:H/2-H/2+2,stroke:color,'stroke-width':2});
+      [circ,arr,s1,d1].forEach(el => g.appendChild(el));
+      break;
+    }
+    case 'compressor': {
+      const tri = mkSvg('polygon', {points:`0,${H} ${W},${H/2} 0,0`,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      const circ2 = mkSvg('circle', {cx:W*0.3,cy:H/2,r:6,fill:'none',stroke:color,'stroke-width':1,opacity:'0.5'});
+      g.appendChild(tri); g.appendChild(circ2);
+      break;
+    }
+    case 'heatexchanger': {
+      const rect = mkSvg('rect', {x:0,y:4,width:W,height:H-8,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5,rx:4});
+      // Shell tubes
+      for (let i=1;i<=3;i++) {
+        const t = mkSvg('line', {x1:10,y1:4+i*(H-8)/4,x2:W-10,y2:4+i*(H-8)/4,stroke:color,'stroke-width':0.8,'stroke-dasharray':'4 3',opacity:'0.5'});
+        g.appendChild(t);
+      }
+      g.appendChild(rect);
+      // Nozzles
+      const n1 = mkSvg('circle', {cx:8,cy:4,r:4,fill:'none',stroke:'#ff6b00','stroke-width':1.5});
+      const n2 = mkSvg('circle', {cx:W-8,cy:H-4,r:4,fill:'none',stroke:'#ff6b00','stroke-width':1.5});
+      g.appendChild(n1); g.appendChild(n2);
+      break;
+    }
+    case 'tank': {
+      const rect = mkSvg('rect', {x:4,y:8,width:W-8,height:H-12,fill:'rgba(0,0,0,0.6)',stroke:color,'stroke-width':1.5});
+      // Floating roof
+      const roof = mkSvg('ellipse', {cx:W/2,cy:H*0.4,rx:(W-8)/2,ry:5,fill:'rgba(30,30,30,0.8)',stroke:color,'stroke-width':1});
+      // Level indicator
+      const lvlH = (H-20)*0.65;
+      const lv = mkSvg('rect', {x:6,y:H-12-lvlH,width:W-12,height:lvlH,fill:'rgba('+hexToRgbStr(color)+',0.15)',stroke:'none'});
+      [rect,lv,roof].forEach(el => g.appendChild(el));
+      break;
+    }
+    case 'column': {
+      const rect = mkSvg('rect', {x:W*0.3,y:0,width:W*0.4,height:H,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5,rx:3});
+      // Trays
+      for(let i=1;i<4;i++) {
+        const t = mkSvg('line', {x1:W*0.3,y1:i*H/4,x2:W*0.7,y2:i*H/4,stroke:color,'stroke-width':0.7,opacity:'0.5'});
+        g.appendChild(t);
+      }
+      g.appendChild(rect);
+      // Feeds and draws
+      const f1 = mkSvg('line', {x1:0,y1:H*0.6,x2:W*0.3,y2:H*0.6,stroke:color,'stroke-width':2});
+      const d1 = mkSvg('line', {x1:W*0.7,y1:H*0.15,x2:W,y2:H*0.15,stroke:'#ffd700','stroke-width':2});
+      const d2 = mkSvg('line', {x1:W*0.7,y1:H*0.85,x2:W,y2:H*0.85,stroke:'#ff6b00','stroke-width':2});
+      [f1,d1,d2].forEach(el => g.appendChild(el));
+      break;
+    }
+    case 'valve': {
+      const bow1 = mkSvg('polygon', {points:`0,0 ${W/2},${H/2} 0,${H}`,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      const bow2 = mkSvg('polygon', {points:`${W},0 ${W/2},${H/2} ${W},${H}`,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      const act  = mkSvg('rect', {x:W/2-6,y:-14,width:12,height:14,fill:'rgba(0,0,0,0.7)',stroke:color,'stroke-width':1});
+      const stem = mkSvg('line', {x1:W/2,y1:-14,x2:W/2,y2:H/2,stroke:color,'stroke-width':1});
+      [bow1,bow2,act,stem].forEach(el => g.appendChild(el));
+      break;
+    }
+    case 'flare': {
+      const stack = mkSvg('rect', {x:W/2-4,y:10,width:8,height:H-10,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5});
+      // Flame
+      const flame = mkSvg('path', {d:`M ${W/2},10 C ${W/2-15},0 ${W/2+5},-10 ${W/2},0 C ${W/2+10},-5 ${W/2-5},-15 ${W/2},10`,fill:'rgba(255,100,0,0.7)',stroke:'#ffd700','stroke-width':1});
+      g.appendChild(stack); g.appendChild(flame);
+      break;
+    }
+    default: {
+      const rect = mkSvg('rect', {x:0,y:0,width:W,height:H,fill:'rgba(0,0,0,0.5)',stroke:color,'stroke-width':1.5,rx:2});
+      g.appendChild(rect);
+    }
+  }
+
+  // Equipment tag
+  const tag = mkSvg('text', {x:W/2,y:H+14,fill:color,'font-size':'10','font-family':'Orbitron, monospace','text-anchor':'middle','font-weight':'600',filter:glow});
+  tag.textContent = eq.id;
+  g.appendChild(tag);
+
+  // Description (short)
+  const shortLabel = eq.label.length > 16 ? eq.label.substring(0,14)+'…' : eq.label;
+  const desc = mkSvg('text', {x:W/2,y:H+24,fill:'#8ab0cc','font-size':'7.5','font-family':'Share Tech Mono, monospace','text-anchor':'middle'});
+  desc.textContent = shortLabel;
+  g.appendChild(desc);
+
+  return g;
+}
+
+function drawInstrument(inst, x, y) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  const color = '#00ff88';
+  const circ = mkSvg('circle', {cx:x,cy:y,r:10,fill:'rgba(0,255,136,0.08)',stroke:color,'stroke-width':1});
+  const txt = mkSvg('text', {x,y:y+1,fill:color,'font-size':'6','font-family':'Orbitron, monospace','text-anchor':'middle','dominant-baseline':'middle'});
+  txt.textContent = inst.tag.split('-')[0];
+  const tag = mkSvg('text', {x,y:y+18,fill:color,'font-size':'7','font-family':'Share Tech Mono, monospace','text-anchor':'middle'});
+  tag.textContent = inst.tag;
+  [circ,txt,tag].forEach(el => g.appendChild(el));
+  return g;
+}
+
+function mkSvg(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+  return el;
+}
+
+function hexToRgbStr(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ─── P&ID PAN/ZOOM ─────────────────────────────────────────────────────────
+function initPIDPanInteraction() {
+  const wrap = document.getElementById('pid-canvas-wrap');
+  const svg  = document.getElementById('pid-svg');
+
+  wrap.addEventListener('mousedown', (e) => {
+    if (e.target === wrap || e.target === svg) {
+      pidPanning = true; pidLastX = e.clientX; pidLastY = e.clientY;
+      wrap.classList.add('panning');
+    }
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!pidPanning) return;
+    pidOffX += e.clientX - pidLastX;
+    pidOffY += e.clientY - pidLastY;
+    pidLastX = e.clientX; pidLastY = e.clientY;
+    applyPIDTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    pidPanning = false;
+    document.getElementById('pid-canvas-wrap').classList.remove('panning');
+  });
+  wrap.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.85 : 1.15;
+    pidScale = Math.max(0.3, Math.min(3, pidScale * delta));
+    applyPIDTransform();
+  });
+}
+
+function applyPIDTransform() {
+  document.getElementById('pid-svg').style.transform =
+    `translate(${pidOffX}px,${pidOffY}px) scale(${pidScale})`;
+}
+
+function resetPIDView() {
+  pidScale = 1; pidOffX = 40; pidOffY = 40;
+  applyPIDTransform();
+}
+
+// ─── SELECTION ─────────────────────────────────────────────────────────────
+function selectItem(id) {
+  selectedId = id;
+  document.getElementById('sb-sel').textContent = id || 'NONE';
+
+  // Update P&ID
+  document.querySelectorAll('.pid-equip').forEach(g => {
+    g.classList.toggle('selected', g.getAttribute('data-equip-id') === id);
+  });
+
+  // Update 3D
+  highlightThreeObject(id);
+
+  // Show properties
+  const eq = processData.equipment.find(e => e.id === id);
+  if (eq) showProps(eq);
+}
+
+function showProps(eq) {
+  const panel = document.getElementById('props-panel');
+  const color = FLUID_COLOR[eq.fluid] || '#00d4ff';
+  let propsHtml = '';
+  if (eq.properties) {
+    Object.entries(eq.properties).forEach(([k,v]) => {
+      propsHtml += `<div class="prop-row"><span class="prop-key">${k.toUpperCase()}</span><span class="prop-val">${v}</span></div>`;
+    });
+  }
+  panel.innerHTML = `
+    <div class="prop-header">EQUIPMENT DATA</div>
+    <div class="prop-id">${eq.id}</div>
+    <div class="prop-label">${eq.label}</div>
+    <div class="prop-row"><span class="prop-key">TYPE</span><span class="prop-val">${eq.type.toUpperCase()}</span></div>
+    <div class="prop-row"><span class="prop-key">PHASE</span><span class="prop-val">${(eq.phase||'').toUpperCase()}</span></div>
+    ${propsHtml}
+    <div class="fluid-badge fluid-${eq.fluid}">${(eq.fluid||'').toUpperCase()}</div>
+  `;
+}
+
+// ─── TOOLTIP ───────────────────────────────────────────────────────────────
+function showTooltip(e, eq) {
+  const tt = document.getElementById('tooltip');
+  tt.style.display = 'block';
+  tt.innerHTML = `<b>${eq.id}</b><br>${eq.label}<br><span style="color:${FLUID_COLOR[eq.fluid]}">${(eq.fluid||'').toUpperCase()}</span>`;
+  tt.style.left = (e.clientX + 14) + 'px';
+  tt.style.top  = (e.clientY - 10) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+// ─── FLOW ANIMATION TOGGLE ─────────────────────────────────────────────────
+function toggleFlowAnim() {
+  flowAnimEnabled = !flowAnimEnabled;
+  renderPID();
+}
+
+// ─── VIEW TOGGLE ───────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['split','pid','3d'][i] === v);
+  });
+  const pid  = document.getElementById('pid-panel');
+  const mdl  = document.getElementById('model-panel');
+  if (v === 'split') { pid.style.display=''; mdl.style.display=''; }
+  else if (v === 'pid') { pid.style.display=''; mdl.style.display='none'; }
+  else { pid.style.display='none'; mdl.style.display=''; }
+  setTimeout(() => { threeRenderer && threeRenderer.setSize(
+    mdl.clientWidth, mdl.clientHeight
+  ); }, 50);
+}
+
+// ─── ADD EQUIPMENT MODAL ────────────────────────────────────────────────────
+function showAddModal(type) {
+  pendingEquipType = type;
+  document.getElementById('m-type').value = type;
+  const idMap = { pump:'P', compressor:'K', heatexchanger:'E', separator:'T', tank:'TK', column:'C', valve:'V', flare:'F' };
+  const prefix = idMap[type] || 'X';
+  const nextNum = (processData.equipment.filter(e=>e.type===type).length + 1).toString().padStart(3,'0');
+  document.getElementById('m-id').value = `${prefix}-${nextNum}`;
+  document.getElementById('m-label').value = '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+function confirmAddEquipment() {
+  const eq = {
+    id: document.getElementById('m-id').value || `X-${Date.now()}`,
+    type: document.getElementById('m-type').value,
+    label: document.getElementById('m-label').value || 'New Equipment',
+    fluid: document.getElementById('m-fluid').value,
+    phase: document.getElementById('m-phase').value,
+    properties: {},
+    position: { x: Math.random()*20-10, y:0, z: Math.random()*10-5 }
+  };
+  processData.equipment.push(eq);
+  closeModal();
+  renderPID();
+  addThreeEquipment(eq);
+  updateStatusBar();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  THREE.JS 3D ENGINE
+// ══════════════════════════════════════════════════════════════════════════
+
+let threeScene, threeCamera, threeRenderer, threeControls;
+let threeMeshMap = {}; // id -> mesh
+let flowParticles = [];
+let animFrameId;
+
+function initThree() {
+  const panel = document.getElementById('model-panel');
+  const W = panel.clientWidth, H = panel.clientHeight;
+
+  // Scene
+  threeScene = new THREE.Scene();
+  threeScene.background = new THREE.Color(0x040810);
+  threeScene.fog = new THREE.Fog(0x040810, 60, 150);
+
+  // Camera
+  threeCamera = new THREE.PerspectiveCamera(45, W/H, 0.1, 500);
+  threeCamera.position.set(20, 18, 28);
+  threeCamera.lookAt(8, 0, 0);
+
+  // Renderer
+  threeRenderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('three-canvas'),
+    antialias: true,
+    alpha: false
+  });
+  threeRenderer.setSize(W, H);
+  threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  threeRenderer.shadowMap.enabled = true;
+  threeRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // Lighting
+  const ambient = new THREE.AmbientLight(0x0d1526, 1.5);
+  threeScene.add(ambient);
+
+  const sunLight = new THREE.DirectionalLight(0x4488ff, 0.8);
+  sunLight.position.set(30, 40, 20);
+  sunLight.castShadow = true;
+  threeScene.add(sunLight);
+
+  const fillLight = new THREE.DirectionalLight(0xff6b00, 0.3);
+  fillLight.position.set(-20, 10, -10);
+  threeScene.add(fillLight);
+
+  // Grid floor
+  const grid = new THREE.GridHelper(80, 40, 0x1a3050, 0x0d1a2a);
+  threeScene.add(grid);
+
+  // Ground plane
+  const groundGeo = new THREE.PlaneGeometry(80, 80);
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x050c18,
+    roughness: 0.9,
+    metalness: 0.1
+  });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  threeScene.add(ground);
+
+  // Orbit controls (manual implementation)
+  initOrbitControls();
+
+  // Build scene from data
+  rebuildThreeScene();
+
+  // Raycasting for selection
+  initThreeRaycasting();
+
+  // Start render loop
+  animateThree();
+}
+
+// ─── ORBIT CONTROLS (manual) ────────────────────────────────────────────────
+let orbitState = { dragging:false, rightDrag:false, lastX:0, lastY:0, phi:Math.PI/4, theta:-Math.PI/6, radius:40, target:new THREE.Vector3(8,0,0) };
+
+function initOrbitControls() {
+  const canvas = document.getElementById('three-canvas');
+
+  canvas.addEventListener('mousedown', (e) => {
+    orbitState.dragging = true;
+    orbitState.rightDrag = e.button === 2;
+    orbitState.lastX = e.clientX;
+    orbitState.lastY = e.clientY;
+  });
+  window.addEventListener('mouseup', () => { orbitState.dragging = false; });
+  window.addEventListener('mousemove', (e) => {
+    if (!orbitState.dragging) return;
+    const dx = e.clientX - orbitState.lastX;
+    const dy = e.clientY - orbitState.lastY;
+    orbitState.lastX = e.clientX;
+    orbitState.lastY = e.clientY;
+
+    if (orbitState.rightDrag) {
+      // PAN
+      const right = new THREE.Vector3();
+      const up = new THREE.Vector3(0,1,0);
+      right.crossVectors(new THREE.Vector3().subVectors(orbitState.target, threeCamera.position).normalize(), up).normalize();
+      orbitState.target.addScaledVector(right, -dx * 0.05);
+      orbitState.target.y += dy * 0.05;
+    } else {
+      // ROTATE
+      orbitState.theta -= dx * 0.01;
+      orbitState.phi = Math.max(0.1, Math.min(Math.PI/2, orbitState.phi - dy * 0.01));
+    }
+    updateCameraFromOrbit();
+  });
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    orbitState.radius = Math.max(5, Math.min(100, orbitState.radius + e.deltaY * 0.05));
+    updateCameraFromOrbit();
+  });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+function updateCameraFromOrbit() {
+  const {phi, theta, radius, target} = orbitState;
+  threeCamera.position.set(
+    target.x + radius * Math.sin(phi) * Math.sin(theta),
+    target.y + radius * Math.cos(phi),
+    target.z + radius * Math.sin(phi) * Math.cos(theta)
+  );
+  threeCamera.lookAt(target);
+}
+
+function resetCameraView() {
+  orbitState.phi = Math.PI/4;
+  orbitState.theta = -Math.PI/6;
+  orbitState.radius = 40;
+  orbitState.target.set(8, 0, 0);
+  updateCameraFromOrbit();
+}
+
+// ─── BUILD SCENE ────────────────────────────────────────────────────────────
+function rebuildThreeScene() {
+  // Clear existing meshes
+  Object.values(threeMeshMap).forEach(obj => threeScene.remove(obj));
+  threeMeshMap = {};
+  flowParticles.forEach(p => threeScene.remove(p.mesh));
+  flowParticles = [];
+
+  if (!processData) return;
+
+  // Build equipment meshes
+  processData.equipment.forEach(eq => {
+    addThreeEquipment(eq);
+  });
+
+  // Build pipe connections
+  processData.connections.forEach(conn => {
+    addThreePipe(conn);
+  });
+}
+
+function addThreeEquipment(eq) {
+  const pos = eq.position || {x:0,y:0,z:0};
+  const color = FLUID_COLOR_3D[eq.fluid] || 0x00d4ff;
+  let group = new THREE.Group();
+  group.userData = { id: eq.id, label: eq.label, type: eq.type, fluid: eq.fluid };
+
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    metalness: 0.7,
+    roughness: 0.3,
+    emissive: color,
+    emissiveIntensity: 0.08
+  });
+
+  switch(eq.type) {
+    case 'separator': {
+      // Horizontal pressure vessel
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 4, 16), mat.clone());
+      body.rotation.z = Math.PI/2;
+      const capL = new THREE.Mesh(new THREE.SphereGeometry(0.8, 12, 8, 0, Math.PI), mat.clone());
+      capL.position.x = -2; capL.rotation.y = Math.PI/2;
+      const capR = capL.clone(); capR.position.x = 2; capR.rotation.y = -Math.PI/2;
+      // Legs
+      const legMat = new THREE.MeshStandardMaterial({color:0x334455, metalness:0.8, roughness:0.3});
+      for(let i=-1;i<=1;i+=2) {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,1,8), legMat);
+        leg.position.set(i*1.2, -0.9, 0.5);
+        group.add(leg);
+        const leg2 = leg.clone(); leg2.position.z = -0.5; group.add(leg2);
+      }
+      group.add(body, capL, capR);
+      group.position.y = 0.9;
+      break;
+    }
+    case 'pump': {
+      // Pump casing
+      const casing = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.8, 16), mat.clone());
+      casing.rotation.x = Math.PI/2;
+      // Impeller housing
+      const housing = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.15, 8, 16), mat.clone());
+      housing.rotation.x = Math.PI/2;
+      // Motor
+      const motorMat = new THREE.MeshStandardMaterial({color:0x223344, metalness:0.6, roughness:0.4});
+      const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.2, 12), motorMat);
+      motor.position.x = 1.0; motor.rotation.z = Math.PI/2;
+      // Base plate
+      const base = new THREE.Mesh(new THREE.BoxGeometry(2, 0.12, 1), motorMat);
+      base.position.y = -0.65;
+      group.add(casing, housing, motor, base);
+      group.position.y = 0.65;
+      break;
+    }
+    case 'compressor': {
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 2.5, 16), mat.clone());
+      body.rotation.z = Math.PI/2;
+      const inlet  = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.8, 12), mat.clone());
+      const outlet = inlet.clone();
+      inlet.position.set(-1.5, 0.5, 0); outlet.position.set(1.5, 0.5, 0);
+      // Casing rings
+      for(let i=-0.8;i<=0.8;i+=0.4) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.04, 8, 24), mat.clone());
+        ring.rotation.y = Math.PI/2; ring.position.x = i;
+        group.add(ring);
+      }
+      group.add(body, inlet, outlet);
+      group.position.y = 0.85;
+      break;
+    }
+    case 'heatexchanger': {
+      const shell = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 3.5, 16), mat.clone());
+      shell.rotation.z = Math.PI/2;
+      // Saddle supports
+      const saddleMat = new THREE.MeshStandardMaterial({color:0x334466, metalness:0.7, roughness:0.3});
+      for(let i=-1;i<=1;i+=2) {
+        const s = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 1.5), saddleMat);
+        s.position.set(i*1.0, -0.7, 0);
+        group.add(s);
+      }
+      // Nozzles
+      const nozMat = mat.clone();
+      const nz1 = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.5, 8), nozMat);
+      nz1.position.set(-1.5, 0.6, 0);
+      const nz2 = nz1.clone(); nz2.position.set(1.5, -0.6, 0);
+      group.add(shell, nz1, nz2);
+      group.position.y = 0.8;
+      break;
+    }
+    case 'tank': {
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 3, 24), mat.clone());
+      // Floating roof
+      const roofMat = new THREE.MeshStandardMaterial({color:0x334455, metalness:0.8, roughness:0.3, emissive:color, emissiveIntensity:0.05});
+      const roof = new THREE.Mesh(new THREE.CylinderGeometry(1.48, 1.48, 0.12, 24), roofMat);
+      roof.position.y = 0.5;
+      // Bottom plate
+      const bottom = new THREE.Mesh(new THREE.CircleGeometry(1.5, 24), roofMat);
+      bottom.rotation.x = -Math.PI/2; bottom.position.y = -1.5;
+      // Staircase helix
+      const stairMat = new THREE.MeshStandardMaterial({color:0x445566, metalness:0.6});
+      for(let i=0;i<8;i++) {
+        const stair = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.05,0.15), stairMat);
+        const angle = (i/8)*Math.PI*2;
+        stair.position.set(Math.cos(angle)*1.7, -1.5+i*0.4, Math.sin(angle)*1.7);
+        stair.rotation.y = -angle;
+        group.add(stair);
+      }
+      group.add(body, roof, bottom);
+      group.position.y = 1.5;
+      break;
+    }
+    case 'column': {
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 5, 20), mat.clone());
+      // Trays
+      for(let i=0;i<6;i++) {
+        const tray = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 16), mat.clone());
+        tray.position.y = -2 + i*0.75;
+        group.add(tray);
+      }
+      // Skirt
+      const skirtMat = new THREE.MeshStandardMaterial({color:0x334455, metalness:0.7});
+      const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 1.5, 16), skirtMat);
+      skirt.position.y = -3.25;
+      // Top cap
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.55, 12, 8, 0, Math.PI*2, 0, Math.PI/2), mat.clone());
+      cap.position.y = 2.5;
+      group.add(body, skirt, cap);
+      group.position.y = 3.25;
+      break;
+    }
+    case 'valve': {
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.4), mat.clone());
+      const actuator = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.5, 10), mat.clone());
+      actuator.position.y = 0.45;
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8), mat.clone());
+      stem.position.y = 0.25;
+      group.add(body, actuator, stem);
+      group.position.y = 0.3;
+      break;
+    }
+    case 'flare': {
+      const stackMat = new THREE.MeshStandardMaterial({color:0x445566, metalness:0.8, roughness:0.4});
+      const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.25, 6, 12), stackMat);
+      stack.position.y = 3;
+      // Flame
+      const flameMat = new THREE.MeshStandardMaterial({color:0xff4400, emissive:0xff4400, emissiveIntensity:0.8, transparent:true, opacity:0.8});
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.2, 8), flameMat);
+      flame.position.y = 6.6;
+      flame.userData.isFlame = true;
+      // Guy wires
+      const wireMat = new THREE.MeshStandardMaterial({color:0x334455, metalness:0.7});
+      for(let i=0;i<3;i++) {
+        const angle = (i/3)*Math.PI*2;
+        const pts = [
+          new THREE.Vector3(0, 5, 0),
+          new THREE.Vector3(Math.cos(angle)*4, 0, Math.sin(angle)*4)
+        ];
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        const wire = new THREE.Line(geo, new THREE.LineBasicMaterial({color:0x445566}));
+        group.add(wire);
+      }
+      group.add(stack, flame);
+      break;
+    }
+    default: {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), mat.clone());
+      group.add(mesh);
+      group.position.y = 0.5;
+    }
+  }
+
+  group.position.x = pos.x;
+  group.position.z = pos.z;
+  group.traverse(child => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      child.userData = group.userData;
+    }
+  });
+
+  // Label sprite
+  const labelCanvas = document.createElement('canvas');
+  labelCanvas.width = 256; labelCanvas.height = 64;
+  const ctx2d = labelCanvas.getContext('2d');
+  ctx2d.fillStyle = 'rgba(0,0,0,0)';
+  ctx2d.fillRect(0,0,256,64);
+  ctx2d.font = 'bold 20px Orbitron, monospace';
+  ctx2d.fillStyle = FLUID_COLOR[eq.fluid] || '#00d4ff';
+  ctx2d.textAlign = 'center';
+  ctx2d.fillText(eq.id, 128, 28);
+  ctx2d.font = '14px Share Tech Mono, monospace';
+  ctx2d.fillStyle = '#8ab0cc';
+  const short = eq.label.length > 20 ? eq.label.slice(0,18)+'…' : eq.label;
+  ctx2d.fillText(short, 128, 50);
+  const tex = new THREE.CanvasTexture(labelCanvas);
+  const spriteMat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.scale.set(3, 0.75, 1);
+  sprite.position.y = getLabelHeight(eq.type);
+  sprite.userData = { isLabel: true };
+  group.add(sprite);
+
+  threeScene.add(group);
+  threeMeshMap[eq.id] = group;
+}
+
+function getLabelHeight(type) {
+  const h = { separator:2, column:8, tank:4.5, flare:8.5, compressor:2.5, heatexchanger:2.5, pump:2, valve:1.2 };
+  return h[type] || 2;
+}
+
+function addThreePipe(conn) {
+  const fromEq = processData.equipment.find(e => e.id === conn.from);
+  const toEq   = processData.equipment.find(e => e.id === conn.to);
+  if (!fromEq || !toEq) return;
+
+  const p1 = new THREE.Vector3(fromEq.position.x, 1.2, fromEq.position.z);
+  const p2 = new THREE.Vector3(toEq.position.x, 1.2, toEq.position.z);
+
+  // Three-segment orthogonal pipe routing
+  const mid = new THREE.Vector3((p1.x+p2.x)/2, 1.5, p1.z);
+
+  const points = [p1, mid, new THREE.Vector3(mid.x, 1.5, p2.z), p2];
+  const curve = new THREE.CatmullRomCurve3(points);
+  const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.07, 8, false);
+
+  const color = FLUID_COLOR_3D[conn.fluid] || 0x00d4ff;
+  const pipeMat = new THREE.MeshStandardMaterial({
+    color,
+    metalness: 0.8,
+    roughness: 0.2,
+    emissive: color,
+    emissiveIntensity: 0.05
+  });
+  const pipe = new THREE.Mesh(tubeGeo, pipeMat);
+  pipe.userData = { id: conn.id, from: conn.from, to: conn.to, fluid: conn.fluid, isLine: true };
+  pipe.castShadow = true;
+  threeScene.add(pipe);
+
+  // Flow particles
+  addFlowParticles(conn, points, color);
+}
+
+function addFlowParticles(conn, points, color) {
+  const curve = new THREE.CatmullRomCurve3(points);
+  const count = 6;
+  for (let i = 0; i < count; i++) {
+    const geo = new THREE.SphereGeometry(0.06, 6, 6);
+    const mat = new THREE.MeshStandardMaterial({
+      color,
+      emissive: color,
+      emissiveIntensity: 0.9,
+      transparent: true,
+      opacity: 0.85
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    threeScene.add(mesh);
+    flowParticles.push({ mesh, curve, t: i/count, speed: conn.fluid==='gas'?0.004:conn.fluid==='water'?0.0015:0.002 });
+  }
+}
+
+// ─── HIGHLIGHT ──────────────────────────────────────────────────────────────
+let previousHighlight = null;
+function highlightThreeObject(id) {
+  // Reset previous
+  if (previousHighlight) {
+    previousHighlight.traverse(child => {
+      if (child.isMesh && child.material && !child.userData.isLabel) {
+        child.material.emissiveIntensity = 0.08;
+      }
+    });
+  }
+  const obj = threeMeshMap[id];
+  if (obj) {
+    obj.traverse(child => {
+      if (child.isMesh && child.material && !child.userData.isLabel) {
+        child.material.emissiveIntensity = 0.6;
+      }
+    });
+    // Point camera toward it
+    const pos = obj.position;
+    orbitState.target.lerp(new THREE.Vector3(pos.x, pos.y, pos.z), 0.5);
+    previousHighlight = obj;
+  }
+}
+
+// ─── RAYCASTING ─────────────────────────────────────────────────────────────
+function initThreeRaycasting() {
+  const canvas = document.getElementById('three-canvas');
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  canvas.addEventListener('click', (e) => {
+    if (orbitState.dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
+    mouse.y = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
+
+    raycaster.setFromCamera(mouse, threeCamera);
+    const meshes = [];
+    threeScene.traverse(obj => { if (obj.isMesh && obj.userData.id && !obj.userData.isLabel) meshes.push(obj); });
+    const hits = raycaster.intersectObjects(meshes);
+    if (hits.length) {
+      const hit = hits[0].object;
+      const id = hit.userData.id;
+      if (id && processData.equipment.find(e => e.id === id)) {
+        selectItem(id);
+      }
+    }
+  });
+}
+
+// ─── ANIMATE ────────────────────────────────────────────────────────────────
+function animateThree() {
+  animFrameId = requestAnimationFrame(animateThree);
+  const t = performance.now() * 0.001;
+
+  // Animate flow particles
+  if (flowAnimEnabled) {
+    flowParticles.forEach(p => {
+      p.t = (p.t + p.speed) % 1;
+      const pos = p.curve.getPoint(p.t);
+      p.mesh.position.copy(pos);
+      p.mesh.material.opacity = 0.5 + 0.4 * Math.sin(p.t * Math.PI * 2);
+    });
+  }
+
+  // Animate flare flames
+  threeScene.traverse(obj => {
+    if (obj.userData && obj.userData.isFlame) {
+      obj.scale.set(
+        1 + 0.2*Math.sin(t*5.3),
+        1 + 0.3*Math.sin(t*4.7),
+        1 + 0.2*Math.sin(t*6.1)
+      );
+      obj.position.y = 6.6 + 0.1*Math.sin(t*3);
+    }
+  });
+
+  threeRenderer.render(threeScene, threeCamera);
+}
+
+// ─── RESIZE ─────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  const panel = document.getElementById('model-panel');
+  const W = panel.clientWidth, H = panel.clientHeight;
+  threeCamera.aspect = W/H;
+  threeCamera.updateProjectionMatrix();
+  threeRenderer.setSize(W, H);
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+//  EMBEDDED FALLBACK DATA (if backend not running)
+// ══════════════════════════════════════════════════════════════════════════
+function getEmbeddedData() {
+  return {"project":"AXIOM Oil & Gas Processing Plant","revision":"Rev A","date":"2026-03-24","equipment":[{"id":"T-101","type":"separator","subtype":"3-phase","label":"3-Phase Inlet Separator","phase":"upstream","position":{"x":0,"y":0,"z":0},"properties":{"pressure":"120 bar","temperature":"80°C","capacity":"5000 m³/d"},"fluid":"mixed"},{"id":"P-101","type":"pump","subtype":"centrifugal","label":"Crude Charge Pump","phase":"upstream","position":{"x":-6,"y":0,"z":2},"properties":{"flow":"500 m³/h","head":"150 m","power":"250 kW"},"fluid":"oil"},{"id":"P-102","type":"pump","subtype":"centrifugal","label":"Water Injection Pump","phase":"upstream","position":{"x":-6,"y":0,"z":-2},"properties":{"flow":"200 m³/h","head":"120 m","power":"120 kW"},"fluid":"water"},{"id":"E-101","type":"heatexchanger","subtype":"shell-tube","label":"Crude Preheat Exchanger","phase":"midstream","position":{"x":6,"y":0,"z":0},"properties":{"duty":"5 MW","area":"200 m²","LMTD":"45°C"},"fluid":"oil"},{"id":"C-101","type":"column","subtype":"distillation","label":"Atmospheric Distillation Column","phase":"midstream","position":{"x":12,"y":0,"z":0},"properties":{"trays":"32","pressure":"1.5 bar","height":"45 m"},"fluid":"mixed"},{"id":"K-101","type":"compressor","subtype":"centrifugal","label":"Gas Compression Unit","phase":"midstream","position":{"x":12,"y":0,"z":6},"properties":{"flow":"50 MMscfd","ratio":"3.5","power":"2 MW"},"fluid":"gas"},{"id":"TK-101","type":"tank","subtype":"floating-roof","label":"Crude Storage Tank","phase":"downstream","position":{"x":18,"y":0,"z":-4},"properties":{"capacity":"50000 m³","diameter":"40 m","height":"16 m"},"fluid":"oil"},{"id":"TK-102","type":"tank","subtype":"fixed-roof","label":"Water Storage Tank","phase":"downstream","position":{"x":18,"y":0,"z":4},"properties":{"capacity":"10000 m³","diameter":"20 m","height":"12 m"},"fluid":"water"},{"id":"F-101","type":"flare","subtype":"elevated","label":"High Pressure Flare","phase":"downstream","position":{"x":20,"y":0,"z":-10},"properties":{"capacity":"100 MMscfd","height":"60 m"},"fluid":"gas"},{"id":"V-101","type":"valve","subtype":"control","label":"Inlet Flow Control Valve","phase":"upstream","position":{"x":-3,"y":0,"z":0},"properties":{"Cv":"450","size":"8 inch","type":"Globe"},"fluid":"mixed"},{"id":"V-102","type":"valve","subtype":"gate","label":"Oil Outlet Isolation Valve","phase":"upstream","position":{"x":3,"y":0,"z":1.5},"properties":{"size":"6 inch","class":"900#"},"fluid":"oil"},{"id":"V-103","type":"valve","subtype":"gate","label":"Gas Outlet Valve","phase":"upstream","position":{"x":3,"y":0,"z":-1.5},"properties":{"size":"12 inch","class":"600#"},"fluid":"gas"}],"connections":[{"id":"L-001","from":"P-101","to":"V-101","fluid":"mixed","size":"10 inch","spec":"ANSI 600"},{"id":"L-002","from":"V-101","to":"T-101","fluid":"mixed","size":"10 inch","spec":"ANSI 600"},{"id":"L-003","from":"T-101","to":"V-102","fluid":"oil","size":"6 inch","spec":"ANSI 900"},{"id":"L-004","from":"V-102","to":"E-101","fluid":"oil","size":"6 inch","spec":"ANSI 900"},{"id":"L-005","from":"T-101","to":"V-103","fluid":"gas","size":"12 inch","spec":"ANSI 600"},{"id":"L-006","from":"V-103","to":"K-101","fluid":"gas","size":"12 inch","spec":"ANSI 600"},{"id":"L-007","from":"E-101","to":"C-101","fluid":"oil","size":"8 inch","spec":"ANSI 150"},{"id":"L-008","from":"C-101","to":"TK-101","fluid":"oil","size":"10 inch","spec":"ANSI 150"},{"id":"L-009","from":"T-101","to":"P-102","fluid":"water","size":"4 inch","spec":"ANSI 150"},{"id":"L-010","from":"P-102","to":"TK-102","fluid":"water","size":"4 inch","spec":"ANSI 150"},{"id":"L-011","from":"K-101","to":"F-101","fluid":"gas","size":"8 inch","spec":"ANSI 300"}],"instruments":[{"id":"PT-101","type":"pressure","tag":"PT-101","equipmentId":"T-101","range":"0-200 bar"},{"id":"TT-101","type":"temperature","tag":"TT-101","equipmentId":"T-101","range":"0-200°C"},{"id":"FT-101","type":"flow","tag":"FT-101","lineId":"L-001","range":"0-1000 m³/h"},{"id":"LT-101","type":"level","tag":"LT-101","equipmentId":"T-101","range":"0-100%"},{"id":"PT-201","type":"pressure","tag":"PT-201","equipmentId":"K-101","range":"0-50 bar"}]};
+}
+</script>
+</body>
+</html>

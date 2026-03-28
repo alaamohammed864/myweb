@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXIOM Engineering Suite | ENG_ALAA MOHAMMED</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #060a10;
+      --bg-secondary: #0c1219;
+      --bg-tertiary: #111a25;
+      --bg-panel: #0a0f16;
+      --border-dark: #1a2e4a;
+      --border-glow: #00c8ff;
+      --accent-cyan: #00e5ff;
+      --accent-orange: #ff6d00;
+      --accent-green: #00e676;
+      --accent-yellow: #ffd600;
+      --accent-red: #ff1744;
+      --text-primary: #e0f0ff;
+      --text-secondary: #7ba3c8;
+      --text-muted: #4a6a8a;
+      --oil-color: #1a1a1a;
+      --gas-color: #ffd600;
+      --water-color: #0288d1;
+      --steam-color: #90a4ae;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    .font-display {
+      font-family: 'Orbitron', monospace;
+    }
+    
+    .font-mono {
+      font-family: 'Share Tech Mono', monospace;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-dark);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+    
+    /* Glass Panel */
+    .glass-panel {
+      background: linear-gradient(135deg, rgba(12, 18, 25, 0.95) 0%, rgba(6, 10, 16, 0.98) 100%);
+      border: 1px solid var(--border-dark);
+      backdrop-filter: blur(10px);
+    }
+    
+    .glass-panel-glow {
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.1),
+                  inset 0 1px 0 rgba(0, 229, 255, 0.1);
+    }
+    
+    /* Glow Effects */
+    .glow-cyan {
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.3),
+                  0 0 20px rgba(0, 229, 255, 0.1);
+    }
+    
+    .glow-orange {
+      box-shadow: 0 0 10px rgba(255, 109, 0, 0.3),
+                  0 0 20px rgba(255, 109, 0, 0.1);
+    }
+    
+    .glow-green {
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.3),
+                  0 0 20px rgba(0, 230, 118, 0.1);
+    }
+    
+    .glow-red {
+      box-shadow: 0 0 10px rgba(255, 23, 68, 0.3),
+                  0 0 20px rgba(255, 23, 68, 0.1);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border-dark);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.1);
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-primary {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    
+    .btn-primary:hover {
+      background: rgba(0, 229, 255, 0.15);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+    }
+    
+    .btn-danger {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+    
+    .btn-danger:hover {
+      background: rgba(255, 23, 68, 0.15);
+    }
+    
+    .btn-success {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    
+    .btn-success:hover {
+      background: rgba(0, 230, 118, 0.15);
+    }
+    
+    /* Input Fields */
+    .input-field {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-dark);
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+    
+    .input-field:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+    }
+    
+    /* Status Dots */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    .status-active {
+      background: var(--accent-green);
+      animation: pulse-green 2s infinite;
+    }
+    
+    .status-standby {
+      background: var(--accent-yellow);
+      animation: pulse-yellow 2s infinite;
+    }
+    
+    .status-shutdown {
+      background: var(--accent-red);
+    }
+    
+    .status-maintenance {
+      background: var(--accent-orange);
+    }
+    
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 5px var(--accent-green); }
+      50% { box-shadow: 0 0 15px var(--accent-green); }
+    }
+    
+    @keyframes pulse-yellow {
+      0%, 100% { box-shadow: 0 0 5px var(--accent-yellow); }
+      50% { box-shadow: 0 0 15px var(--accent-yellow); }
+    }
+    
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-cyan);
+      padding: 12px;
+      font-size: 12px;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      max-width: 300px;
+    }
+    
+    .tooltip.visible {
+      opacity: 1;
+    }
+    
+    /* SVG P&ID Styles */
+    .pid-container {
+      background: var(--bg-secondary);
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 70%);
+    }
+    
+    .pid-grid {
+      stroke: var(--border-dark);
+      stroke-width: 0.5;
+    }
+    
+    .pid-grid-major {
+      stroke: rgba(0, 229, 255, 0.2);
+      stroke-width: 1;
+    }
+    
+    .equipment-node {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .equipment-node:hover {
+      filter: brightness(1.3);
+    }
+    
+    .equipment-node.selected {
+      filter: drop-shadow(0 0 10px var(--accent-cyan));
+    }
+    
+    .pipe-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    .pipe-line.oil { stroke: var(--oil-color); stroke-width: 4; }
+    .pipe-line.gas { stroke: var(--gas-color); stroke-width: 4; }
+    .pipe-line.water { stroke: var(--water-color); stroke-width: 4; }
+    .pipe-line.steam { stroke: var(--steam-color); stroke-width: 4; stroke-dasharray: 8,4; }
+    
+    .pipe-flow-animation {
+      stroke-dasharray: 10, 20;
+      animation: flowAnim 1s linear infinite;
+    }
+    
+    @keyframes flowAnim {
+      to { stroke-dashoffset: -30; }
+    }
+    
+    /* 3D Canvas */
+    #three-container {
+      background: var(--bg-primary);
+    }
+    
+    /* Labels 3D */
+    .label-3d {
+      background: rgba(6, 10, 16, 0.9);
+      border: 1px solid var(--accent-cyan);
+      padding: 4px 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-cyan);
+      white-space: nowrap;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    
+    .label-3d:hover {
+      background: rgba(0, 229, 255, 0.2);
+    }
+    
+    /* Alarm Card */
+    .alarm-card {
+      background: rgba(255, 23, 68, 0.1);
+      border-left: 3px solid var(--accent-red);
+      padding: 12px;
+      margin-bottom: 8px;
+      animation: alarmFlash 1s infinite;
+    }
+    
+    @keyframes alarmFlash {
+      0%, 100% { border-left-color: var(--accent-red); }
+      50% { border-left-color: transparent; }
+    }
+    
+    /* Sidebar Component Item */
+    .component-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      background: var(--bg-tertiary);
+      cursor: grab;
+      transition: all 0.2s ease;
+    }
+    
+    .component-item:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.05);
+    }
+    
+    .component-item.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.1);
+    }
+    
+    /* Resize Handle */
+    .resize-handle {
+      background: var(--bg-tertiary);
+      cursor: col-resize;
+      transition: background 0.2s ease;
+    }
+    
+    .resize-handle:hover {
+      background: var(--accent-cyan);
+    }
+    
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--border-dark);
+      overflow: hidden;
+    }
+    
+    .view-toggle button {
+      flex: 1;
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: none;
+      color: var(--text-secondary);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .view-toggle button.active {
+      background: rgba(0, 229, 255, 0.2);
+      color: var(--accent-cyan);
+    }
+    
+    .view-toggle button:hover:not(.active) {
+      background: rgba(0, 229, 255, 0.1);
+    }
+    
+    /* Instrument Bubble */
+    .instrument-bubble {
+      fill: rgba(6, 10, 16, 0.9);
+      stroke: var(--accent-cyan);
+      stroke-width: 1;
+    }
+    
+    .instrument-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      fill: var(--text-primary);
+      text-anchor: middle;
+    }
+    
+    /* Property Group */
+    .prop-group {
+      border: 1px solid var(--border-dark);
+      margin-bottom: 12px;
+    }
+    
+    .prop-group-header {
+      background: var(--bg-tertiary);
+      padding: 8px 12px;
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+    }
+    
+    .prop-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-top: 1px solid var(--border-dark);
+    }
+    
+    .prop-label {
+      flex: 0 0 100px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .prop-value {
+      flex: 1;
+    }
+    
+    /* Context Menu */
+    .context-menu {
+      position: fixed;
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-cyan);
+      min-width: 180px;
+      z-index: 10000;
+      display: none;
+    }
+    
+    .context-menu.visible {
+      display: block;
+    }
+    
+    .context-menu-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s ease;
+    }
+    
+    .context-menu-item:hover {
+      background: rgba(0, 229, 255, 0.2);
+      color: var(--accent-cyan);
+    }
+    
+    .context-menu-divider {
+      height: 1px;
+      background: var(--border-dark);
+    }
+    
+    /* Loading Screen */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.5s ease;
+    }
+    
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loader-ring {
+      width: 80px;
+      height: 80px;
+      border: 3px solid var(--border-dark);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* Tab styles */
+    .tab-button {
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+    }
+    
+    .tab-button:hover:not(.active) {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-ring"></div>
+    <div class="font-display text-xl mt-6" style="color: var(--accent-cyan);">AXIOM ENGINEERING SUITE</div>
+    <div class="text-sm mt-2" style="color: var(--text-secondary);">Initializing 3D Engine...</div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="app" class="h-screen flex flex-col">
+    <!-- Header -->
+    <header class="glass-panel border-b border-[var(--border-dark)] px-4 py-2 flex items-center justify-between" style="height: 52px;">
+      <div class="flex items-center gap-4">
+        <div class="font-display text-lg font-bold tracking-wider" style="color: var(--accent-cyan);">
+          AXIOM ENGINEERING SUITE
+        </div>
+        <div class="text-xs px-2 py-1 border border-[var(--border-dark)]" style="color: var(--text-muted);">v2.0 PRO</div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button id="view-pid" class="active" onclick="setView('pid')">P&ID</button>
+          <button id="view-split" onclick="setView('split')">SPLIT</button>
+          <button id="view-3d" onclick="setView('3d')">3D</button>
+        </div>
+        
+        <div class="w-px h-6 bg-[var(--border-dark)] mx-2"></div>
+        
+        <button class="btn btn-primary" onclick="saveProject()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save
+        </button>
+        
+        <button class="btn" onclick="exportProject()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export
+        </button>
+        
+        <button class="btn" onclick="autoLayout()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Auto Layout
+        </button>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <div id="simulation-controls" class="flex items-center gap-2">
+          <button id="sim-start-btn" class="btn btn-success" onclick="toggleSimulation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Start Sim
+          </button>
+        </div>
+        
+        <div class="text-xs text-right" style="color: var(--text-muted);">
+          <div>ENG_ALAA MOHAMMED</div>
+          <div>Basra, Iraq</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Left Sidebar -->
+      <aside id="sidebar" class="glass-panel border-r border-[var(--border-dark)] flex flex-col" style="width: 280px;">
+        <!-- Tabs -->
+        <div class="flex border-b border-[var(--border-dark)]">
+          <button class="tab-button active" data-tab="palette" onclick="switchTab('palette')">Palette</button>
+          <button class="tab-button" data-tab="properties" onclick="switchTab('properties')">Properties</button>
+          <button class="tab-button" data-tab="data" onclick="switchTab('data')">Data</button>
+        </div>
+        
+        <!-- Palette Tab -->
+        <div id="tab-palette" class="flex-1 overflow-y-auto p-2">
+          <div class="mb-2">
+            <input type="text" class="input-field" placeholder="Search equipment..." oninput="filterPalette(this.value)">
+          </div>
+          
+          <div class="text-xs font-display mb-2" style="color: var(--accent-cyan);">VESSELS</div>
+          <div id="palette-vessels" class="space-y-1 mb-4"></div>
+          
+          <div class="text-xs font-display mb-2" style="color: var(--accent-cyan);">ROTATING EQUIPMENT</div>
+          <div id="palette-rotating" class="space-y-1 mb-4"></div>
+          
+          <div class="text-xs font-display mb-2" style="color: var(--accent-cyan);">HEAT TRANSFER</div>
+          <div id="palette-heat" class="space-y-1 mb-4"></div>
+          
+          <div class="text-xs font-display mb-2" style="color: var(--accent-cyan);">VALVES</div>
+          <div id="palette-valves" class="space-y-1 mb-4"></div>
+          
+          <div class="text-xs font-display mb-2" style="color: var(--accent-cyan);">INSTRUMENTS</div>
+          <div id="palette-instruments" class="space-y-1 mb-4"></div>
+        </div>
+        
+        <!-- Properties Tab -->
+        <div id="tab-properties" class="flex-1 overflow-y-auto p-3" style="display: none;">
+          <div id="properties-empty" class="text-center py-8" style="color: var(--text-muted);">
+            Select equipment to view properties
+          </div>
+          <div id="properties-content" style="display: none;"></div>
+        </div>
+        
+        <!-- Data Tab -->
+        <div id="tab-data" class="flex-1 overflow-y-auto p-3" style="display: none;">
+          <div class="text-xs mb-3" style="color: var(--text-secondary);">Project Statistics</div>
+          <div id="project-stats" class="space-y-2"></div>
+        </div>
+      </aside>
+
+      <!-- Main Canvas Area -->
+      <main class="flex-1 flex overflow-hidden">
+        <!-- P&ID View -->
+        <div id="pid-container" class="pid-container relative overflow-hidden" style="flex: 1;">
+          <svg id="pid-svg" width="100%" height="100%">
+            <defs>
+              <!-- Grid Pattern -->
+              <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" class="pid-grid"/>
+              </pattern>
+              <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                <rect width="50" height="50" fill="url(#smallGrid)"/>
+                <path d="M 50 0 L 0 0 0 50" fill="none" class="pid-grid-major"/>
+              </pattern>
+              
+              <!-- Arrow Marker -->
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-cyan)"/>
+              </marker>
+              
+              <!-- Flow Animation Gradient -->
+              <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:var(--accent-cyan);stop-opacity:0"/>
+                <stop offset="50%" style="stop-color:var(--accent-cyan);stop-opacity:1"/>
+                <stop offset="100%" style="stop-color:var(--accent-cyan);stop-opacity:0"/>
+              </linearGradient>
+              
+              <!-- Glow Filter -->
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
+            <!-- Background Grid -->
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+            
+            <!-- Main Group (for pan/zoom) -->
+            <g id="pid-main" transform="translate(0,0) scale(1)">
+              <!-- Connections Layer -->
+              <g id="pid-connections"></g>
+              <!-- Equipment Layer -->
+              <g id="pid-equipment"></g>
+              <!-- Instruments Layer -->
+              <g id="pid-instruments"></g>
+              <!-- Labels Layer -->
+              <g id="pid-labels"></g>
+            </g>
+          </svg>
+          
+          <!-- P&ID Controls Overlay -->
+          <div class="absolute top-3 left-3 flex gap-2">
+            <button class="btn" onclick="zoomPID(1.2)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </button>
+            <button class="btn" onclick="zoomPID(0.8)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </button>
+            <button class="btn" onclick="resetPIDView()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Minimap -->
+          <div class="absolute bottom-3 right-3 glass-panel p-1" style="width: 150px; height: 100px;">
+            <svg id="pid-minimap" width="100%" height="100%"></svg>
+          </div>
+        </div>
+
+        <!-- Resize Handle -->
+        <div id="resize-handle" class="resize-handle w-1 cursor-col-resize hover:w-2 transition-all" style="background: var(--border-dark);"></div>
+
+        <!-- 3D View -->
+        <div id="three-container" class="relative" style="flex: 1; display: none;">
+          <canvas id="three-canvas"></canvas>
+          
+          <!-- 3D Controls Overlay -->
+          <div class="absolute top-3 left-3 flex gap-2">
+            <button class="btn" onclick="setCameraView('top')">Top</button>
+            <button class="btn" onclick="setCameraView('front')">Front</button>
+            <button class="btn" onclick="setCameraView('side')">Side</button>
+            <button class="btn" onclick="setCameraView('iso')">Iso</button>
+          </div>
+          
+          <!-- 3D Info Panel -->
+          <div id="three-info" class="absolute bottom-3 left-3 glass-panel p-3" style="min-width: 200px; display: none;">
+            <div class="font-display text-sm mb-2" style="color: var(--accent-cyan);">Selected Equipment</div>
+            <div id="three-info-content"></div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Panel (Alarms/Log) -->
+      <aside class="glass-panel border-l border-[var(--border-dark)]" style="width: 260px;">
+        <div class="p-3 border-b border-[var(--border-dark)]">
+          <div class="font-display text-sm" style="color: var(--accent-cyan);">SYSTEM STATUS</div>
+        </div>
+        
+        <!-- Live Values -->
+        <div class="p-3 border-b border-[var(--border-dark)]">
+          <div class="text-xs mb-2" style="color: var(--text-secondary);">Live Instrument Values</div>
+          <div id="live-values" class="space-y-2 max-h-40 overflow-y-auto"></div>
+        </div>
+        
+        <!-- Alarm Panel -->
+        <div class="p-3 flex-1 overflow-y-auto">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs" style="color: var(--text-secondary);">Active Alarms</div>
+            <button class="text-xs px-2 py-1 border border-[var(--border-dark)]" style="color: var(--accent-orange);" onclick="acknowledgeAllAlarms()">Ack All</button>
+          </div>
+          <div id="alarm-list" class="space-y-2"></div>
+        </div>
+        
+        <!-- Event Log -->
+        <div class="border-t border-[var(--border-dark)] p-3 max-h-48 overflow-y-auto">
+          <div class="text-xs mb-2" style="color: var(--text-secondary);">Event Log</div>
+          <div id="event-log" class="space-y-1"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Status Bar -->
+    <footer class="glass-panel border-t border-[var(--border-dark)] px-4 py-1 flex items-center justify-between" style="height: 28px; font-size: 12px;">
+      <div class="flex items-center gap-4">
+        <span id="status-selection" style="color: var(--text-muted);">No selection</span>
+        <span class="text-[var(--border-dark)]">|</span>
+        <span id="status-cursor" style="color: var(--text-muted);">X: 0 Y: 0</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span id="status-zoom" style="color: var(--text-muted);">Zoom: 100%</span>
+        <span class="text-[var(--border-dark)]">|</span>
+        <span id="status-fps" style="color: var(--text-muted);">FPS: --</span>
+        <span class="text-[var(--border-dark)]">|</span>
+        <span id="status-mode" style="color: var(--accent-green);">Ready</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Context Menu -->
+  <div id="context-menu" class="context-menu">
+    <div class="context-menu-item" onclick="contextAction('properties')">Properties</div>
+    <div class="context-menu-item" onclick="contextAction('duplicate')">Duplicate</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" onclick="contextAction('isolate')">Isolate in 3D</div>
+    <div class="context-menu-item" onclick="contextAction('focus')">Focus Camera</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" style="color: var(--accent-red);" onclick="contextAction('delete')">Delete</div>
+  </div>
+
+  <!-- Tooltip -->
+  <div id="tooltip" class="tooltip"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+    
+    // ==========================================
+    // GLOBAL STATE
+    // ==========================================
+    const AppState = {
+      project: null,
+      selectedId: null,
+      hoveredId: null,
+      viewMode: 'pid',
+      simulationRunning: false,
+      pid: {
+        zoom: 1,
+        pan: { x: 0, y: 0 },
+        isDragging: false,
+        dragStart: { x: 0, y: 0 }
+      },
+      three: {
+        scene: null,
+        camera: null,
+        renderer: null,
+        labelRenderer: null,
+        controls: null,
+        objects: {},
+        labels: {}
+      },
+      alarms: [],
+      liveValues: {},
+      eventLog: []
+    };
+    
+    // ==========================================
+    // EQUIPMENT DEFINITIONS
+    // ==========================================
+    const EquipmentTypes = {
+      vessels: [
+        { type: 'separator', subtype: '2-phase', label: '2-Phase Separator', icon: 'sep2' },
+        { type: 'separator', subtype: '3-phase', label: '3-Phase Separator', icon: 'sep3' },
+        { type: 'tank', subtype: 'vertical', label: 'Vertical Tank', icon: 'tankV' },
+        { type: 'tank', subtype: 'horizontal', label: 'Horizontal Tank', icon: 'tankH' },
+        { type: 'column', subtype: 'distillation', label: 'Distillation Column', icon: 'column' }
+      ],
+      rotating: [
+        { type: 'pump', subtype: 'centrifugal', label: 'Centrifugal Pump', icon: 'pumpC' },
+        { type: 'pump', subtype: 'reciprocating', label: 'Reciprocating Pump', icon: 'pumpR' },
+        { type: 'compressor', subtype: 'centrifugal', label: 'Centrifugal Compressor', icon: 'compC' },
+        { type: 'compressor', subtype: 'reciprocating', label: 'Reciprocating Compressor', icon: 'compR' }
+      ],
+      heat: [
+        { type: 'heatExchanger', subtype: 'shell-tube', label: 'Shell & Tube HX', icon: 'hxST' },
+        { type: 'heatExchanger', subtype: 'air-cooler', label: 'Air Cooler', icon: 'hxAC' },
+        { type: 'furnace', subtype: 'fired', label: 'Fired Heater', icon: 'furnace' }
+      ],
+      valves: [
+        { type: 'valve', subtype: 'gate', label: 'Gate Valve', icon: 'valveG' },
+        { type: 'valve', subtype: 'globe', label: 'Globe Valve', icon: 'valveGL' },
+        { type: 'valve', subtype: 'ball', label: 'Ball Valve', icon: 'valveB' },
+        { type: 'valve', subtype: 'check', label: 'Check Valve', icon: 'valveCH' },
+        { type: 'valve', subtype: 'control', label: 'Control Valve', icon: 'valveCV' },
+        { type: 'valve', subtype: 'relief', label: 'Relief Valve', icon: 'valveRV' }
+      ],
+      instruments: [
+        { type: 'sensor', subtype: 'PT', label: 'Pressure Transmitter', icon: 'PT' },
+        { type: 'sensor', subtype: 'TT', label: 'Temperature Transmitter', icon: 'TT' },
+        { type: 'sensor', subtype: 'FT', label: 'Flow Transmitter', icon: 'FT' },
+        { type: 'sensor', subtype: 'LT', label: 'Level Transmitter', icon: 'LT' },
+        { type: 'controller', subtype: 'PIC', label: 'Pressure Controller', icon: 'PIC' },
+        { type: 'controller', subtype: 'FIC', label: 'Flow Controller', icon: 'FIC' }
+      ]
+    };
+    
+    // ==========================================
+    // SAMPLE PROJECT DATA
+    // ==========================================
+    const SampleProject = {
+      id: 'demo-plant',
+      name: 'Crude Oil Processing Train',
+      description: 'Demo facility for AXIOM Engineering Suite',
+      author: 'ENG_ALAA MOHAMMED',
+      equipment: [
+        {
+          id: 'V-101', type: 'separator', subtype: '3-phase',
+          tag: 'V-101', label: 'Inlet Separator',
+          description: '3-Phase inlet separator',
+          processFluid: 'mixed',
+          operatingConditions: { pressure: { value: 10.5, unit: 'bar' }, temperature: { value: 65, unit: 'C' }, flowRate: { value: 5000, unit: 'bbl/d' } },
+          position: { pid: { x: 300, y: 300 }, model3d: { x: 0, y: 0, z: 0 } },
+          dimensions: { width: 8, height: 3.5, depth: 3.5, unit: 'm' },
+          processStage: 'upstream', status: 'active',
+          metadata: { manufacturer: 'SLB', model: 'Sep-3000' }
+        },
+        {
+          id: 'C-101', type: 'compressor', subtype: 'centrifugal',
+          tag: 'C-101', label: 'Gas Compressor',
+          description: 'Export gas compressor',
+          processFluid: 'gas',
+          operatingConditions: { pressure: { value: 45, unit: 'bar' }, temperature: { value: 40, unit: 'C' }, flowRate: { value: 25, unit: 'MMSCFD' } },
+          position: { pid: { x: 700, y: 150 }, model3d: { x: 15, y: 0, z: 10 } },
+          dimensions: { width: 4, height: 2.5, depth: 2, unit: 'm' },
+          processStage: 'midstream', status: 'active'
+        },
+        {
+          id: 'P-101A', type: 'pump', subtype: 'centrifugal',
+          tag: 'P-101A', label: 'Crude Pump A',
+          description: 'Main crude oil pump',
+          processFluid: 'oil',
+          operatingConditions: { pressure: { value: 15, unit: 'bar' }, temperature: { value: 65, unit: 'C' }, flowRate: { value: 450, unit: 'm3/h' } },
+          position: { pid: { x: 500, y: 450 }, model3d: { x: 10, y: 0, z: -5 } },
+          dimensions: { width: 2, height: 1.5, depth: 1.2, unit: 'm' },
+          processStage: 'midstream', status: 'active'
+        },
+        {
+          id: 'P-101B', type: 'pump', subtype: 'centrifugal',
+          tag: 'P-101B', label: 'Crude Pump B',
+          description: 'Standby crude pump',
+          processFluid: 'oil',
+          operatingConditions: { pressure: { value: 15, unit: 'bar' }, temperature: { value: 65, unit: 'C' }, flowRate: { value: 450, unit: 'm3/h' } },
+          position: { pid: { x: 500, y: 550 }, model3d: { x: 12, y: 0, z: -5 } },
+          dimensions: { width: 2, height: 1.5, depth: 1.2, unit: 'm' },
+          processStage: 'midstream', status: 'standby'
+        },
+        {
+          id: 'E-101', type: 'heatExchanger', subtype: 'shell-tube',
+          tag: 'E-101', label: 'Crude Preheater',
+          description: 'Preheats crude before column',
+          processFluid: 'oil',
+          operatingConditions: { pressure: { value: 12, unit: 'bar' }, temperature: { value: 110, unit: 'C' }, flowRate: { value: 450, unit: 'm3/h' } },
+          position: { pid: { x: 750, y: 400 }, model3d: { x: 25, y: 0, z: -5 } },
+          dimensions: { width: 6, height: 1.5, depth: 1.5, unit: 'm' },
+          processStage: 'midstream', status: 'active'
+        },
+        {
+          id: 'T-101', type: 'column', subtype: 'distillation',
+          tag: 'T-101', label: 'Distillation Column',
+          description: 'Main fractionation column',
+          processFluid: 'mixed',
+          operatingConditions: { pressure: { value: 1.5, unit: 'bar' }, temperature: { value: 350, unit: 'C' }, flowRate: { value: 0, unit: 'm3/h' } },
+          position: { pid: { x: 1000, y: 300 }, model3d: { x: 45, y: 0, z: 0 } },
+          dimensions: { width: 4, height: 25, depth: 4, unit: 'm' },
+          processStage: 'downstream', status: 'active'
+        },
+        {
+          id: 'TK-101', type: 'tank', subtype: 'vertical',
+          tag: 'TK-101', label: 'Product Tank',
+          description: 'Final product storage',
+          processFluid: 'oil',
+          operatingConditions: { pressure: { value: 1, unit: 'bar' }, temperature: { value: 40, unit: 'C' }, flowRate: { value: 0, unit: 'm3/h' } },
+          position: { pid: { x: 1250, y: 400 }, model3d: { x: 70, y: 0, z: 0 } },
+          dimensions: { width: 15, height: 12, depth: 15, unit: 'm' },
+          processStage: 'downstream', status: 'active'
+        }
+      ],
+      connections: [
+        { id: 'L-001', lineNumber: '12"-MIX-INLET', from: null, to: 'V-101', toPort: 'inlet', fluid: 'mixed', nominalDiameter: 12 },
+        { id: 'L-002', lineNumber: '8"-GAS-V101-C101', from: 'V-101', fromPort: 'gasOut', to: 'C-101', toPort: 'inlet', fluid: 'gas', nominalDiameter: 8 },
+        { id: 'L-003', lineNumber: '10"-OIL-V101-P101', from: 'V-101', fromPort: 'oilOut', to: 'P-101A', toPort: 'inlet', fluid: 'oil', nominalDiameter: 10 },
+        { id: 'L-004', lineNumber: '8"-OIL-P101-E101', from: 'P-101A', fromPort: 'outlet', to: 'E-101', toPort: 'inlet', fluid: 'oil', nominalDiameter: 8 },
+        { id: 'L-005', lineNumber: '8"-OIL-E101-T101', from: 'E-101', fromPort: 'outlet', to: 'T-101', toPort: 'feed', fluid: 'oil', nominalDiameter: 8 },
+        { id: 'L-006', lineNumber: '6"-OIL-T101-TK101', from: 'T-101', fromPort: 'bottoms', to: 'TK-101', toPort: 'inlet', fluid: 'oil', nominalDiameter: 6 }
+      ],
+      instruments: [
+        { id: 'PT-101', type: 'sensor', subtype: 'PT', tag: 'PT-101', connectedTo: 'V-101', range: { min: 0, max: 20, unit: 'bar' }, setpoint: 10.5, currentValue: 10.4, position: { x: 200, y: 200 } },
+        { id: 'LT-101', type: 'sensor', subtype: 'LT', tag: 'LT-101', connectedTo: 'V-101', range: { min: 0, max: 100, unit: '%' }, setpoint: 50, currentValue: 48, position: { x: 240, y: 200 } },
+        { id: 'FT-101', type: 'sensor', subtype: 'FT', tag: 'FT-101', connectedTo: 'P-101A', range: { min: 0, max: 600, unit: 'm3/h' }, setpoint: 450, currentValue: 445, position: { x: 550, y: 380 } },
+        { id: 'PT-102', type: 'sensor', subtype: 'PT', tag: 'PT-102', connectedTo: 'C-101', range: { min: 0, max: 60, unit: 'bar' }, setpoint: 45, currentValue: 44.8, position: { x: 780, y: 130 } }
+      ]
+    };
+    
+    // ==========================================
+    // P&ID SYMBOL LIBRARY (SVG Generators)
+    // ==========================================
+    const PIDSymbols = {
+      // Separator - 3 Phase
+      separator: (x, y, data) => {
+        const w = 120, h = 50;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x - w/2}, ${y - h/2})">
+            <!-- Vessel Body -->
+            <rect x="0" y="10" width="${w}" height="${h - 20}" rx="15" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Boot -->
+            <rect x="${w/2 - 10}" y="${h - 15}" width="20" height="20" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+            <!-- Inlet -->
+            <line x1="-20" y1="20" x2="0" y2="20" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Gas Out -->
+            <line x1="${w}" y1="15" x2="${w + 20}" y2="15" stroke="var(--gas-color)" stroke-width="3"/>
+            <!-- Oil Out -->
+            <line x1="${w/2}" y1="${h - 10}" x2="${w/2}" y2="${h + 15}" stroke="#333" stroke-width="3"/>
+            <!-- Water Out -->
+            <line x1="${w/2 + 30}" y1="${h}" x2="${w/2 + 30}" y2="${h + 20}" stroke="var(--water-color)" stroke-width="2"/>
+            <!-- Level Lines -->
+            <line x1="10" y1="25" x2="30" y2="25" stroke="var(--accent-yellow)" stroke-width="1" stroke-dasharray="4,2"/>
+            <line x1="10" y1="35" x2="30" y2="35" stroke="var(--water-color)" stroke-width="1" stroke-dasharray="4,2"/>
+            <!-- Tag Label -->
+            <text x="${w/2}" y="${h/2 + 4}" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="12">${data.tag}</text>
+            <!-- Status Indicator -->
+            <circle cx="${w + 5}" cy="10" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Centrifugal Pump
+      pump: (x, y, data) => {
+        const r = 25;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x}, ${y})">
+            <!-- Pump Casing -->
+            <circle cx="0" cy="0" r="${r}" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Impeller Symbol -->
+            <path d="M-12,0 L0,-8 L12,0 L0,8 Z" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="5" fill="var(--accent-cyan)"/>
+            <!-- Suction -->
+            <line x1="-${r + 20}" y1="0" x2="-${r}" y2="0" stroke="var(--text-secondary)" stroke-width="4"/>
+            <!-- Discharge -->
+            <line x1="${r}" y1="0" x2="${r + 20}" y2="0" stroke="var(--text-secondary)" stroke-width="4"/>
+            <!-- Tag -->
+            <text x="0" y="${r + 18}" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="11">${data.tag}</text>
+            <!-- Status -->
+            <circle cx="${r - 5}" cy="${-r + 5}" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Compressor
+      compressor: (x, y, data) => {
+        const w = 60, h = 40;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x}, ${y})">
+            <!-- Body -->
+            <circle cx="0" cy="0" r="30" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Blades -->
+            <path d="M0,-20 Q15,-10 0,0 Q-15,10 0,20" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+            <path d="M0,-20 Q-15,-10 0,0 Q15,10 0,20" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+            <!-- Inlet/Outlet -->
+            <line x1="-50" y1="0" x2="-30" y2="0" stroke="var(--gas-color)" stroke-width="4"/>
+            <line x1="30" y1="0" x2="50" y2="0" stroke="var(--gas-color)" stroke-width="4"/>
+            <!-- Tag -->
+            <text x="0" y="45" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="11">${data.tag}</text>
+            <!-- Status -->
+            <circle cx="20" cy="-20" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Heat Exchanger
+      heatExchanger: (x, y, data) => {
+        const w = 100, h = 40;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x - w/2}, ${y - h/2})">
+            <!-- Shell -->
+            <rect x="0" y="5" width="${w}" height="${h - 10}" rx="5" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Tubes -->
+            <line x1="15" y1="15" x2="${w - 15}" y2="15" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="15" y1="20" x2="${w - 15}" y2="20" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="15" y1="25" x2="${w - 15}" y2="25" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="15" y1="30" x2="${w - 15}" y2="30" stroke="var(--text-muted)" stroke-width="1"/>
+            <!-- Nozzles -->
+            <line x1="-15" y1="15" x2="0" y2="15" stroke="var(--text-secondary)" stroke-width="3"/>
+            <line x1="${w}" y1="15" x2="${w + 15}" y2="15" stroke="var(--text-secondary)" stroke-width="3"/>
+            <line x1="${w/2}" y1="0" x2="${w/2}" y2="5" stroke="var(--text-secondary)" stroke-width="3"/>
+            <line x1="${w/2}" y1="${h - 5}" x2="${w/2}" y2="${h}" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Tag -->
+            <text x="${w/2}" y="${h + 18}" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="11">${data.tag}</text>
+            <!-- Status -->
+            <circle cx="${w - 10}" cy="0" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Distillation Column
+      column: (x, y, data) => {
+        const w = 50, h = 140;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x - w/2}, ${y - h/2})">
+            <!-- Column Body -->
+            <rect x="0" y="0" width="${w}" height="${h}" rx="5" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Trays -->
+            <line x1="5" y1="20" x2="${w - 5}" y2="20" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="5" y1="40" x2="${w - 5}" y2="40" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="5" y1="60" x2="${w - 5}" y2="60" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="5" y1="80" x2="${w - 5}" y2="80" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="5" y1="100" x2="${w - 5}" y2="100" stroke="var(--text-muted)" stroke-width="1"/>
+            <line x1="5" y1="120" x2="${w - 5}" y2="120" stroke="var(--text-muted)" stroke-width="1"/>
+            <!-- Top Dome -->
+            <ellipse cx="${w/2}" cy="0" rx="${w/2}" ry="8" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Feed -->
+            <line x1="-15" y1="60" x2="0" y2="60" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Overhead -->
+            <line x1="${w/2}" y1="-8" x2="${w/2}" y2="-25" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Bottoms -->
+            <line x1="${w/2}" y1="${h}" x2="${w/2}" y2="${h + 15}" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Tag -->
+            <text x="${w/2}" y="${h + 30}" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="11">${data.tag}</text>
+            <!-- Status -->
+            <circle cx="${w + 10}" cy="10" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Tank
+      tank: (x, y, data) => {
+        const w = 70, h = 90;
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x - w/2}, ${y - h/2})">
+            <!-- Tank Body -->
+            <rect x="0" y="15" width="${w}" height="${h - 30}" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Top Dome -->
+            <ellipse cx="${w/2}" cy="15" rx="${w/2}" ry="12" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Bottom Cone -->
+            <path d="M0,${h - 15} L${w/2},${h} L${w},${h - 15}" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Level -->
+            <line x1="8" y1="35" x2="8" y2="${h - 25}" stroke="var(--accent-cyan)" stroke-width="1"/>
+            <rect x="5" y="45" width="6" height="${h - 75}" fill="var(--accent-cyan)" opacity="0.3"/>
+            <!-- Inlet -->
+            <line x1="${w/2}" y1="0" x2="${w/2}" y2="3" stroke="var(--text-secondary)" stroke-width="4"/>
+            <!-- Outlet -->
+            <line x1="${w/2}" y1="${h}" x2="${w/2}" y2="${h + 15}" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Tag -->
+            <text x="${w/2}" y="${h + 30}" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="11">${data.tag}</text>
+            <!-- Status -->
+            <circle cx="${w + 8}" cy="20" r="4" class="status-${data.status}"/>
+          </g>
+        `;
+      },
+      
+      // Valve
+      valve: (x, y, data) => {
+        return `
+          <g class="equipment-node" data-id="${data.id}" transform="translate(${x}, ${y})">
+            <!-- Valve Body -->
+            <path d="M-15,-10 L0,0 L-15,10 M15,-10 L0,0 L15,10" fill="none" stroke="var(--accent-cyan)" stroke-width="2"/>
+            <!-- Actuator for control valve -->
+            ${data.subtype === 'control' ? '<circle cx="0" cy="-18" r="8" fill="#1a2a3a" stroke="var(--accent-cyan)" stroke-width="1.5"/><line x1="0" y1="-10" x2="0" y2="-8" stroke="var(--accent-cyan)" stroke-width="2"/>' : ''}
+            <!-- Connection Lines -->
+            <line x1="-30" y1="0" x2="-15" y2="0" stroke="var(--text-secondary)" stroke-width="3"/>
+            <line x1="15" y1="0" x2="30" y2="0" stroke="var(--text-secondary)" stroke-width="3"/>
+            <!-- Tag -->
+            <text x="0" y="22" text-anchor="middle" class="font-mono" fill="var(--accent-cyan)" font-size="10">${data.tag}</text>
+          </g>
+        `;
+      }
+    };
+    
+    // ==========================================
+    // 3D MODEL BUILDERS
+    // ==========================================
+    const ModelBuilder = {
+      materials: {
+        metal: new THREE.MeshStandardMaterial({ color: 0x4a5a6a, metalness: 0.7, roughness: 0.4 }),
+        selected: new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x00e5ff, emissiveIntensity: 0.3, metalness: 0.5, roughness: 0.3 }),
+        oil: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.7, roughness: 0.3 }),
+        gas: new THREE.MeshStandardMaterial({ color: 0xffd600, metalness: 0.5, roughness: 0.4 }),
+        water: new THREE.MeshStandardMaterial({ color: 0x0288d1, metalness: 0.4, roughness: 0.5 })
+      },
+      
+      separator(data) {
+        const group = new THREE.Group();
+        const { width, height, depth } = data.dimensions;
+        
+        // Main vessel
+        const bodyGeo = new THREE.CylinderGeometry(depth/2, depth/2, width, 32);
+        const body = new THREE.Mesh(bodyGeo, this.materials.metal);
+        body.rotation.z = Math.PI / 2;
+        group.add(body);
+        
+        // Heads
+        const headGeo = new THREE.SphereGeometry(depth/2, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+        const headL = new THREE.Mesh(headGeo, this.materials.metal);
+        headL.position.x = -width/2;
+        headL.rotation.z = -Math.PI / 2;
+        group.add(headL);
+        
+        const headR = new THREE.Mesh(headGeo, this.materials.metal);
+        headR.position.x = width/2;
+        headR.rotation.z = Math.PI / 2;
+        group.add(headR);
+        
+        // Boot
+        const bootGeo = new THREE.CylinderGeometry(0.3, 0.3, 2, 16);
+        const boot = new THREE.Mesh(bootGeo, this.materials.metal);
+        boot.position.set(0, -depth/2 - 1, 0);
+        group.add(boot);
+        
+        // Support legs
+        for (let i = 0; i < 2; i++) {
+          const legGeo = new THREE.CylinderGeometry(0.2, 0.25, 2, 8);
+          const leg = new THREE.Mesh(legGeo, this.materials.metal);
+          leg.position.set((i === 0 ? -width/3 : width/3), -depth/2 - 1, 0);
+          group.add(leg);
+        }
+        
+        return group;
+      },
+      
+      pump(data) {
+        const group = new THREE.Group();
+        
+        // Casing
+        const casingGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.8, 32);
+        const casing = new THREE.Mesh(casingGeo, this.materials.metal);
+        casing.rotation.x = Math.PI / 2;
+        group.add(casing);
+        
+        // Motor
+        const motorGeo = new THREE.BoxGeometry(1.2, 0.6, 0.6);
+        const motor = new THREE.Mesh(motorGeo, this.materials.metal);
+        motor.position.y = 0.7;
+        group.add(motor);
+        
+        // Base
+        const baseGeo = new THREE.BoxGeometry(1.5, 0.1, 1);
+        const base = new THREE.Mesh(baseGeo, this.materials.metal);
+        base.position.y = -0.5;
+        group.add(base);
+        
+        return group;
+      },
+      
+      compressor(data) {
+        const group = new THREE.Group();
+        
+        // Main body
+        const bodyGeo = new THREE.CylinderGeometry(1, 1, 2, 32);
+        const body = new THREE.Mesh(bodyGeo, this.materials.metal);
+        body.rotation.z = Math.PI / 2;
+        group.add(body);
+        
+        // Stages
+        for (let i = 0; i < 2; i++) {
+          const stageGeo = new THREE.CylinderGeometry(0.8 - i * 0.2, 0.8 - i * 0.2, 0.5, 32);
+          const stage = new THREE.Mesh(stageGeo, this.materials.metal);
+          stage.rotation.z = Math.PI / 2;
+          stage.position.x = 1.5 + i * 0.8;
+          group.add(stage);
+        }
+        
+        // Motor
+        const motorGeo = new THREE.BoxGeometry(2, 1.2, 1.2);
+        const motor = new THREE.Mesh(motorGeo, this.materials.metal);
+        motor.position.x = -2;
+        group.add(motor);
+        
+        return group;
+      },
+      
+      heatExchanger(data) {
+const group = new THREE.Group();
+        const { width, height, depth } = data.dimensions;
+        
+        // Shell
+        const shellGeo = new THREE.CylinderGeometry(depth/2, depth/2, width, 32);
+        const shell = new THREE.Mesh(shellGeo, this.materials.metal);
+        shell.rotation.z = Math.PI / 2;
+        group.add(shell);
+        
+        // Channels
+        const channelGeo = new THREE.SphereGeometry(depth/2, 32, 16);
+        const channelL = new THREE.Mesh(channelGeo, this.materials.metal);
+        channelL.position.x = -width/2;
+        channelL.scale.x = 0.5;
+        group.add(channelL);
+        
+        const channelR = new THREE.Mesh(channelGeo, this.materials.metal);
+        channelR.position.x = width/2;
+        channelR.scale.x = 0.5;
+        group.add(channelR);
+        
+        // Saddles
+        for (let i = 0; i < 2; i++) {
+          const saddleGeo = new THREE.BoxGeometry(0.8, 0.6, depth);
+          const saddle = new THREE.Mesh(saddleGeo, this.materials.metal);
+          saddle.position.set((i === 0 ? -width/3 : width/3), -depth/2 - 0.3, 0);
+          group.add(saddle);
+        }
+        
+        return group;
+      },
+      
+      column(data) {
+        const group = new THREE.Group();
+        const { width, height, depth } = data.dimensions;
+        
+        // Main shell
+        const shellGeo = new THREE.CylinderGeometry(width/2, width/2, height, 32);
+        const shell = new THREE.Mesh(shellGeo, this.materials.metal);
+        group.add(shell);
+        
+        // Trays
+        const trayCount = Math.floor(height / 2);
+        for (let i = 0; i < trayCount; i++) {
+          const trayGeo = new THREE.CylinderGeometry(width/2 - 0.1, width/2 - 0.1, 0.05, 32);
+          const tray = new THREE.Mesh(trayGeo, this.materials.metal);
+          tray.position.y = -height/2 + 1 + i * 2;
+          group.add(tray);
+        }
+        
+        // Top head
+        const topGeo = new THREE.SphereGeometry(width/2, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+        const top = new THREE.Mesh(topGeo, this.materials.metal);
+        top.position.y = height/2;
+        group.add(top);
+        
+        // Bottom head
+        const bottom = new THREE.Mesh(topGeo, this.materials.metal);
+        bottom.position.y = -height/2;
+        bottom.rotation.x = Math.PI;
+        group.add(bottom);
+        
+        // Platforms
+        for (let i = 0; i < 3; i++) {
+          const platGeo = new THREE.RingGeometry(width/2 + 0.3, width/2 + 1.5, 32);
+          const plat = new THREE.Mesh(platGeo, new THREE.MeshStandardMaterial({ color: 0x3a4a5a, side: THREE.DoubleSide }));
+          plat.rotation.x = Math.PI / 2;
+          plat.position.y = -height/2 + 5 + i * 8;
+          group.add(plat);
+        }
+        
+        return group;
+      },
+      
+      tank(data) {
+        const group = new THREE.Group();
+        const { width, height, depth } = data.dimensions;
+        
+        // Main shell
+        const shellGeo = new THREE.CylinderGeometry(width/2, width/2, height - 3, 32);
+        const shell = new THREE.Mesh(shellGeo, this.materials.metal);
+        shell.position.y = 1.5;
+        group.add(shell);
+        
+        // Roof (cone)
+        const roofGeo = new THREE.ConeGeometry(width/2 + 0.5, 3, 32);
+        const roof = new THREE.Mesh(roofGeo, this.materials.metal);
+        roof.position.y = height - 1.5;
+        group.add(roof);
+        
+        // Floor
+        const floorGeo = new THREE.CylinderGeometry(width/2, width/2, 0.3, 32);
+        const floor = new THREE.Mesh(floorGeo, this.materials.metal);
+        floor.position.y = -height/2 + 0.15;
+        group.add(floor);
+        
+        return group;
+      },
+      
+      createModel(data) {
+        let model;
+        switch (data.type) {
+          case 'separator': model = this.separator(data); break;
+          case 'pump': model = this.pump(data); break;
+          case 'compressor': model = this.compressor(data); break;
+          case 'heatExchanger': model = this.heatExchanger(data); break;
+          case 'column': model = this.column(data); break;
+          case 'tank': model = this.tank(data); break;
+          default:
+            model = new THREE.Group();
+            const geo = new THREE.BoxGeometry(2, 2, 2);
+            const mesh = new THREE.Mesh(geo, this.materials.metal);
+            model.add(mesh);
+        }
+        
+        // Scale and position
+        const scale = 0.5;
+        model.scale.set(scale, scale, scale);
+        
+        const pos = data.position.model3d;
+        model.position.set(pos.x, pos.y + data.dimensions.height * 0.25, pos.z);
+        
+        model.userData = { id: data.id, type: data.type };
+        
+        return model;
+      }
+    };
+    
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    
+    // Initialize Three.js
+    function initThreeJS() {
+      const container = document.getElementById('three-container');
+      const canvas = document.getElementById('three-canvas');
+      
+      // Scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x060a10);
+      scene.fog = new THREE.Fog(0x060a10, 50, 200);
+      
+      // Camera
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
+      camera.position.set(80, 60, 80);
+      camera.lookAt(0, 10, 0);
+      
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      
+      // Label Renderer
+      const labelRenderer = new CSS2DRenderer();
+      labelRenderer.setSize(container.clientWidth, container.clientHeight);
+      labelRenderer.domElement.style.position = 'absolute';
+      labelRenderer.domElement.style.top = '0';
+      labelRenderer.domElement.style.pointerEvents = 'none';
+      container.appendChild(labelRenderer.domElement);
+      
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 5;
+      controls.maxDistance = 500;
+      controls.maxPolarAngle = Math.PI * 0.85;
+      
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+      scene.add(ambientLight);
+      
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      mainLight.position.set(10, 20, 10);
+      mainLight.castShadow = true;
+      mainLight.shadow.mapSize.width = 2048;
+      mainLight.shadow.mapSize.height = 2048;
+      mainLight.shadow.camera.near = 0.5;
+      mainLight.shadow.camera.far = 100;
+      mainLight.shadow.camera.left = -50;
+      mainLight.shadow.camera.right = 50;
+      mainLight.shadow.camera.top = 50;
+      mainLight.shadow.camera.bottom = -50;
+      scene.add(mainLight);
+      
+      const fillLight = new THREE.DirectionalLight(0x4a6a8a, 0.4);
+      fillLight.position.set(-10, 5, -10);
+      scene.add(fillLight);
+      
+      const hemiLight = new THREE.HemisphereLight(0x1a3a5c, 0x0a0a0a, 0.3);
+      scene.add(hemiLight);
+      
+      // Ground
+      const groundGeo = new THREE.PlaneGeometry(200, 200);
+      const groundMat = new THREE.MeshStandardMaterial({ 
+        color: 0x0a0f16,
+        metalness: 0.2,
+        roughness: 0.9
+      });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+      
+      // Grid
+      const gridHelper = new THREE.GridHelper(200, 40, 0x1a2e4a, 0x0f1929);
+      scene.add(gridHelper);
+      
+      // Store in state
+      AppState.three.scene = scene;
+      AppState.three.camera = camera;
+      AppState.three.renderer = renderer;
+      AppState.three.labelRenderer = labelRenderer;
+      AppState.three.controls = controls;
+      
+      // Animation loop
+      let lastTime = performance.now();
+      let frameCount = 0;
+      let fps = 0;
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        
+        const now = performance.now();
+        frameCount++;
+        
+        if (now - lastTime >= 1000) {
+          fps = frameCount;
+          frameCount = 0;
+          lastTime = now;
+          document.getElementById('status-fps').textContent = `FPS: ${fps}`;
+        }
+        
+        controls.update();
+        renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
+      }
+      
+      animate();
+      
+      // Handle resize
+      window.addEventListener('resize', () => {
+        if (AppState.viewMode === '3d' || AppState.viewMode === 'split') {
+          const w = container.clientWidth;
+          const h = container.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+          labelRenderer.setSize(w, h);
+        }
+      });
+    }
+    
+    // Build 3D Scene from Project
+    function build3DScene() {
+      const scene = AppState.three.scene;
+      
+      // Clear existing objects
+      Object.values(AppState.three.objects).forEach(obj => {
+        scene.remove(obj);
+      });
+      Object.values(AppState.three.labels).forEach(label => {
+        scene.remove(label);
+      });
+      AppState.three.objects = {};
+      AppState.three.labels = {};
+      
+      // Add equipment
+      AppState.project.equipment.forEach(eq => {
+        const model = ModelBuilder.createModel(eq);
+        scene.add(model);
+        AppState.three.objects[eq.id] = model;
+        
+        // Add label
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'label-3d';
+        labelDiv.textContent = eq.tag;
+        labelDiv.style.pointerEvents = 'auto';
+        labelDiv.onclick = () => selectEquipment(eq.id);
+        
+        const label = new CSS2DObject(labelDiv);
+        label.position.set(0, eq.dimensions.height * 0.3, 0);
+        model.add(label);
+        AppState.three.labels[eq.id] = label;
+      });
+    }
+    
+    // ==========================================
+    // P&ID RENDERING
+    // ==========================================
+    
+    function renderPID() {
+      const equipmentGroup = document.getElementById('pid-equipment');
+      const connectionsGroup = document.getElementById('pid-connections');
+      const instrumentsGroup = document.getElementById('pid-instruments');
+      
+      // Clear
+      equipmentGroup.innerHTML = '';
+      connectionsGroup.innerHTML = '';
+      instrumentsGroup.innerHTML = '';
+      
+      // Render connections
+      AppState.project.connections.forEach(conn => {
+        const fromEq = AppState.project.equipment.find(e => e.id === conn.from);
+        const toEq = AppState.project.equipment.find(e => e.id === conn.to);
+        
+        if (!toEq) return;
+        
+        let fromPos = conn.from ? fromEq.position.pid : { x: toEq.position.pid.x - 100, y: toEq.position.pid.y };
+        const toPos = toEq.position.pid;
+        
+        // Generate path
+        const path = generateOrthogonalPath(fromPos, toPos);
+        
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', path);
+        pathEl.setAttribute('class', `pipe-line ${conn.fluid}`);
+        pathEl.setAttribute('data-id', conn.id);
+        
+        if (AppState.simulationRunning) {
+          pathEl.classList.add('pipe-flow-animation');
+        }
+        
+        connectionsGroup.appendChild(pathEl);
+        
+        // Line number label
+        const midPoint = getMidPoint(path);
+        const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textEl.setAttribute('x', midPoint.x);
+        textEl.setAttribute('y', midPoint.y - 8);
+        textEl.setAttribute('text-anchor', 'middle');
+        textEl.setAttribute('class', 'font-mono');
+        textEl.setAttribute('fill', 'var(--text-muted)');
+        textEl.setAttribute('font-size', '9');
+        textEl.textContent = conn.lineNumber;
+        connectionsGroup.appendChild(textEl);
+      });
+      
+      // Render equipment
+      AppState.project.equipment.forEach(eq => {
+        const pos = eq.position.pid;
+        let svg = '';
+        
+        switch (eq.type) {
+          case 'separator': svg = PIDSymbols.separator(pos.x, pos.y, eq); break;
+          case 'pump': svg = PIDSymbols.pump(pos.x, pos.y, eq); break;
+          case 'compressor': svg = PIDSymbols.compressor(pos.x, pos.y, eq); break;
+          case 'heatExchanger': svg = PIDSymbols.heatExchanger(pos.x, pos.y, eq); break;
+          case 'column': svg = PIDSymbols.column(pos.x, pos.y, eq); break;
+          case 'tank': svg = PIDSymbols.tank(pos.x, pos.y, eq); break;
+          default: svg = PIDSymbols.pump(pos.x, pos.y, eq);
+        }
+        
+        equipmentGroup.insertAdjacentHTML('beforeend', svg);
+      });
+      
+      // Render instruments
+      AppState.project.instruments.forEach(inst => {
+        const pos = inst.position;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'equipment-node');
+        g.setAttribute('data-id', inst.id);
+        g.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+        
+        // Bubble
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '0');
+        circle.setAttribute('cy', '0');
+        circle.setAttribute('r', '18');
+        circle.setAttribute('class', 'instrument-bubble');
+        g.appendChild(circle);
+        
+        // Type text
+        const typeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        typeText.setAttribute('x', '0');
+        typeText.setAttribute('y', '-3');
+        typeText.setAttribute('class', 'instrument-text');
+        typeText.textContent = inst.subtype;
+        g.appendChild(typeText);
+        
+        // Tag text
+        const tagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tagText.setAttribute('x', '0');
+        tagText.setAttribute('y', '8');
+        tagText.setAttribute('class', 'instrument-text');
+        tagText.setAttribute('font-size', '8');
+        tagText.textContent = inst.tag;
+        g.appendChild(tagText);
+        
+        // Connection line to equipment
+        const eq = AppState.project.equipment.find(e => e.id === inst.connectedTo);
+        if (eq) {
+          const eqPos = eq.position.pid;
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', '0');
+          line.setAttribute('y1', '0');
+          line.setAttribute('x2', eqPos.x - pos.x);
+          line.setAttribute('y2', eqPos.y - pos.y);
+          line.setAttribute('stroke', 'var(--accent-cyan)');
+          line.setAttribute('stroke-width', '1');
+          line.setAttribute('stroke-dasharray', '4,2');
+          line.setAttribute('opacity', '0.5');
+          g.insertBefore(line, circle);
+        }
+        
+        instrumentsGroup.appendChild(g);
+      });
+      
+      // Add click handlers
+      document.querySelectorAll('.equipment-node').forEach(node => {
+        node.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectEquipment(node.dataset.id);
+        });
+        
+        node.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showContextMenu(e, node.dataset.id);
+        });
+      });
+    }
+    
+    function generateOrthogonalPath(from, to) {
+      const midX = (from.x + to.x) / 2;
+      return `M ${from.x} ${from.y} L ${midX} ${from.y} L ${midX} ${to.y} L ${to.x} ${to.y}`;
+    }
+    
+    function getMidPoint(path) {
+      // Simplified: return middle of bounding box
+      const coords = path.match(/[\d.]+/g).map(Number);
+      const xs = coords.filter((_, i) => i % 2 === 0);
+      const ys = coords.filter((_, i) => i % 2 === 1);
+      return {
+        x: (Math.min(...xs) + Math.max(...xs)) / 2,
+        y: (Math.min(...ys) + Math.max(...ys)) / 2
+      };
+    }
+    
+    // ==========================================
+    // SELECTION & SYNC
+    // ==========================================
+    
+    function selectEquipment(id) {
+      // Clear previous selection
+      document.querySelectorAll('.equipment-node.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      if (AppState.three.objects[id]) {
+        const obj = AppState.three.objects[id];
+        obj.traverse(child => {
+          if (child.isMesh) {
+            child.material = ModelBuilder.materials.metal;
+          }
+        });
+      }
+      
+      // Set new selection
+      AppState.selectedId = id;
+      
+      // Highlight P&ID
+      const node = document.querySelector(`[data-id="${id}"]`);
+      if (node) {
+        node.classList.add('selected');
+      }
+      
+      // Highlight 3D
+      if (AppState.three.objects[id]) {
+        const obj = AppState.three.objects[id];
+        obj.traverse(child => {
+          if (child.isMesh) {
+            child.material = ModelBuilder.materials.selected;
+          }
+        });
+        
+        // Focus camera
+        if (AppState.viewMode !== 'pid') {
+          const pos = obj.position.clone();
+          AppState.three.controls.target.copy(pos);
+        }
+      }
+      
+      // Update properties panel
+      updatePropertiesPanel(id);
+      
+      // Update status bar
+      const eq = AppState.project.equipment.find(e => e.id === id);
+      const inst = AppState.project.instruments.find(i => i.id === id);
+      
+      if (eq) {
+        document.getElementById('status-selection').textContent = `${eq.tag} - ${eq.label}`;
+        logEvent('info', `Selected: ${eq.tag}`);
+      } else if (inst) {
+        document.getElementById('status-selection').textContent = `${inst.tag} - ${inst.subtype}`;
+      }
+    }
+    
+    function updatePropertiesPanel(id) {
+      const container = document.getElementById('properties-content');
+      const empty = document.getElementById('properties-empty');
+      
+      const eq = AppState.project.equipment.find(e => e.id === id);
+      const inst = AppState.project.instruments.find(i => i.id === id);
+      
+      if (!eq && !inst) {
+        container.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+      
+      container.style.display = 'block';
+      empty.style.display = 'none';
+      
+      if (eq) {
+        container.innerHTML = `
+          <div class="prop-group">
+            <div class="prop-group-header">IDENTIFICATION</div>
+            <div class="prop-row">
+              <div class="prop-label">Tag</div>
+              <div class="prop-value"><input type="text" class="input-field" value="${eq.tag}" onchange="updateEquipment('${id}', 'tag', this.value)"></div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Type</div>
+              <div class="prop-value font-mono text-sm" style="color: var(--accent-cyan);">${eq.type} / ${eq.subtype}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Label</div>
+              <div class="prop-value"><input type="text" class="input-field" value="${eq.label}" onchange="updateEquipment('${id}', 'label', this.value)"></div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Status</div>
+              <div class="prop-value">
+                <select class="input-field" onchange="updateEquipment('${id}', 'status', this.value)">
+                  <option value="active" ${eq.status === 'active' ? 'selected' : ''}>Active</option>
+                  <option value="standby" ${eq.status === 'standby' ? 'selected' : ''}>Standby</option>
+                  <option value="maintenance" ${eq.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+                  <option value="shutdown" ${eq.status === 'shutdown' ? 'selected' : ''}>Shutdown</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group-header">PROCESS</div>
+            <div class="prop-row">
+              <div class="prop-label">Fluid</div>
+              <div class="prop-value font-mono" style="color: var(--accent-${eq.processFluid === 'oil' ? 'yellow' : eq.processFluid === 'gas' ? 'yellow' : 'cyan'});">${eq.processFluid.toUpperCase()}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Pressure</div>
+              <div class="prop-value font-mono">${eq.operatingConditions.pressure.value} ${eq.operatingConditions.pressure.unit}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Temp</div>
+              <div class="prop-value font-mono">${eq.operatingConditions.temperature.value} ${eq.operatingConditions.temperature.unit}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Flow</div>
+              <div class="prop-value font-mono">${eq.operatingConditions.flowRate.value} ${eq.operatingConditions.flowRate.unit}</div>
+            </div>
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group-header">DIMENSIONS</div>
+            <div class="prop-row">
+              <div class="prop-label">Size</div>
+              <div class="prop-value font-mono text-sm">${eq.dimensions.width} x ${eq.dimensions.height} x ${eq.dimensions.depth} ${eq.dimensions.unit}</div>
+            </div>
+          </div>
+          
+          <div class="flex gap-2 mt-4">
+            <button class="btn btn-primary flex-1" onclick="duplicateEquipment('${id}')">Duplicate</button>
+            <button class="btn btn-danger flex-1" onclick="deleteEquipment('${id}')">Delete</button>
+          </div>
+        `;
+      } else if (inst) {
+        container.innerHTML = `
+          <div class="prop-group">
+            <div class="prop-group-header">INSTRUMENT</div>
+            <div class="prop-row">
+              <div class="prop-label">Tag</div>
+              <div class="prop-value font-mono" style="color: var(--accent-cyan);">${inst.tag}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Type</div>
+              <div class="prop-value">${inst.subtype}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Connected</div>
+              <div class="prop-value font-mono">${inst.connectedTo}</div>
+            </div>
+          </div>
+          
+          <div class="prop-group">
+            <div class="prop-group-header">RANGE</div>
+            <div class="prop-row">
+              <div class="prop-label">Range</div>
+              <div class="prop-value font-mono">${inst.range.min} - ${inst.range.max} ${inst.range.unit}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Setpoint</div>
+              <div class="prop-value font-mono" style="color: var(--accent-green);">${inst.setpoint}</div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-label">Current</div>
+              <div class="prop-value font-mono" style="color: var(--accent-cyan);">${AppState.liveValues[inst.id]?.toFixed(2) || inst.currentValue}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    // ==========================================
+    // SIMULATION ENGINE
+    // ==========================================
+    
+    let simulationInterval = null;
+    
+    function startSimulation() {
+      if (simulationInterval) return;
+      
+      AppState.simulationRunning = true;
+      document.getElementById('sim-start-btn').innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="4" width="4" height="16"/>
+          <rect x="14" y="4" width="4" height="16"/>
+        </svg>
+        Stop Sim
+      `;
+      document.getElementById('sim-start-btn').classList.remove('btn-success');
+      document.getElementById('sim-start-btn').classList.add('btn-danger');
+      
+      logEvent('info', 'Simulation started');
+      
+      simulationInterval = setInterval(() => {
+        // Update instrument values
+        AppState.project.instruments.forEach(inst => {
+          const range = inst.range.max - inst.range.min;
+          const noise = (Math.random() - 0.5) * 0.02 * range;
+          const target = inst.setpoint + noise;
+          
+          if (!AppState.liveValues[inst.id]) {
+            AppState.liveValues[inst.id] = inst.currentValue;
+          }
+          
+          // First-order lag
+          AppState.liveValues[inst.id] += (target - AppState.liveValues[inst.id]) * 0.1;
+          
+          // Check alarms
+          if (AppState.liveValues[inst.id] > inst.alarmHigh) {
+            addAlarm('high', inst.tag, inst.alarmHigh, AppState.liveValues[inst.id]);
+          }
+        });
+        
+        // Update UI
+        updateLiveValues();
+        
+        // Update flow animation
+        document.querySelectorAll('.pipe-line').forEach(pipe => {
+          pipe.classList.add('pipe-flow-animation');
+        });
+        
+      }, 100);
+    }
+    
+    function stopSimulation() {
+      if (!simulationInterval) return;
+      
+      clearInterval(simulationInterval);
+      simulationInterval = null;
+      AppState.simulationRunning = false;
+      
+      document.getElementById('sim-start-btn').innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Start Sim
+      `;
+      document.getElementById('sim-start-btn').classList.add('btn-success');
+      document.getElementById('sim-start-btn').classList.remove('btn-danger');
+      
+      document.querySelectorAll('.pipe-line').forEach(pipe => {
+        pipe.classList.remove('pipe-flow-animation');
+      });
+      
+      logEvent('info', 'Simulation stopped');
+    }
+    
+    function updateLiveValues() {
+      const container = document.getElementById('live-values');
+      container.innerHTML = '';
+      
+      AppState.project.instruments.forEach(inst => {
+        const value = AppState.liveValues[inst.id]?.toFixed(2) || inst.currentValue.toFixed(2);
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between text-xs';
+        div.innerHTML = `
+          <span class="font-mono" style="color: var(--text-secondary);">${inst.tag}</span>
+          <span class="font-mono" style="color: var(--accent-cyan);">${value} ${inst.range.unit}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    // ==========================================
+    // ALARMS & EVENTS
+    // ==========================================
+    
+    function addAlarm(type, tag, threshold, value) {
+      const alarm = {
+        id: Date.now(),
+        type,
+        tag,
+        threshold,
+        value: value.toFixed(2),
+        timestamp: new Date().toLocaleTimeString(),
+        acknowledged: false
+      };
+      
+      AppState.alarms.unshift(alarm);
+      renderAlarms();
+      logEvent('alarm', `${tag}: ${type.toUpperCase()} alarm at ${value.toFixed(2)}`);
+    }
+    
+    function renderAlarms() {
+      const container = document.getElementById('alarm-list');
+      container.innerHTML = '';
+      
+      if (AppState.alarms.length === 0) {
+        container.innerHTML = '<div class="text-xs text-center" style="color: var(--text-muted);">No active alarms</div>';
+        return;
+      }
+      
+      AppState.alarms.slice(0, 10).forEach(alarm => {
+        const div = document.createElement('div');
+        div.className = `alarm-card ${alarm.acknowledged ? 'opacity-50' : ''}`;
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="font-mono font-bold" style="color: var(--accent-red);">${alarm.tag}</span>
+            <span class="text-xs" style="color: var(--text-muted);">${alarm.timestamp}</span>
+          </div>
+          <div class="text-xs mt-1">${alarm.type.toUpperCase()}: ${alarm.value} (limit: ${alarm.threshold})</div>
+        `;
+        div.onclick = () => acknowledgeAlarm(alarm.id);
+        container.appendChild(div);
+      });
+    }
+    
+    function acknowledgeAlarm(id) {
+      const alarm = AppState.alarms.find(a => a.id === id);
+      if (alarm) {
+        alarm.acknowledged = true;
+        renderAlarms();
+      }
+    }
+    
+    function acknowledgeAllAlarms() {
+      AppState.alarms.forEach(a => a.acknowledged = true);
+      renderAlarms();
+    }
+    
+    function logEvent(type, message) {
+      const event = {
+        type,
+        message,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      
+      AppState.eventLog.unshift(event);
+      if (AppState.eventLog.length > 50) AppState.eventLog.pop();
+      
+      renderEventLog();
+    }
+    
+    function renderEventLog() {
+      const container = document.getElementById('event-log');
+      container.innerHTML = '';
+      
+      AppState.eventLog.slice(0, 20).forEach(event => {
+        const div = document.createElement('div');
+        div.className = 'text-xs flex gap-2';
+        const color = event.type === 'alarm' ? 'var(--accent-red)' : event.type === 'warning' ? 'var(--accent-yellow)' : 'var(--text-muted)';
+        div.innerHTML = `
+          <span style="color: var(--text-muted);">${event.timestamp}</span>
+          <span style="color: ${color};">${event.message}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    // ==========================================
+    // UI FUNCTIONS
+    // ==========================================
+    
+    // Make functions globally available
+    window.toggleSimulation = function() {
+      if (AppState.simulationRunning) {
+        stopSimulation();
+      } else {
+        startSimulation();
+      }
+    };
+    
+    window.setView = function(mode) {
+      AppState.viewMode = mode;
+      
+      // Update toggle buttons
+      document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`view-${mode}`).classList.add('active');
+      
+      const pidContainer = document.getElementById('pid-container');
+      const threeContainer = document.getElementById('three-container');
+      const resizeHandle = document.getElementById('resize-handle');
+      
+      if (mode === 'pid') {
+        pidContainer.style.display = 'block';
+        pidContainer.style.flex = '1';
+        threeContainer.style.display = 'none';
+        resizeHandle.style.display = 'none';
+      } else if (mode === '3d') {
+        pidContainer.style.display = 'none';
+        threeContainer.style.display = 'block';
+        threeContainer.style.flex = '1';
+        resizeHandle.style.display = 'none';
+        
+        // Trigger resize
+        setTimeout(() => {
+          const w = threeContainer.clientWidth;
+          const h = threeContainer.clientHeight;
+          AppState.three.camera.aspect = w / h;
+          AppState.three.camera.updateProjectionMatrix();
+          AppState.three.renderer.setSize(w, h);
+          AppState.three.labelRenderer.setSize(w, h);
+        }, 50);
+      } else if (mode === 'split') {
+        pidContainer.style.display = 'block';
+        pidContainer.style.flex = '1';
+        threeContainer.style.display = 'block';
+        threeContainer.style.flex = '1';
+        resizeHandle.style.display = 'block';
+        
+        setTimeout(() => {
+          const w = threeContainer.clientWidth;
+          const h = threeContainer.clientHeight;
+          AppState.three.camera.aspect = w / h;
+          AppState.three.camera.updateProjectionMatrix();
+          AppState.three.renderer.setSize(w, h);
+          AppState.three.labelRenderer.setSize(w, h);
+        }, 50);
+      }
+      
+      document.getElementById('status-mode').textContent = mode.toUpperCase() + ' View';
+    };
+    
+    window.setCameraView = function(view) {
+      const camera = AppState.three.camera;
+      const controls = AppState.three.controls;
+      
+      const views = {
+        top: { pos: [0, 100, 0], target: [0, 0, 0] },
+        front: { pos: [0, 20, 100], target: [0, 20, 0] },
+        side: { pos: [100, 20, 0], target: [0, 20, 0] },
+        iso: { pos: [80, 60, 80], target: [0, 10, 0] }
+      };
+      
+      const v = views[view];
+      if (v) {
+        camera.position.set(...v.pos);
+        controls.target.set(...v.target);
+        controls.update();
+      }
+    };
+    
+    window.switchTab = function(tab) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+      
+      document.getElementById('tab-palette').style.display = tab === 'palette' ? 'block' : 'none';
+      document.getElementById('tab-properties').style.display = tab === 'properties' ? 'block' : 'none';
+      document.getElementById('tab-data').style.display = tab === 'data' ? 'block' : 'none';
+      
+      if (tab === 'data') {
+        updateProjectStats();
+      }
+    };
+    
+    function updateProjectStats() {
+      const container = document.getElementById('project-stats');
+      const eq = AppState.project.equipment;
+      const conn = AppState.project.connections;
+      const inst = AppState.project.instruments;
+      
+      const activeCount = eq.filter(e => e.status === 'active').length;
+      const standbyCount = eq.filter(e => e.status === 'standby').length;
+      
+      container.innerHTML = `
+        <div class="flex justify-between text-sm">
+          <span style="color: var(--text-secondary);">Equipment</span>
+          <span class="font-mono" style="color: var(--accent-cyan);">${eq.length}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span style="color: var(--text-secondary);">Connections</span>
+          <span class="font-mono" style="color: var(--accent-cyan);">${conn.length}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span style="color: var(--text-secondary);">Instruments</span>
+          <span class="font-mono" style="color: var(--accent-cyan);">${inst.length}</span>
+        </div>
+        <div class="border-t border-[var(--border-dark)] my-2"></div>
+        <div class="flex justify-between text-sm">
+          <span style="color: var(--accent-green);">Active</span>
+          <span class="font-mono">${activeCount}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span style="color: var(--accent-yellow);">Standby</span>
+          <span class="font-mono">${standbyCount}</span>
+        </div>
+      `;
+    }
+    
+    window.zoomPID = function(factor) {
+      AppState.pid.zoom *= factor;
+      AppState.pid.zoom = Math.max(0.2, Math.min(5, AppState.pid.zoom));
+      updatePIDTransform();
+    };
+    
+    window.resetPIDView = function() {
+      AppState.pid.zoom = 1;
+      AppState.pid.pan = { x: 0, y: 0 };
+      updatePIDTransform();
+    };
+    
+    function updatePIDTransform() {
+      const main = document.getElementById('pid-main');
+      main.setAttribute('transform', `translate(${AppState.pid.pan.x}, ${AppState.pid.pan.y}) scale(${AppState.pid.zoom})`);
+      document.getElementById('status-zoom').textContent = `Zoom: ${Math.round(AppState.pid.zoom * 100)}%`;
+    }
+    
+    // P&ID Pan
+    const pidContainer = document.getElementById('pid-container');
+    
+    pidContainer.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.equipment-node')) return;
+      AppState.pid.isDragging = true;
+      AppState.pid.dragStart = { x: e.clientX - AppState.pid.pan.x, y: e.clientY - AppState.pid.pan.y };
+      pidContainer.style.cursor = 'grabbing';
+    });
+    
+    window.addEventListener('mousemove', (e) => {
+      // Update cursor position
+      const rect = pidContainer.getBoundingClientRect();
+      const x = Math.round((e.clientX - rect.left - AppState.pid.pan.x) / AppState.pid.zoom);
+      const y = Math.round((e.clientY - rect.top - AppState.pid.pan.y) / AppState.pid.zoom);
+      document.getElementById('status-cursor').textContent = `X: ${x} Y: ${y}`;
+      
+      if (AppState.pid.isDragging) {
+        AppState.pid.pan.x = e.clientX - AppState.pid.dragStart.x;
+        AppState.pid.pan.y = e.clientY - AppState.pid.dragStart.y;
+        updatePIDTransform();
+      }
+    });
+    
+    window.addEventListener('mouseup', () => {
+      AppState.pid.isDragging = false;
+      pidContainer.style.cursor = 'default';
+    });
+    
+    // Zoom with scroll
+    pidContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      window.zoomPID(factor);
+    });
+    
+    // Context Menu
+    let contextTargetId = null;
+    
+    function showContextMenu(e, id) {
+      contextTargetId = id;
+      const menu = document.getElementById('context-menu');
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+      menu.classList.add('visible');
+    }
+    
+    window.addEventListener('click', () => {
+      document.getElementById('context-menu').classList.remove('visible');
+    });
+    
+    window.contextAction = function(action) {
+      if (!contextTargetId) return;
+      
+      switch (action) {
+        case 'properties':
+          switchTab('properties');
+          selectEquipment(contextTargetId);
+          break;
+        case 'duplicate':
+          duplicateEquipment(contextTargetId);
+          break;
+        case 'delete':
+          deleteEquipment(contextTargetId);
+          break;
+        case 'isolate':
+          setView('3d');
+          selectEquipment(contextTargetId);
+          break;
+        case 'focus':
+          if (AppState.three.objects[contextTargetId]) {
+            setView('3d');
+            selectEquipment(contextTargetId);
+          }
+          break;
+      }
+    };
+    
+    // Equipment Actions
+    window.updateEquipment = function(id, field, value) {
+      const eq = AppState.project.equipment.find(e => e.id === id);
+      if (eq) {
+        eq[field] = value;
+        renderPID();
+        build3DScene();
+        logEvent('info', `Updated ${eq.tag}: ${field} = ${value}`);
+      }
+    };
+    
+    window.duplicateEquipment = function(id) {
+      const eq = AppState.project.equipment.find(e => e.id === id);
+      if (!eq) return;
+      
+      const newEq = JSON.parse(JSON.stringify(eq));
+      newEq.id = 'EQ-' + Date.now();
+      newEq.tag = eq.tag + '-COPY';
+      newEq.position.pid.x += 50;
+      newEq.position.model3d.x += 5;
+      
+      AppState.project.equipment.push(newEq);
+      renderPID();
+      build3DScene();
+      selectEquipment(newEq.id);
+      logEvent('info', `Duplicated ${eq.tag} to ${newEq.tag}`);
+    };
+    
+    window.deleteEquipment = function(id) {
+      const eq = AppState.project.equipment.find(e => e.id === id);
+      if (!eq) return;
+      
+      AppState.project.equipment = AppState.project.equipment.filter(e => e.id !== id);
+      AppState.project.connections = AppState.project.connections.filter(c => c.from !== id && c.to !== id);
+      AppState.project.instruments = AppState.project.instruments.filter(i => i.connectedTo !== id);
+      
+      AppState.selectedId = null;
+      renderPID();
+      build3DScene();
+      updatePropertiesPanel(null);
+      logEvent('warning', `Deleted ${eq.tag}`);
+    };
+    
+    // Palette Population
+    function populatePalette() {
+      const categories = {
+        vessels: document.getElementById('palette-vessels'),
+        rotating: document.getElementById('palette-rotating'),
+        heat: document.getElementById('palette-heat'),
+        valves: document.getElementById('palette-valves'),
+        instruments: document.getElementById('palette-instruments')
+      };
+      
+      Object.entries(EquipmentTypes).forEach(([cat, items]) => {
+        const container = categories[cat];
+        if (!container) return;
+        
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'component-item';
+          div.innerHTML = `
+            <div class="w-8 h-8 flex items-center justify-center border border-[var(--border-dark)]" style="background: var(--bg-primary);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5">
+                ${getIconPath(item.icon)}
+              </svg>
+            </div>
+            <div class="text-sm">${item.label}</div>
+          `;
+          div.onclick = () => addEquipmentFromPalette(item);
+          container.appendChild(div);
+        });
+      });
+    }
+    
+    function getIconPath(icon) {
+      const icons = {
+        sep2: '<circle cx="12" cy="12" r="8"/><line x1="4" y1="12" x2="20" y2="12"/>',
+        sep3: '<circle cx="12" cy="12" r="8"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/>',
+        tankV: '<rect x="6" y="4" width="12" height="16" rx="2"/><ellipse cx="12" cy="4" rx="6" ry="2"/>',
+        tankH: '<ellipse cx="12" cy="12" rx="10" ry="6"/>',
+        column: '<rect x="8" y="2" width="8" height="20" rx="1"/><line x1="10" y1="6" x2="14" y2="6"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>',
+        pumpC: '<circle cx="12" cy="12" r="6"/><polygon points="12,8 16,12 12,16 8,12"/>',
+        pumpR: '<rect x="6" y="8" width="12" height="8"/><line x1="12" y1="4" x2="12" y2="8"/>',
+        compC: '<circle cx="12" cy="12" r="8"/><path d="M12,4 Q18,12 12,20 Q6,12 12,4"/>',
+        compR: '<rect x="4" y="6" width="16" height="12" rx="2"/>',
+        hxST: '<rect x="2" y="6" width="20" height="12" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/>',
+        hxAC: '<rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/>',
+        furnace: '<rect x="4" y="6" width="16" height="14" rx="1"/><path d="M8,20 L10,12 L12,16 L14,10 L16,18"/>',
+        valveG: '<path d="M4,6 L12,12 L4,18 M20,6 L12,12 L20,18"/>',
+        valveGL: '<circle cx="12" cy="12" r="6"/><line x1="12" y1="4" x2="12" y2="8"/>',
+        valveB: '<circle cx="12" cy="12" r="6"/><line x1="8" y1="8" x2="16" y2="16"/>',
+        valveCH: '<path d="M4,6 L12,12 L4,18 M20,6 L12,12 L20,18"/><polygon points="8,8 16,8 16,10 8,10"/>',
+        valveCV: '<path d="M4,6 L12,12 L4,18 M20,6 L12,12 L20,18"/><circle cx="12" cy="4" r="3"/>',
+        valveRV: '<path d="M4,6 L12,12 L4,18 M20,6 L12,12 L20,18"/><path d="M12,4 L12,0"/><polygon points="10,0 14,0 12,4"/>',
+        PT: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">PT</text>',
+        TT: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">TT</text>',
+        FT: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">FT</text>',
+        LT: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">LT</text>',
+        PIC: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">PIC</text>',
+        FIC: '<circle cx="12" cy="12" r="8"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">FIC</text>'
+      };
+      return icons[icon] || '<circle cx="12" cy="12" r="8"/>';
+    }
+    
+    function addEquipmentFromPalette(item) {
+      const newEq = {
+        id: 'EQ-' + Date.now(),
+        type: item.type,
+        subtype: item.subtype,
+        tag: item.type.substring(0, 1).toUpperCase() + '-' + (AppState.project.equipment.length + 1),
+        label: item.label,
+        description: '',
+        processFluid: 'oil',
+        operatingConditions: {
+          pressure: { value: 10, unit: 'bar' },
+          temperature: { value: 50, unit: 'C' },
+          flowRate: { value: 100, unit: 'm3/h' }
+        },
+        position: {
+          pid: { x: 400 + Math.random() * 200, y: 300 + Math.random() * 200 },
+          model3d: { x: Math.random() * 20, y: 0, z: Math.random() * 20 }
+        },
+        dimensions: { width: 3, height: 2, depth: 2, unit: 'm' },
+        processStage: 'midstream',
+        status: 'active',
+        metadata: {}
+      };
+      
+      AppState.project.equipment.push(newEq);
+      renderPID();
+      build3DScene();
+      selectEquipment(newEq.id);
+      logEvent('info', `Added ${newEq.tag} (${item.label})`);
+    }
+    
+    window.filterPalette = function(query) {
+      const q = query.toLowerCase();
+      document.querySelectorAll('.component-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    };
+    
+    // Save/Export
+    window.saveProject = function() {
+      const json = JSON.stringify(AppState.project, null, 2);
+      localStorage.setItem('axiom-project', json);
+      logEvent('info', 'Project saved to local storage');
+      
+      // Show confirmation
+      const btn = event.target.closest('button');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Saved';
+      setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    };
+    
+    window.exportProject = function() {
+      const json = JSON.stringify(AppState.project, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${AppState.project.name.replace(/\s+/g, '_')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      logEvent('info', 'Project exported');
+    };
+    
+    window.autoLayout = function() {
+      // Simple Sugiyama-style layout
+      const stages = ['upstream', 'midstream', 'downstream'];
+      const stageX = { upstream: 200, midstream: 600, downstream: 1000 };
+      
+      stages.forEach(stage => {
+        const items = AppState.project.equipment.filter(e => e.processStage === stage);
+        const x = stageX[stage];
+        items.forEach((eq, i) => {
+          eq.position.pid.x = x + (i % 2) * 200;
+          eq.position.pid.y = 200 + Math.floor(i / 2) * 200;
+        });
+      });
+      
+      renderPID();
+      logEvent('info', 'Auto-layout applied');
+    };
+    
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      switch (e.key) {
+        case 'Delete':
+        case 'Backspace':
+          if (AppState.selectedId) {
+            deleteEquipment(AppState.selectedId);
+          }
+          break;
+        case 'Escape':
+          AppState.selectedId = null;
+          document.querySelectorAll('.equipment-node.selected').forEach(el => el.classList.remove('selected'));
+          updatePropertiesPanel(null);
+          break;
+        case '1':
+          setCameraView('top');
+          break;
+        case '2':
+          setCameraView('front');
+          break;
+        case '3':
+          setCameraView('side');
+          break;
+        case '4':
+          setCameraView('iso');
+          break;
+        case 'p':
+          setView('pid');
+          break;
+        case 'm':
+          setView('3d');
+          break;
+        case 's':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            saveProject();
+          }
+          break;
+        case '=':
+        case '+':
+          zoomPID(1.2);
+          break;
+        case '-':
+          zoomPID(0.8);
+          break;
+      }
+    });
+    
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    
+    function init() {
+      // Load project
+      const saved = localStorage.getItem('axiom-project');
+      if (saved) {
+        try {
+          AppState.project = JSON.parse(saved);
+        } catch (e) {
+          AppState.project = SampleProject;
+        }
+      } else {
+        AppState.project = SampleProject;
+      }
+      
+      // Initialize 3D
+      initThreeJS();
+      
+      // Render P&ID
+      renderPID();
+      
+      // Build 3D scene
+      build3DScene();
+      
+      // Populate palette
+      populatePalette();
+      
+      // Update stats
+      updateProjectStats();
+      
+      // Initial live values
+      updateLiveValues();
+      
+      // Hide loading screen
+      setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+      }, 500);
+      
+      logEvent('info', 'AXIOM Engineering Suite initialized');
+      logEvent('info', `Loaded project: ${AppState.project.name}`);
+    }
+    
+    // Start
+    init();
+  </script>
+</body>
+</html>

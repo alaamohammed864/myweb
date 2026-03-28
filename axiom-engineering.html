@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXIOM Engineering — Building the Future</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cyan: #00f5ff;
+    --cyan-dim: #00c4cc;
+    --green-glow: #00ff9920;
+    --dark-bg: #050a0f;
+    --dark-card: #070e17cc;
+    --border-glow: 0 0 12px #00f5ff88, 0 0 28px #00f5ff33;
+    --border-glow-hover: 0 0 18px #00f5ffcc, 0 0 50px #00f5ff55, inset 0 0 20px #00f5ff0a;
+    --text-white: #e8f4f8;
+    --font: 'Montserrat', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--dark-bg);
+    color: var(--text-white);
+    overflow-x: hidden;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #050a0f; }
+  ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 60px;
+    background: linear-gradient(to bottom, rgba(5,10,15,0.85), transparent);
+    backdrop-filter: blur(2px);
+    transition: background 0.4s;
+  }
+  nav.scrolled { background: rgba(5,10,15,0.96); backdrop-filter: blur(10px); }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--cyan);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 10px var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    letter-spacing: -1px;
+  }
+  .nav-logo-text {
+    font-size: 15px; font-weight: 700;
+    color: var(--text-white);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .nav-logo-sub {
+    font-size: 8px; font-weight: 300;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: -2px;
+  }
+
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(232,244,248,0.7);
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 100%;
+    height: 1px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    transition: right 0.3s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a:hover::after { right: 0; }
+
+  /* ===== HERO ===== */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(5,10,15,0.55) 0%, rgba(5,10,15,0.3) 40%, rgba(5,10,15,0.75) 100%),
+      url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&q=85') center/cover no-repeat;
+    animation: heroZoom 20s ease-in-out infinite alternate;
+  }
+  @keyframes heroZoom {
+    from { transform: scale(1); }
+    to   { transform: scale(1.06); }
+  }
+
+  /* Animated scan line */
+  .hero-scan {
+    position: absolute; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.25;
+    animation: scan 6s linear infinite;
+  }
+  @keyframes scan {
+    from { top: 0%; }
+    to   { top: 100%; }
+  }
+
+  /* Grid overlay */
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    text-align: center;
+    padding: 0 20px;
+    animation: fadeUp 1.2s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 12px var(--cyan);
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-title {
+    font-size: clamp(52px, 9vw, 110px);
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.75) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(12px, 1.8vw, 16px);
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: rgba(232,244,248,0.7);
+    text-transform: uppercase;
+    margin-bottom: 50px;
+    animation: fadeUp 1s 0.6s ease both;
+  }
+  .hero-subtitle span { color: var(--cyan); }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 16px 44px;
+    border: 1.5px solid var(--cyan);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: rgba(0,245,255,0.06);
+    box-shadow: var(--border-glow);
+    transition: all 0.3s;
+    cursor: pointer;
+    animation: fadeUp 1s 0.8s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.12), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+  .cta-btn:hover::before { transform: translateX(100%); }
+  .cta-btn:hover {
+    box-shadow: var(--border-glow-hover);
+    background: rgba(0,245,255,0.12);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 40px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 80px;
+    animation: fadeUp 1s 1s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cyan);
+    text-shadow: 0 0 20px var(--cyan);
+  }
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.3);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--cyan), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ===== SERVICES ===== */
+  #services {
+    background: linear-gradient(135deg, #050d15 0%, #060f0a 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  #services::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(0,255,100,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .services-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+
+  .services-left {
+    padding: 100px 60px 100px 80px;
+    display: flex; flex-direction: column; gap: 16px;
+    position: relative; z-index: 1;
+  }
+
+  .services-title-block {
+    background: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(0,245,255,0.03));
+    border: 1.5px solid var(--cyan);
+    border-radius: 16px;
+    padding: 28px 30px;
+    box-shadow: var(--border-glow);
+    margin-bottom: 8px;
+  }
+  .services-title-block h2 {
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .services-title-block h3 {
+    font-size: 30px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1px;
+  }
+
+  .service-block {
+    background: rgba(7,14,23,0.85);
+    border: 1.5px solid rgba(0,245,255,0.3);
+    border-radius: 16px;
+    padding: 26px 28px;
+    display: flex; gap: 20px; align-items: flex-start;
+    cursor: pointer;
+    transition: all 0.35s;
+    box-shadow: 0 0 8px rgba(0,245,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .service-block::before {
+    content: '';
+    position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.05), transparent);
+    transition: left 0.5s;
+  }
+  .service-block:hover::before { left: 100%; }
+  .service-block:hover {
+    border-color: var(--cyan);
+    box-shadow: var(--border-glow-hover);
+    transform: translateX(4px);
+    background: rgba(0,245,255,0.05);
+  }
+
+  .service-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: rgba(0,245,255,0.1);
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan);
+    font-size: 20px;
+    transition: all 0.3s;
+  }
+  .service-block:hover .service-icon {
+    background: rgba(0,245,255,0.2);
+    box-shadow: 0 0 16px var(--cyan);
+  }
+
+  .service-text h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .service-text p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(232,244,248,0.5);
+    font-weight: 300;
+  }
+
+  .services-right {
+    position: relative;
+    overflow: hidden;
+  }
+  .services-right-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to right, rgba(5,13,21,0.9) 0%, rgba(5,13,21,0.3) 40%, rgba(5,13,21,0.2) 100%),
+      url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=80') center/cover no-repeat;
+  }
+  .services-right-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,20,40,0.7), rgba(0,40,20,0.3));
+  }
+  .services-right-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 60px 50px;
+  }
+  .services-right-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  .services-right-stat {
+    font-size: 60px;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(0,245,255,0.3);
+  }
+  .services-right-stat span { color: var(--cyan); }
+  .services-right-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* Grid lines on right panel */
+  .services-right::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* ===== ABOUT ===== */
+  #about {
+    position: relative;
+    min-height: 85vh;
+    display: flex; align-items: center;
+    overflow: hidden;
+  }
+
+  .about-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to right, rgba(5,10,15,0.92) 40%, rgba(5,10,15,0.4) 100%),
+      linear-gradient(to bottom, rgba(5,10,15,0.3) 0%, rgba(5,10,15,0.6) 100%),
+      url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=85') center/cover no-repeat;
+  }
+
+  .about-content {
+    position: relative;
+    z-index: 1;
+    padding: 80px 80px;
+    max-width: 640px;
+  }
+
+  .about-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .about-label::before {
+    content: '';
+    display: block;
+    width: 30px; height: 1px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  .about-heading {
+    font-size: clamp(38px, 6vw, 68px);
+    font-weight: 900;
+    color: var(--cyan);
+    text-shadow: 0 0 40px rgba(0,245,255,0.5);
+    letter-spacing: 2px;
+    line-height: 1.05;
+    margin-bottom: 28px;
+  }
+
+  .about-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(232,244,248,0.72);
+    font-weight: 300;
+    margin-bottom: 20px;
+    max-width: 480px;
+  }
+
+  .about-pillars {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 36px;
+  }
+  .pillar {
+    border: 1px solid rgba(0,245,255,0.35);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(232,244,248,0.7);
+    background: rgba(0,245,255,0.05);
+    transition: all 0.3s;
+  }
+  .pillar:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0,245,255,0.3);
+  }
+
+  /* ===== PROJECTS TICKER ===== */
+  .ticker-bar {
+    background: rgba(0,245,255,0.06);
+    border-top: 1px solid rgba(0,245,255,0.2);
+    border-bottom: 1px solid rgba(0,245,255,0.2);
+    padding: 14px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex; gap: 60px;
+    animation: ticker 30s linear infinite;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .ticker-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0,245,255,0.6);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 60px;
+  }
+  .ticker-item::after {
+    content: '◆';
+    color: rgba(0,245,255,0.3);
+    font-size: 8px;
+  }
+
+  /* ===== CONTACT ===== */
+  #contact {
+    background: linear-gradient(180deg, #060d14 0%, #030810 100%);
+    padding: 100px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #contact::before {
+    content: '';
+    position: absolute;
+    bottom: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,245,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .contact-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .contact-heading {
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 900;
+    color: white;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .contact-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 50px;
+  }
+
+  .contact-form {
+    max-width: 540px;
+    margin: 0 auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-input {
+    background: rgba(0,245,255,0.04);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: white;
+    font-family: var(--font);
+    font-size: 12px;
+    letter-spacing: 1px;
+    outline: none;
+    transition: all 0.3s;
+    width: 100%;
+  }
+  .form-input::placeholder { color: rgba(255,255,255,0.25); }
+  .form-input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 16px rgba(0,245,255,0.2);
+    background: rgba(0,245,255,0.07);
+  }
+  textarea.form-input { height: 110px; resize: none; }
+  .submit-btn {
+    align-self: center;
+    margin-top: 10px;
+    padding: 15px 50px;
+    border: 1.5px solid var(--cyan);
+    border-radius: 50px;
+    background: rgba(0,245,255,0.08);
+    color: white;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: var(--border-glow);
+  }
+  .submit-btn:hover {
+    background: rgba(0,245,255,0.15);
+    box-shadow: var(--border-glow-hover);
+    transform: translateY(-2px);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: #030810;
+    border-top: 1px solid rgba(0,245,255,0.12);
+    padding: 36px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-brand {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0,245,255,0.6);
+    text-transform: uppercase;
+  }
+  .footer-brand strong { color: var(--cyan); }
+  .footer-copy {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+  }
+  .footer-eng {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(0,245,255,0.45);
+    text-transform: uppercase;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <div class="nav-logo-icon">AX</div>
+    <div>
+      <span class="nav-logo-text">AXIOM</span>
+      <span class="nav-logo-sub">Engineering Suite</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">Projects</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-scan"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">AXIOM ENGINEERING SUITE — EST. 2024</div>
+    <h1 class="hero-title">Building<br>The Future</h1>
+    <p class="hero-subtitle">
+      Engineering <span>·</span> Construction <span>·</span> Innovation
+    </p>
+    <a href="#contact" class="cta-btn">Start Your Project</a>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">250+</span>
+      <span class="stat-label">Projects Completed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">18</span>
+      <span class="stat-label">Years Experience</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">40+</span>
+      <span class="stat-label">Countries</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">99%</span>
+      <span class="stat-label">Client Satisfaction</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span class="ticker-item">Structural Engineering</span>
+    <span class="ticker-item">Smart City Infrastructure</span>
+    <span class="ticker-item">High-Rise Construction</span>
+    <span class="ticker-item">Project Management</span>
+    <span class="ticker-item">Multiphysics Simulation</span>
+    <span class="ticker-item">Sustainable Design</span>
+    <span class="ticker-item">Structural Engineering</span>
+    <span class="ticker-item">Smart City Infrastructure</span>
+    <span class="ticker-item">High-Rise Construction</span>
+    <span class="ticker-item">Project Management</span>
+    <span class="ticker-item">Multiphysics Simulation</span>
+    <span class="ticker-item">Sustainable Design</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-inner">
+
+    <div class="services-left">
+      <div class="services-title-block">
+        <h2>// What We Do</h2>
+        <h3>Our Services</h3>
+      </div>
+
+      <div class="service-block">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+        </div>
+        <div class="service-text">
+          <h4>Engineering</h4>
+          <p>Advanced structural, civil and multiphysics engineering services powered by cutting-edge simulation and analysis tools.</p>
+        </div>
+      </div>
+
+      <div class="service-block">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          </svg>
+        </div>
+        <div class="service-text">
+          <h4>Construction</h4>
+          <p>End-to-end construction management with precision execution, from foundation to finishing — built to last generations.</p>
+        </div>
+      </div>
+
+      <div class="service-block">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </div>
+        <div class="service-text">
+          <h4>Project Management</h4>
+          <p>Integrated planning, scheduling and risk assessment across every phase. On time. On budget. No exceptions.</p>
+        </div>
+      </div>
+
+      <div class="service-block">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
+        <div class="service-text">
+          <h4>Innovation &amp; R&amp;D</h4>
+          <p>Pioneering smart materials, AI-driven design optimization, and next-generation construction methodologies.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="services-right">
+      <div class="services-right-bg"></div>
+      <div class="services-right-overlay"></div>
+      <div class="services-right-content">
+        <div class="services-right-tag">// AXIOM IMPACT</div>
+        <div class="services-right-stat">$2.<span>4B</span></div>
+        <div class="services-right-desc">In infrastructure value delivered globally</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-bg"></div>
+  <div class="about-content">
+    <div class="about-label">About Us</div>
+    <h2 class="about-heading">We Build<br>What Others<br>Only Imagine</h2>
+    <p class="about-text">
+      We are building the future with innovation, precision, and trust. AXIOM Engineering Suite combines deep technical expertise with forward-thinking design to deliver infrastructure that stands at the intersection of art and engineering.
+    </p>
+    <p class="about-text" style="font-size:13px; color:rgba(232,244,248,0.45);">
+      From complex multiphysics simulations to on-site construction management, our team operates with a singular purpose: to create structures that define the cities of tomorrow.
+    </p>
+    <div class="about-pillars">
+      <div class="pillar">Innovation</div>
+      <div class="pillar">Precision</div>
+      <div class="pillar">Trust</div>
+      <div class="pillar">Excellence</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER 2 -->
+<div class="ticker-bar">
+  <div class="ticker-inner" style="animation-direction: reverse;">
+    <span class="ticker-item">Basra Waterfront Tower</span>
+    <span class="ticker-item">Al-Zubayr Industrial Hub</span>
+    <span class="ticker-item">Gulf Bridge Expansion</span>
+    <span class="ticker-item">Smart Grid Basra 2030</span>
+    <span class="ticker-item">Offshore Platform Rig 7</span>
+    <span class="ticker-item">Urban Metro Phase III</span>
+    <span class="ticker-item">Basra Waterfront Tower</span>
+    <span class="ticker-item">Al-Zubayr Industrial Hub</span>
+    <span class="ticker-item">Gulf Bridge Expansion</span>
+    <span class="ticker-item">Smart Grid Basra 2030</span>
+    <span class="ticker-item">Offshore Platform Rig 7</span>
+    <span class="ticker-item">Urban Metro Phase III</span>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-label">// Get In Touch</div>
+  <h2 class="contact-heading">Start Your Project</h2>
+  <p class="contact-sub">Tell us what you're building — we'll bring it to life.</p>
+  <div class="contact-form">
+    <div class="form-row">
+      <input class="form-input" type="text" placeholder="Your Name">
+      <input class="form-input" type="email" placeholder="Email Address">
+    </div>
+    <input class="form-input" type="text" placeholder="Project Type">
+    <textarea class="form-input" placeholder="Describe your project..."></textarea>
+    <button class="submit-btn">Send Message</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand"><strong>AXIOM</strong> Engineering Suite</div>
+  <div class="footer-copy">© 2024 AXIOM Engineering. All rights reserved.</div>
+  <div class="footer-eng">ENG_ALAA MOHAMMED</div>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Animate stat numbers
+  function animateCounters() {
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseInt(el.textContent.replace(/\D/g, ''));
+      const suffix = el.textContent.replace(/[0-9]/g, '');
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.round(current) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 20);
+    });
+  }
+
+  // Intersection observer for fade-in
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.service-block, .about-content, .contact-form').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+    io.observe(el);
+  });
+
+  // Trigger counters when hero stats visible
+  const statsObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      animateCounters();
+      statsObs.disconnect();
+    }
+  }, { threshold: 0.5 });
+  statsObs.observe(document.querySelector('.hero-stats'));
+</script>
+</body>
+</html>

@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD/CAM Studio - Connected Edition</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js Essential Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-elevated: #22222e;
+            --accent: #6366f1; /* Indigo */
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border: #2d2d3a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Layout */
+        .app {
+            display: grid;
+            grid-template-rows: 50px 1fr 30px;
+            grid-template-columns: 260px 1fr 360px;
+            height: 100vh;
+            background: var(--border);
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo svg { width: 24px; height: 24px; fill: currentColor; }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { background: var(--bg-elevated); border-color: var(--accent); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn svg { width: 14px; height: 14px; }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Left Panel: Tree & Properties */
+        .tree-list { flex: 1; overflow-y: auto; padding: 10px; }
+        
+        .tree-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            transition: background 0.15s;
+            border: 1px solid transparent;
+        }
+        .tree-item:hover { background: var(--bg-tertiary); }
+        .tree-item.selected { background: rgba(99, 102, 241, 0.1); border-color: var(--accent); color: white; }
+        .tree-icon { width: 16px; height: 16px; opacity: 0.7; }
+
+        .props-section { padding: 16px; }
+        .prop-row { margin-bottom: 12px; }
+        .prop-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+        
+        .prop-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .prop-input:focus { outline: none; border-color: var(--accent); }
+
+        /* Viewport */
+        .viewport { position: relative; background: var(--bg-primary); }
+        #canvas { width: 100%; height: 100%; display: block; }
+        
+        .viewport-tools {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tool-group {
+            background: rgba(18, 18, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .tool-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+        .tool-btn:hover { background: var(--bg-elevated); color: white; }
+        .tool-btn.active { background: var(--accent); color: white; }
+
+        .viewport-stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            background: rgba(18, 18, 26, 0.8);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* Right Panel: AI Chat */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .api-config {
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .api-select-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        select {
+            flex: 1;
+            padding: 6px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 90%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .chat-input-area {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        textarea {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 8px;
+            padding: 10px;
+            resize: none;
+            height: 40px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        textarea:focus { outline: none; border-color: var(--accent); }
+
+        .quick-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            font-size: 10px;
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .quick-btn:hover { border-color: var(--accent); color: white; }
+
+        /* Footer */
+        footer {
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 16.54V9.09l7 3.5v7.45l-7-3.5zm9 3.5v-7.45l7-3.5v7.45l-7 3.5z"/></svg>
+            CAD NEURAL
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="analyzeBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Analyze
+            </button>
+            <button class="btn" id="exportBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Export STL
+            </button>
+            <div class="status-badge" id="statusBadge">
+                <div class="status-dot"></div>
+                <span id="statusText">Disconnected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Left Panel -->
+    <aside class="panel">
+        <div class="panel-header">
+            <span>Scene Graph</span>
+        </div>
+        <div class="tree-list" id="treeList">
+            <div class="tree-item" style="color: var(--text-muted); justify-content: center; font-size: 12px;">
+                Empty Scene
+            </div>
+        </div>
+        <div class="panel-header">
+            <span>Properties</span>
+        </div>
+        <div class="props-section" id="propsSection">
+            <div style="color: var(--text-muted); font-size: 12px; text-align: center;">Select an object</div>
+        </div>
+    </aside>
+
+    <!-- Viewport -->
+    <main class="viewport">
+        <canvas id="canvas"></canvas>
+        
+        <div class="viewport-tools">
+            <div class="tool-group">
+                <button class="tool-btn active" id="toolSelect" title="Select">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                </button>
+                <button class="tool-btn" id="toolMove" title="Move">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>
+                </button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" id="addCube" title="Add Cube">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                </button>
+                <button class="tool-btn" id="addGear" title="Add Gear">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="viewport-stats">
+            <span id="objCount">Objects: 0</span> | <span id="fpsCount">FPS: 60</span>
+        </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="panel chat-container">
+        <div class="panel-header">
+            <span>AI Assistant</span>
+            <button class="btn" style="padding:2px 6px; font-size:10px;" id="clearChat">Clear</button>
+        </div>
+        
+        <!-- API Config Section -->
+        <div class="api-config" id="apiConfigSection">
+            <div class="api-select-group">
+                <select id="providerSelect">
+                    <option value="google">Google (Gemini)</option>
+                    <option value="openai">OpenAI (GPT)</option>
+                    <option value="anthropic">Anthropic (Claude)</option>
+                </select>
+                <select id="modelSelect">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <input type="password" id="apiKeyInput" class="api-key-input" placeholder="Enter API Key...">
+            <button class="btn btn-primary" style="width:100%" id="connectBtn">Connect</button>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:4px; text-align:center;" id="keyStatus"></div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                Welcome! To get started:
+                <br><br>
+                1. Select a provider (Google is free).
+                <br>
+                2. Paste your API Key.
+                <br>
+                3. Click Connect.
+                <br><br>
+                <strong>Free Keys:</strong>
+                <br>• Google: aistudio.google.com
+                <br>• OpenAI: platform.openai.com
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="input-wrapper">
+                <textarea id="userInput" placeholder="Ask me to build or analyze..."></textarea>
+                <button class="btn btn-primary" id="sendBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-btn" data-msg="Create a cube of size 2x2x2">+ Cube</button>
+                <button class="quick-btn" data-msg="Create a gear with 20 teeth">+ Gear</button>
+                <button class="quick-btn" data-msg="Analyze the currently selected object">Analyze</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Footer -->
+    <footer>
+        <span>CAD Neural Engine v1.0</span>
+        <span id="cursorPos">X: 0.00 Y: 0.00 Z: 0.00</span>
+    </footer>
+</div>
+
+<script>
+// =========================================================
+// CORE SETUP & THREE.JS
+// =========================================================
+
+if (!window.THREE) alert('Error: Three.js library not loaded. Please check your internet connection.');
+
+const $ = id => document.getElementById(id);
+const S = {
+    objects: new Map(),
+    selected: null,
+    scene: null, camera: null, renderer: null, controls: null, transformCtrl: null,
+    tool: 'select'
+};
+
+// Initialization
+function init() {
+    // Scene
+    S.scene = new THREE.Scene();
+    S.scene.background = new THREE.Color(0x0a0a0f);
+
+    // Camera
+    S.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    S.camera.position.set(10, 10, 10);
+    S.camera.lookAt(0, 0, 0);
+
+    // Renderer
+    const canvas = $('canvas');
+    const container = canvas.parentElement;
+    S.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    S.renderer.setSize(container.clientWidth, container.clientHeight);
+    S.renderer.setPixelRatio(window.devicePixelRatio);
+
+    // Controls
+    S.controls = new THREE.OrbitControls(S.camera, S.renderer.domElement);
+    S.transformCtrl = new THREE.TransformControls(S.camera, S.renderer.domElement);
+    S.transformCtrl.addEventListener('dragging-changed', e => S.controls.enabled = !e.value);
+    S.scene.add(S.transformCtrl);
+
+    // Lighting
+    S.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(10, 20, 10);
+    S.scene.add(dirLight);
+
+    // Grid
+    S.scene.add(new THREE.GridHelper(20, 20, 0x222222, 0x111111));
+
+    // Events
+    window.addEventListener('resize', onResize);
+    canvas.addEventListener('click', onCanvasClick);
+    
+    animate();
+    initUI();
+    loadApiKey();
+}
+
+function onResize() {
+    const container = $('canvas').parentElement;
+    S.camera.aspect = container.clientWidth / container.clientHeight;
+    S.camera.updateProjectionMatrix();
+    S.renderer.setSize(container.clientWidth, container.clientHeight);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    S.controls.update();
+    S.renderer.render(S.scene, S.camera);
+}
+
+// =========================================================
+// GEOMETRY ENGINE
+// =========================================================
+
+const GeoEngine = {
+    createBox(params) {
+        const geo = new THREE.BoxGeometry(params.width || 1, params.height || 1, params.depth || 1);
+        const mat = new THREE.MeshStandardMaterial({ color: params.color || '#6366f1' });
+        return new THREE.Mesh(geo, mat);
+    },
+
+    createGear(params) {
+        const teeth = params.teeth || 24;
+        const module = 2;
+        const pitchR = (teeth * module) / 2;
+        const outerR = pitchR + module;
+        const rootR = pitchR - 1.25 * module;
+        const thickness = params.thickness || 2;
+
+        const shape = new THREE.Shape();
+        const toothAngle = (2 * Math.PI) / teeth;
+        
+        for (let i = 0; i < teeth; i++) {
+            const angle = i * toothAngle;
+            const r1 = rootR;
+            const r2 = outerR;
+            
+            // Simplified tooth shape for performance
+            shape.absarc(0, 0, r1, angle, angle + toothAngle * 0.4, false);
+            shape.absarc(0, 0, r2, angle + toothAngle * 0.4, angle + toothAngle * 0.6, false);
+            shape.absarc(0, 0, r1, angle + toothAngle * 0.6, angle + toothAngle, false);
+        }
+        
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+        geo.rotateX(-Math.PI / 2);
+        const mat = new THREE.MeshStandardMaterial({ color: params.color || '#10b981' });
+        return new THREE.Mesh(geo, mat);
+    }
+};
+
+function addObject(type, params = {}, pos = {x:0, y:0, z:0}) {
+    let mesh;
+    if (type === 'box') mesh = GeoEngine.createBox(params);
+    else if (type === 'gear') mesh = GeoEngine.createGear(params);
+    else return;
+
+    mesh.position.set(pos.x, pos.y, pos.z);
+    mesh.userData = { id: `obj_${Date.now()}`, type, params, name: `${type}_${S.objects.size}` };
+    
+    S.scene.add(mesh);
+    S.objects.set(mesh.userData.id, mesh);
+    updateTree();
+    selectObject(mesh.userData.id);
+    return mesh;
+}
+
+function selectObject(id) {
+    if (S.selected) {
+        const prev = S.objects.get(S.selected);
+        if (prev) prev.material.emissive.setHex(0x000000);
+    }
+    
+    S.selected = id;
+    const obj = S.objects.get(id);
+    if (obj) {
+        obj.material.emissive.setHex(0x333333);
+        S.transformCtrl.attach(obj);
+        updateProperties(obj);
+    } else {
+        S.transformCtrl.detach();
+        $('propsSection').innerHTML = '<div style="color:var(--text-muted);text-align:center;font-size:12px;">Select an object</div>';
+    }
+    updateTree();
+}
+
+function updateTree() {
+    const list = $('treeList');
+    list.innerHTML = '';
+    $('objCount').innerText = `Objects: ${S.objects.size}`;
+    
+    S.objects.forEach((obj, id) => {
+        const div = document.createElement('div');
+        div.className = `tree-item ${S.selected === id ? 'selected' : ''}`;
+        div.innerHTML = `<span>${obj.userData.name}</span>`;
+        div.onclick = () => selectObject(id);
+        list.appendChild(div);
+    });
+}
+
+function updateProperties(obj) {
+    const sec = $('propsSection');
+    let html = '';
+    for (const [key, val] of Object.entries(obj.userData.params)) {
+        html += `
+            <div class="prop-row">
+                <label class="prop-label">${key}</label>
+                <input type="text" class="prop-input" value="${val}" data-key="${key}">
+            </div>
+        `;
+    }
+    sec.innerHTML = html;
+    
+    sec.querySelectorAll('.prop-input').forEach(input => {
+        input.onchange = (e) => {
+            const key = e.target.dataset.key;
+            const val = e.target.value;
+            obj.userData.params[key] = val;
+            // Recreate object logic could go here, for now just update data
+        };
+    });
+}
+
+function onCanvasClick(e) {
+    const rect = S.renderer.domElement.getBoundingClientRect();
+    const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+    );
+    
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, S.camera);
+    
+    const intersects = raycaster.intersectObjects(Array.from(S.objects.values()));
+    if (intersects.length > 0) {
+        selectObject(intersects[0].object.userData.id);
+    }
+}
+
+// =========================================================
+// AI ENGINE - MULTI-PROVIDER
+// =========================================================
+
+const MODELS = {
+    google: [
+        { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Free)' },
+        { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' }
+    ],
+    openai: [
+        { id: 'gpt-4o-mini', label: 'GPT-4o Mini (Fast/Cheap)' },
+        { id: 'gpt-4o', label: 'GPT-4o' }
+    ],
+    anthropic: [
+        { id: 'claude-3-haiku-20240307', label: 'Claude Haiku (Fast)' },
+        { id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' }
+    ]
+};
+
+const AI = {
+    provider: 'google',
+    model: 'gemini-1.5-flash',
+    key: null,
+
+    buildPrompt(userMsg) {
+        // Context: what is in the scene?
+        let sceneContext = "Empty Scene.";
+        if (S.objects.size > 0) {
+            sceneContext = "Scene contains: " + Array.from(S.objects.values()).map(o => 
+                `${o.userData.name} (${o.userData.type}, ${JSON.stringify(o.userData.params)})`
+            ).join('; ');
+        }
+
+        let selectedContext = "No object selected.";
+        if (S.selected) {
+            const obj = S.objects.get(S.selected);
+            selectedContext = `Selected Object: ${obj.userData.name} (${JSON.stringify(obj.userData.params)})`;
+        }
+
+        return `You are a CAD assistant. You can create 3D objects and analyze them.
+        Current State:
+        ${sceneContext}
+        ${selectedContext}
+        
+        User Request: "${userMsg}"
+        
+        Respond with a JSON object if you need to perform actions, or text if just replying.
+        JSON Format: {"action": "create"|"modify"|"analyze", "type": "box"|"gear", "params": {...}}
+        If analyzing, just reply with text analysis.
+        `;
+    },
+
+    async send(msg) {
+        if (!this.key) {
+            addChatMessage("Please connect your API key first.", "error");
+            return;
+        }
+
+        addChatMessage(msg, 'user');
+        $('userInput').value = '';
+        
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        $('sendBtn').innerHTML = '';
+        $('sendBtn').appendChild(loader);
+        $('sendBtn').disabled = true;
+
+        const systemPrompt = this.buildPrompt(msg);
+        
+        try {
+            let responseText;
+            
+            if (this.provider === 'google') {
+                responseText = await this.callGoogle(systemPrompt);
+            } else if (this.provider === 'openai') {
+                responseText = await this.callOpenAI(systemPrompt);
+            } else if (this.provider === 'anthropic') {
+                responseText = await this.callAnthropic(systemPrompt);
+            }
+
+            // Handle Action
+            // Try to parse JSON if present
+            try {
+                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const data = JSON.parse(jsonMatch[0]);
+                    if (data.action === 'create') {
+                        addObject(data.type || 'box', data.params || {}, {x: Math.random()*5, y:0, z:Math.random()*5});
+                        responseText = `Created ${data.type} successfully.`;
+                    }
+                }
+            } catch (e) {
+                // Not JSON, just text
+            }
+
+            addChatMessage(responseText, 'assistant');
+
+        } catch (error) {
+            console.error(error);
+            addChatMessage(`Error: ${error.message}`, 'error');
+        } finally {
+            $('sendBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>';
+            $('sendBtn').disabled = false;
+        }
+    },
+
+    async callGoogle(prompt) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.key}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.candidates[0].content.parts[0].text;
+    },
+
+    async callOpenAI(prompt) {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.key}`
+            },
+            body: JSON.stringify({
+                model: this.model,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.choices[0].message.content;
+    },
+
+    async callAnthropic(prompt) {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': this.key,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: this.model,
+                max_tokens: 1024,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.content[0].text;
+    }
+};
+
+function addChatMessage(text, type) {
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    div.innerText = text;
+    $('chatMessages').appendChild(div);
+    $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+}
+
+// =========================================================
+// UI EVENTS
+// =========================================================
+
+function initUI() {
+    // Tool Buttons
+    $('toolSelect').onclick = () => { S.tool = 'select'; S.transformCtrl.detach(); };
+    $('toolMove').onclick = () => { S.tool = 'move'; if(S.selected) S.transformCtrl.attach(S.objects.get(S.selected)); S.transformCtrl.setMode('translate'); };
+    
+    // Add Objects
+    $('addCube').onclick = () => addObject('box', {width:2, height:2, depth:2});
+    $('addGear').onclick = () => addObject('gear', {teeth:20});
+    
+    // Header Actions
+    $('exportBtn').onclick = exportSTL;
+    $('analyzeBtn').onclick = () => {
+        if (!S.selected) return addChatMessage("Please select an object first.", "error");
+        const obj = S.objects.get(S.selected);
+        AI.send(`Analyze object: ${JSON.stringify(obj.userData.params)}`);
+    };
+
+    // API Config
+    $('providerSelect').onchange = (e) => {
+        AI.provider = e.target.value;
+        updateModelList();
+    };
+    
+    $('connectBtn').onclick = () => {
+        const key = $('apiKeyInput').value;
+        if (!key) return;
+        localStorage.setItem('cad_api_key', key);
+        localStorage.setItem('cad_api_provider', AI.provider);
+        localStorage.setItem('cad_api_model', AI.model);
+        AI.key = key;
+        $('statusText').innerText = 'Connected';
+        $('statusBadge').classList.add('connected');
+        $('keyStatus').innerText = 'Key Saved.';
+        $('apiConfigSection').style.background = 'rgba(16, 185, 129, 0.1)';
+    };
+
+    // Chat
+    $('sendBtn').onclick = () => {
+        const msg = $('userInput').value;
+        if (msg) AI.send(msg);
+    };
+    
+    $('userInput').onkeydown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            $('sendBtn').click();
+        }
+    };
+
+    // Quick Actions
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.onclick = () => AI.send(btn.dataset.msg);
+    });
+
+    // Init Models List
+    updateModelList();
+}
+
+function updateModelList() {
+    const select = $('modelSelect');
+    select.innerHTML = '';
+    const models = MODELS[AI.provider];
+    models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.innerText = m.label;
+        select.appendChild(opt);
+    });
+    AI.model = models[0].id;
+    select.onchange = () => { AI.model = select.value; };
+}
+
+function loadApiKey() {
+    const savedKey = localStorage.getItem('cad_api_key');
+    const savedProv = localStorage.getItem('cad_api_provider');
+    if (savedKey && savedProv) {
+        $('apiKeyInput').value = savedKey;
+        $('providerSelect').value = savedProv;
+        AI.provider = savedProv;
+        AI.key = savedKey;
+        updateModelList();
+        AI.model = localStorage.getItem('cad_api_model') || AI.model;
+        $('modelSelect').value = AI.model;
+        $('statusText').innerText = 'Connected';
+        $('statusBadge').classList.add('connected');
+        $('keyStatus').innerText = 'Loaded from storage.';
+        $('apiConfigSection').style.background = 'rgba(16, 185, 129, 0.1)';
+    }
+}
+
+function exportSTL() {
+    if (S.objects.size === 0) return alert("No objects to export");
+    
+    // Simple ASCII STL exporter
+    let stl = "solid cad\n";
+    S.objects.forEach(obj => {
+        const pos = obj.geometry.attributes.position;
+        // Basic triangulation (ignores index for simplicity in this demo)
+        // Note: A real exporter needs proper face handling
+        stl += `facet normal 0 0 0\n outer loop\n`;
+        for (let i=0; i<pos.count; i+=3) {
+            stl += `  vertex ${pos.getX(i)} ${pos.getY(i)} ${pos.getZ(i)}\n`;
+            stl += `  vertex ${pos.getX(i+1)} ${pos.getY(i+1)} ${pos.getZ(i+1)}\n`;
+            stl += `  vertex ${pos.getX(i+2)} ${pos.getY(i+2)} ${pos.getZ(i+2)}\n`;
+        }
+        stl += ` endloop\nendfacet\n`;
+    });
+    stl += "endsolid cad";
+
+    const blob = new Blob([stl], {type: 'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "model.stl";
+    a.click();
+}
+
+// Start App
+window.onload = init;
+
+</script>
+</body>
+</html>

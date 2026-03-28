@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XIOM NUCLEAR SUITE v4.0 — ENG_ALAA MOHAMMED</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+  --navy: #0a1628;
+  --navy2: #0d1f3c;
+  --navy3: #112244;
+  --amber: #ff8c00;
+  --amber2: #ffa733;
+  --yellow: #ffd700;
+  --green: #00ff88;
+  --red: #ff2244;
+  --cyan: #00e5ff;
+  --blue: #1a6fff;
+  --panel: rgba(10,22,40,0.92);
+  --border: rgba(255,140,0,0.3);
+  --text: #c8d8f0;
+  --mono: 'Share Tech Mono', monospace;
+  --display: 'Orbitron', sans-serif;
+  --body: 'Rajdhani', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--body);
+  overflow: hidden;
+  width: 100vw; height: 100vh;
+  user-select: none;
+}
+
+/* ── CLASSIFICATION BANNER ── */
+#classification-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: repeating-linear-gradient(90deg, #ff000022 0, #ff000022 1px, transparent 1px, transparent 40px),
+              linear-gradient(90deg, #1a0000, #330000, #1a0000);
+  border-bottom: 1px solid #ff2244aa;
+  padding: 3px 12px;
+  font-family: var(--mono); font-size: 10px;
+  color: #ff6677; letter-spacing: 2px; text-align: center;
+}
+
+/* ── HEADER ── */
+#header {
+  position: fixed; top: 22px; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  height: 48px;
+  background: linear-gradient(90deg, rgba(10,22,40,0.98), rgba(17,34,68,0.95), rgba(10,22,40,0.98));
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+#logo {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-shadow: 0 0 20px var(--amber), 0 0 40px rgba(255,140,0,0.4);
+}
+#logo span { color: var(--yellow); }
+
+#header-status {
+  display: flex; gap: 16px; align-items: center;
+}
+
+.status-pill {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 2px;
+  border: 1px solid currentColor;
+}
+.status-pill.green { color: var(--green); border-color: var(--green); background: rgba(0,255,136,0.08); }
+.status-pill.amber { color: var(--amber); border-color: var(--amber); background: rgba(255,140,0,0.08); }
+.status-pill.red { color: var(--red); border-color: var(--red); background: rgba(255,34,68,0.08); animation: blink 0.5s infinite; }
+.status-pill.cyan { color: var(--cyan); border-color: var(--cyan); background: rgba(0,229,255,0.08); }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+#clock {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--cyan); letter-spacing: 2px;
+}
+
+/* ── CANVAS ── */
+#three-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+/* ── LEFT PANEL — SYSTEM STATUS ── */
+#left-panel {
+  position: fixed; top: 70px; left: 8px; bottom: 8px;
+  width: 220px; z-index: 100;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+
+.panel-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  padding: 8px 10px;
+  backdrop-filter: blur(6px);
+}
+
+.panel-title {
+  font-family: var(--display);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 2px; color: var(--amber);
+  margin-bottom: 6px; text-transform: uppercase;
+}
+
+.data-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2px 0; border-bottom: 1px solid rgba(255,140,0,0.08);
+  font-size: 11px;
+}
+.data-label { color: rgba(200,216,240,0.6); font-family: var(--body); font-weight: 300; }
+.data-value { font-family: var(--mono); font-size: 12px; color: var(--cyan); }
+.data-value.ok { color: var(--green); }
+.data-value.warn { color: var(--yellow); }
+.data-value.alarm { color: var(--red); animation: blink 0.8s infinite; }
+
+/* Power bar */
+.power-bar-wrap { margin: 6px 0; }
+.power-bar-track {
+  height: 8px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,140,0,0.2); border-radius: 1px;
+  overflow: hidden;
+}
+.power-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--cyan), var(--green), var(--yellow), var(--amber), var(--red));
+  transition: width 0.3s;
+}
+
+/* ── RIGHT PANEL — CONTROLS ── */
+#right-panel {
+  position: fixed; top: 70px; right: 8px; bottom: 8px;
+  width: 230px; z-index: 100;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+
+.ctrl-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-right: 3px solid var(--amber);
+  padding: 8px 10px;
+  backdrop-filter: blur(6px);
+}
+
+.ctrl-title {
+  font-family: var(--display);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 2px; color: var(--amber);
+  margin-bottom: 8px; text-transform: uppercase;
+}
+
+.ctrl-label {
+  font-size: 10px; color: rgba(200,216,240,0.6);
+  letter-spacing: 1px; font-family: var(--body);
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 3px;
+}
+.ctrl-label span { font-family: var(--mono); color: var(--cyan); font-size: 11px; }
+
+input[type=range] {
+  width: 100%; height: 4px; margin-bottom: 8px;
+  -webkit-appearance: none;
+  background: rgba(255,140,0,0.15);
+  border-radius: 2px; outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: var(--amber); border-radius: 1px;
+  box-shadow: 0 0 8px var(--amber);
+}
+
+/* Buttons */
+.btn {
+  font-family: var(--display); font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; padding: 7px 10px;
+  border: 1px solid var(--border); background: rgba(255,140,0,0.08);
+  color: var(--amber); cursor: pointer; width: 100%;
+  text-transform: uppercase; margin-bottom: 4px;
+  transition: all 0.15s;
+}
+.btn:hover { background: rgba(255,140,0,0.2); border-color: var(--amber); }
+.btn.scram {
+  border-color: var(--red); color: var(--red);
+  background: rgba(255,34,68,0.08);
+  font-size: 13px; padding: 10px;
+}
+.btn.scram:hover { background: rgba(255,34,68,0.3); }
+.btn.active { background: rgba(0,255,136,0.15); border-color: var(--green); color: var(--green); }
+
+/* ── BOTTOM — CORE MAP + INSTRUMENTS ── */
+#bottom-panel {
+  position: fixed; bottom: 8px; left: 236px; right: 246px; z-index: 100;
+  display: flex; gap: 6px;
+}
+
+#core-map-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--amber);
+  padding: 8px;
+  backdrop-filter: blur(6px);
+  flex: 0 0 auto;
+}
+
+#core-canvas {
+  display: block; cursor: crosshair;
+  image-rendering: pixelated;
+}
+
+#instruments-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--cyan);
+  padding: 8px 10px;
+  backdrop-filter: blur(6px);
+  flex: 1;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;
+}
+
+.instrument {
+  text-align: center;
+}
+.inst-title { font-family: var(--mono); font-size: 9px; color: var(--amber); letter-spacing: 1px; }
+.inst-value { font-family: var(--display); font-size: 16px; font-weight: 700; margin: 2px 0; }
+.inst-unit { font-size: 9px; color: rgba(200,216,240,0.5); }
+.inst-value.ok { color: var(--green); text-shadow: 0 0 10px var(--green); }
+.inst-value.warn { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
+.inst-value.alarm { color: var(--red); text-shadow: 0 0 10px var(--red); animation: blink 0.8s infinite; }
+
+/* ── P&ID OVERLAY ── */
+#pid-overlay {
+  position: fixed; top: 70px; left: 0; right: 0; bottom: 0;
+  z-index: 50; pointer-events: none;
+  opacity: 0; transition: opacity 0.4s;
+}
+#pid-overlay.visible { opacity: 1; pointer-events: all; }
+#pid-svg { width: 100%; height: 100%; }
+
+/* ── ALARM PANEL ── */
+#alarm-panel {
+  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+  z-index: 900; width: 400px;
+  display: none; flex-direction: column; gap: 4px;
+}
+#alarm-panel.active { display: flex; }
+
+.alarm-item {
+  background: rgba(20,0,0,0.95); border: 1px solid var(--red);
+  border-left: 4px solid var(--red);
+  padding: 6px 10px; font-family: var(--mono); font-size: 11px;
+  color: #ff8888; letter-spacing: 1px;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from{transform:translateX(-20px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ── MELTDOWN OVERLAY ── */
+#meltdown-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(20,0,0,0);
+  display: none; align-items: center; justify-content: center;
+  transition: background 2s;
+  flex-direction: column; gap: 20px;
+}
+#meltdown-overlay.active {
+  display: flex;
+  background: rgba(20,0,0,0.85);
+}
+
+#meltdown-box {
+  border: 2px solid var(--red); padding: 30px 50px;
+  text-align: center; background: rgba(0,0,0,0.9);
+  animation: pulse-red 1s infinite;
+}
+@keyframes pulse-red { 0%,100%{box-shadow:0 0 20px var(--red)} 50%{box-shadow:0 0 60px var(--red),0 0 120px rgba(255,34,68,0.5)} }
+
+#meltdown-title {
+  font-family: var(--display); font-size: 28px; font-weight: 900;
+  color: var(--red); letter-spacing: 6px;
+  text-shadow: 0 0 30px var(--red);
+}
+#meltdown-sub { font-family: var(--mono); font-size: 13px; color: #ff8888; margin-top: 10px; letter-spacing: 2px; }
+#meltdown-reset {
+  font-family: var(--display); font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; padding: 12px 30px;
+  border: 1px solid var(--amber); background: rgba(255,140,0,0.1);
+  color: var(--amber); cursor: pointer; text-transform: uppercase;
+}
+
+/* ── DOSE MAP ── */
+#dose-map {
+  position: fixed; right: 246px; top: 70px;
+  width: 140px; background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 8px; z-index: 100;
+  backdrop-filter: blur(6px);
+  display: none;
+}
+#dose-map.visible { display: block; }
+.dose-title { font-family: var(--display); font-size: 9px; color: var(--amber); letter-spacing: 1px; margin-bottom: 6px; }
+.dose-node {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2px 0; border-bottom: 1px solid rgba(255,140,0,0.08);
+  font-size: 9px;
+}
+.dose-loc { color: rgba(200,216,240,0.5); font-family: var(--body); }
+.dose-val { font-family: var(--mono); font-size: 10px; }
+
+/* ── FOOTER ── */
+#footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  height: 18px; background: rgba(10,22,40,0.98);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px; font-family: var(--mono); font-size: 9px; color: var(--amber);
+  letter-spacing: 1px;
+}
+
+/* ── TOOLTIP ── */
+#tooltip {
+  position: fixed; z-index: 9998;
+  background: rgba(10,22,40,0.97); border: 1px solid var(--amber);
+  padding: 6px 10px; font-family: var(--mono); font-size: 10px;
+  color: var(--cyan); pointer-events: none;
+  display: none; max-width: 200px;
+}
+
+/* ── VIEW TOGGLE ── */
+#view-toggle {
+  position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
+  z-index: 200; display: flex; gap: 2px;
+}
+.view-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  padding: 4px 10px; border: 1px solid var(--border);
+  background: rgba(10,22,40,0.9); color: rgba(200,216,240,0.5);
+  cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+}
+.view-btn.active {
+  background: rgba(255,140,0,0.15); border-color: var(--amber); color: var(--amber);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: rgba(255,140,0,0.05); }
+::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.3); }
+
+/* SCRAM flash */
+@keyframes scram-flash {
+  0%,100%{background:rgba(255,34,68,0)} 50%{background:rgba(255,34,68,0.15)}
+}
+body.scram-active { animation: scram-flash 0.5s 6; }
+
+/* Watermark */
+#watermark {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-35deg);
+  font-family: var(--display); font-size: 22px; font-weight: 900;
+  color: rgba(255,140,0,0.04); letter-spacing: 6px; pointer-events: none; z-index: 1;
+  white-space: nowrap; text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- CLASSIFICATION BANNER -->
+<div id="classification-banner">
+  ⬛ FOR ENGINEERING SIMULATION USE ONLY — NOT FOR SAFETY ANALYSIS — XIOM NUCLEAR SUITE v4.0 — UNCLASSIFIED / ENGINEERING ⬛
+</div>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="logo">XIOM <span>⚛</span> NUCLEAR SUITE <span style="font-size:11px;color:var(--text);opacity:0.6">v4.0</span></div>
+  <div id="header-status">
+    <div class="status-pill cyan">PWR-4L · AP1000 REF</div>
+    <div class="status-pill green" id="mode-pill">SUB-CRITICAL</div>
+    <div class="status-pill amber" id="eccs-pill">ECCS STANDBY</div>
+    <div id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- WATERMARK -->
+<div id="watermark">ENG_ALAA MOHAMMED · XIOM NUCLEAR DIVISION</div>
+
+<!-- VIEW TOGGLE -->
+<div id="view-toggle">
+  <button class="view-btn active" onclick="setView('3D')">3D PLANT</button>
+  <button class="view-btn" onclick="setView('PID')">P&amp;ID</button>
+  <button class="view-btn" onclick="setView('DOSE')">DOSE MAP</button>
+</div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="three-canvas"></canvas>
+
+<!-- P&ID OVERLAY -->
+<div id="pid-overlay">
+  <svg id="pid-svg" viewBox="0 0 1920 960" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<!-- LEFT PANEL -->
+<div id="left-panel">
+  <!-- Reactor Core -->
+  <div class="panel-card">
+    <div class="panel-title">⬢ REACTOR CORE</div>
+    <div class="data-row"><span class="data-label">Mode</span><span class="data-value" id="mode-disp">SUB-CRITICAL</span></div>
+    <div class="data-row"><span class="data-label">Thermal Power</span><span class="data-value" id="power-disp">0.0 MWt</span></div>
+    <div class="power-bar-wrap"><div class="power-bar-track"><div class="power-bar-fill" id="power-bar"></div></div></div>
+    <div class="data-row"><span class="data-label">keff</span><span class="data-value" id="keff-disp">0.9850</span></div>
+    <div class="data-row"><span class="data-label">Reactivity ρ</span><span class="data-value" id="rho-disp">-1500 pcm</span></div>
+    <div class="data-row"><span class="data-label">Xe-135 Worth</span><span class="data-value warn">-2800 pcm</span></div>
+    <div class="data-row"><span class="data-label">Fuel Assemblies</span><span class="data-value ok">193</span></div>
+  </div>
+  <!-- RCS -->
+  <div class="panel-card">
+    <div class="panel-title">◈ PRIMARY LOOP (RCS)</div>
+    <div class="data-row"><span class="data-label">RCS Pressure</span><span class="data-value ok" id="rcs-p">155.1 bar</span></div>
+    <div class="data-row"><span class="data-label">T-cold (avg)</span><span class="data-value ok" id="t-cold">292.0 °C</span></div>
+    <div class="data-row"><span class="data-label">T-hot (avg)</span><span class="data-value ok" id="t-hot">325.0 °C</span></div>
+    <div class="data-row"><span class="data-label">Flow Rate</span><span class="data-value ok">70,900 m³/hr</span></div>
+    <div class="data-row"><span class="data-label">Boron Conc.</span><span class="data-value ok" id="boron-disp">1200 ppm</span></div>
+    <div class="data-row"><span class="data-label">PZR Level</span><span class="data-value ok" id="pzr-lvl">62.4 %</span></div>
+  </div>
+  <!-- Safety Systems -->
+  <div class="panel-card">
+    <div class="panel-title">⚡ SAFETY SYSTEMS</div>
+    <div class="data-row"><span class="data-label">DNBR</span><span class="data-value ok" id="dnbr-disp">≥ 1.30</span></div>
+    <div class="data-row"><span class="data-label">ECCS Status</span><span class="data-value ok" id="eccs-disp">STANDBY</span></div>
+    <div class="data-row"><span class="data-label">HPSI Pumps</span><span class="data-value ok">4/4 OPERABLE</span></div>
+    <div class="data-row"><span class="data-label">RWST Level</span><span class="data-value ok">100.0 %</span></div>
+    <div class="data-row"><span class="data-label">Accumulators</span><span class="data-value ok">4/4 CHARGED</span></div>
+    <div class="data-row"><span class="data-label">Containment P</span><span class="data-value ok" id="cont-p">1.013 bar</span></div>
+  </div>
+  <!-- Secondary -->
+  <div class="panel-card">
+    <div class="panel-title">♨ SECONDARY / BOP</div>
+    <div class="data-row"><span class="data-label">SG1 Level</span><span class="data-value ok" id="sg1-lvl">68.2 %</span></div>
+    <div class="data-row"><span class="data-label">Steam Press.</span><span class="data-value ok" id="steam-p">72.4 bar</span></div>
+    <div class="data-row"><span class="data-label">Turbine Load</span><span class="data-value" id="turb-load">0 MWe</span></div>
+    <div class="data-row"><span class="data-label">Condenser Vac.</span><span class="data-value ok">0.092 bar</span></div>
+    <div class="data-row"><span class="data-label">FW Flow</span><span class="data-value ok" id="fw-flow">0 t/hr</span></div>
+  </div>
+  <!-- Decay Heat -->
+  <div class="panel-card">
+    <div class="panel-title">☢ DECAY HEAT</div>
+    <div class="data-row"><span class="data-label">Post-SCRAM t</span><span class="data-value" id="decay-t">N/A</span></div>
+    <div class="data-row"><span class="data-label">Decay Power</span><span class="data-value" id="decay-p">0.0 MWt</span></div>
+    <div class="data-row"><span class="data-label">RHR Status</span><span class="data-value warn" id="rhr-status">NOT ALIGNED</span></div>
+    <div class="data-row"><span class="data-label">SFP Temp.</span><span class="data-value ok">34.2 °C</span></div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL — CONTROLS -->
+<div id="right-panel">
+  <div class="ctrl-section">
+    <div class="ctrl-title">🎛 REACTOR CONTROL</div>
+
+    <div class="ctrl-label">CONTROL ROD POSITION <span id="rod-val">0 steps</span></div>
+    <input type="range" id="rod-ctrl" min="0" max="228" value="0" oninput="updateRods(this.value)">
+
+    <div class="ctrl-label">BORON CONC. (ppm) <span id="boron-val">1200</span></div>
+    <input type="range" id="boron-ctrl" min="0" max="4000" value="1200" oninput="updateBoron(this.value)">
+
+    <div class="ctrl-label">POWER DEMAND (%) <span id="demand-val">0</span></div>
+    <input type="range" id="demand-ctrl" min="0" max="100" value="0" oninput="updateDemand(this.value)">
+  </div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-title">⚙ PLANT OPERATIONS</div>
+    <button class="btn" onclick="startReactor()">▶ STARTUP REACTOR</button>
+    <button class="btn" onclick="rampPower(100)">⬆ RAMP TO 100% FP</button>
+    <button class="btn" onclick="rampPower(50)">⬇ RAMP TO 50% FP</button>
+    <button class="btn" onclick="initiateHotStandby()">◉ HOT STANDBY</button>
+    <button class="btn scram" onclick="initiateSCRAM('MANUAL')">☢ MANUAL SCRAM</button>
+  </div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-title">🔬 SIMULATION EVENTS</div>
+    <button class="btn" onclick="triggerLOCA()">⚠ TRIGGER LOCA</button>
+    <button class="btn" onclick="triggerControlRodEjection()">⚠ ROD EJECTION</button>
+    <button class="btn" onclick="triggerLOFW()">⚠ LOSS OF FW</button>
+    <button class="btn" id="transient-btn" onclick="triggerTransient()">⚠ REACTIVITY TRANS.</button>
+  </div>
+
+  <div class="ctrl-section">
+    <div class="ctrl-title">👁 VIEW OPTIONS</div>
+    <button class="btn" id="clip-btn" onclick="toggleClipPlane()">✂ SLICE CONTAINMENT</button>
+    <button class="btn" id="glow-btn" onclick="toggleCherenkov()" >☯ CHERENKOV GLOW</button>
+    <button class="btn" id="wire-btn" onclick="toggleWireframe()">⬡ WIREFRAME MODE</button>
+    <button class="btn" id="rpm-btn" onclick="toggleRCPRotation()">↻ RCP ROTATION</button>
+    <button class="btn" onclick="setCameraView('iso')">📷 ISOMETRIC VIEW</button>
+    <button class="btn" onclick="setCameraView('top')">📷 TOP-DOWN VIEW</button>
+    <button class="btn" onclick="setCameraView('section')">📷 SECTION CUT</button>
+  </div>
+
+  <!-- Trip Log -->
+  <div class="ctrl-section">
+    <div class="ctrl-title">📋 TRIP LOG</div>
+    <div id="trip-log" style="font-family:var(--mono);font-size:9px;color:rgba(200,216,240,0.6);max-height:80px;overflow-y:auto;line-height:1.6">
+      <div>System initialized — waiting...</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM PANEL -->
+<div id="bottom-panel">
+  <!-- Core Map -->
+  <div id="core-map-card">
+    <div class="panel-title" style="margin-bottom:4px">⬡ REACTOR CORE MAP — 193 FA · 17×17 PWR</div>
+    <canvas id="core-canvas" width="200" height="200" title="Click assembly for details"></canvas>
+    <div id="fa-info" style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-top:3px;height:14px">Hover assembly for data</div>
+  </div>
+  <!-- Instruments -->
+  <div id="instruments-card">
+    <div class="instrument">
+      <div class="inst-title">NI-POWER</div>
+      <div class="inst-value ok" id="ni-power">0.00</div>
+      <div class="inst-unit">% RATED</div>
+    </div>
+    <div class="instrument">
+      <div class="inst-title">T-FUEL CL</div>
+      <div class="inst-value ok" id="t-fuel">900</div>
+      <div class="inst-unit">°C</div>
+    </div>
+    <div class="instrument">
+      <div class="inst-title">DNBR MIN</div>
+      <div class="inst-value ok" id="dnbr-inst">∞</div>
+      <div class="inst-unit">LIMIT 1.30</div>
+    </div>
+    <div class="instrument">
+      <div class="inst-title">PZR PRESS</div>
+      <div class="inst-value ok" id="pzr-press">155.1</div>
+      <div class="inst-unit">BAR</div>
+    </div>
+    <div class="instrument">
+      <div class="inst-title">ΔT LOOP</div>
+      <div class="inst-value ok" id="dt-loop">33.0</div>
+      <div class="inst-unit">°C</div>
+    </div>
+    <div class="instrument">
+      <div class="inst-title">SCRAM T</div>
+      <div class="inst-value" id="scram-time">---</div>
+      <div class="inst-unit">SEC POST-TRIP</div>
+    </div>
+  </div>
+</div>
+
+<!-- ALARM PANEL -->
+<div id="alarm-panel"></div>
+
+<!-- DOSE MAP OVERLAY -->
+<div id="dose-map">
+  <div class="dose-title">☢ DOSE RATE MONITOR</div>
+  <div id="dose-nodes"></div>
+</div>
+
+<!-- MELTDOWN OVERLAY -->
+<div id="meltdown-overlay">
+  <div id="meltdown-box">
+    <div id="meltdown-title">⚠ CONTAINMENT ISOLATION</div>
+    <div id="meltdown-sub">SEVERE ACCIDENT MANAGEMENT PROTOCOL ACTIVE<br>FUEL DAMAGE CONFIRMED — ALL CIVs CLOSED<br>EMERGENCY RESPONSE ORGANIZATION NOTIFIED</div>
+  </div>
+  <div style="font-family:var(--mono);font-size:11px;color:#ff8888;text-align:center;">
+    SYSTEM LOCKED — MULTI-STEP OPERATOR RESET REQUIRED
+  </div>
+  <div style="display:flex;gap:10px">
+    <input id="reset-code" placeholder="ENTER AUTH CODE: XIOM-RESET" 
+           style="font-family:var(--mono);font-size:11px;padding:8px 12px;background:rgba(0,0,0,0.7);
+                  border:1px solid var(--amber);color:var(--amber);width:240px;letter-spacing:2px">
+    <button id="meltdown-reset" onclick="attemptReset()">CONFIRM RESET</button>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<!-- FOOTER -->
+<div id="footer">
+  <span>ENG_ALAA MOHAMMED | NUCLEAR DIVISION | XIOM ENGINEERING</span>
+  <span id="fps-counter">60 FPS | PHYSICS: 60Hz</span>
+  <span>XIOM NUCLEAR SUITE v4.0 | AP1000 REFERENCE DESIGN | NOT FOR SAFETY ANALYSIS</span>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  XIOM NUCLEAR SUITE v4.0
+//  ENG_ALAA MOHAMMED | NUCLEAR DIVISION
+// ═══════════════════════════════════════════════════════════
+
+// ── PLANT STATE ──────────────────────────────────────────
+const PlantState = {
+  mode: 'sub-critical',
+  power_pct: 0,
+  power_MWt: 0,
+  keff: 0.985,
+  reactivity_pcm: -1500,
+  rod_position: 0,        // 0-228 steps
+  boron_ppm: 1200,
+  RCS_pressure: 155.1,
+  T_cold: 292.0,
+  T_hot: 325.0,
+  T_fuel: 900,
+  DNBR: 99.9,
+  pzr_level: 62.4,
+  pzr_pressure: 155.1,
+  steam_pressure: 72.4,
+  sg_level: 68.2,
+  cont_pressure: 1.013,
+  ECCS_active: false,
+  RHR_active: false,
+  scram: false,
+  scram_time: 0,
+  meltdown: false,
+  meltdown_confirmed: false,
+  rod_insertion_pct: 0,   // 0=full out, 100=fully inserted
+  CIV_open: true,
+  loca_active: false,
+  transient_active: false,
+  xenon_worth: -2800,
+  decay_time: 0,
+  decay_power: 0,
+  reset_step: 0,
+};
+
+// ── NEUTRONICS (6-GROUP POINT KINETICS) ─────────────────
+const NK = {
+  beta_groups: [0.000215,0.001424,0.001274,0.002568,0.000748,0.000273],
+  lambda:      [0.0124, 0.0305,  0.111,   0.301,   1.14,    3.01],
+  beta_total:  0.0065,
+  Lambda:      2.0e-5,
+  C: new Array(6).fill(0),
+  P: 0.0,
+  t: 0,
+
+  init() {
+    // Initialize precursor concentrations at steady state
+    for(let i=0;i<6;i++) this.C[i] = this.beta_groups[i]*this.P/(this.lambda[i]*this.Lambda);
+  },
+
+  // RK4 step
+  step(dt, rho_ext) {
+    const rho = rho_ext*1e-5 + this.dopplerFeedback() + this.moderatorFeedback();
+    const f = (P, C, rho) => {
+      const dP = ((rho - this.beta_total)/this.Lambda)*P + C.reduce((s,c,i)=>s+this.lambda[i]*c,0);
+      const dC = C.map((c,i)=>(this.beta_groups[i]/this.Lambda)*P - this.lambda[i]*c);
+      return {dP, dC};
+    };
+    const {dP:k1P, dC:k1C} = f(this.P, this.C, rho);
+    const {dP:k2P, dC:k2C} = f(this.P+0.5*dt*k1P, this.C.map((c,i)=>c+0.5*dt*k1C[i]), rho);
+    const {dP:k3P, dC:k3C} = f(this.P+0.5*dt*k2P, this.C.map((c,i)=>c+0.5*dt*k2C[i]), rho);
+    const {dP:k4P, dC:k4C} = f(this.P+dt*k3P, this.C.map((c,i)=>c+dt*k3C[i]), rho);
+    this.P = Math.max(0, this.P + (dt/6)*(k1P+2*k2P+2*k3P+k4P));
+    this.C = this.C.map((c,i)=>Math.max(0, c + (dt/6)*(k1C[i]+2*k2C[i]+2*k3C[i]+k4C[i])));
+    this.t += dt;
+    return this.P;
+  },
+
+  dopplerFeedback() {
+    // α_D ≈ -3.8 pcm/°C → in Δk/k
+    return -3.8e-5*(PlantState.T_fuel - 900)/1;
+  },
+
+  moderatorFeedback() {
+    // MTC ≈ -5 pcm/°C for typical PWR
+    return -5e-5*(PlantState.T_cold - 292)/1;
+  }
+};
+
+// ── ANS-5.1 DECAY HEAT ──────────────────────────────────
+function decayHeat(t, P0, T_op=1e7) {
+  if(t<=0) return 0;
+  return P0 * 0.066*(Math.pow(t,-0.2) - Math.pow(t+T_op,-0.2));
+}
+
+// ── THREE.JS SCENE ───────────────────────────────────────
+let scene, camera, renderer, clock;
+let rpvGroup, containmentGroup, primaryLoopGroup;
+let loopGroups=[], crdmGroup, fuelMesh;
+let pipeLines=[];
+let cherenkovMesh, cherenkovMat;
+let clipPlaneEnabled=false, wireframeMode=false, rcpRotating=true;
+let cherenkovEnabled=true;
+let animReq;
+let fpsSamples=[], lastFPSTime=performance.now(), frameCount=0;
+let rcpAngle=0;
+let cameraMode='iso';
+
+// Target reactivity from rod + boron
+let target_reactivity_pcm = -1500;
+let target_power_pct = 0;
+let current_power_pct = 0;
+let scram_timestamp = 0;
+
+// Alarm queue
+let alarms = [];
+let meltdown_phase = 0;
+
+function initThree() {
+  const canvas = document.getElementById('three-canvas');
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060e1a);
+  scene.fog = new THREE.FogExp2(0x060e1a, 0.008);
+
+  clock = new THREE.Clock();
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 2000);
+  setCameraView('iso');
+
+  // Lighting
+  const ambient = new THREE.AmbientLight(0x1a2a3a, 0.8);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xfff5e0, 1.4);
+  sun.position.set(80,150,80);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.near=1; sun.shadow.camera.far=500;
+  sun.shadow.camera.left=-100; sun.shadow.camera.right=100;
+  sun.shadow.camera.top=100; sun.shadow.camera.bottom=-100;
+  scene.add(sun);
+
+  const fill = new THREE.DirectionalLight(0x4488ff, 0.4);
+  fill.position.set(-60,40,-60);
+  scene.add(fill);
+
+  const ground_light = new THREE.PointLight(0xff8800, 0.3, 200);
+  ground_light.position.set(0, -20, 0);
+  scene.add(ground_light);
+
+  // Ground plane
+  const groundGeo = new THREE.PlaneGeometry(600,600,30,30);
+  const groundMat = new THREE.MeshLambertMaterial({
+    color: 0x0a1a10, wireframe: false
+  });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.position.y = -2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Grid
+  const grid = new THREE.GridHelper(400,80,0x1a3020,0x0d1f15);
+  grid.position.y = -1.9;
+  scene.add(grid);
+
+  buildPlant();
+
+  window.addEventListener('resize', onResize);
+  canvas.addEventListener('mousemove', onMouseMove);
+
+  // Orbital controls (manual)
+  setupOrbitControls(canvas);
+}
+
+// ── ORBIT CONTROLS (manual, lightweight) ────────────────
+let orbit = { theta: 0.7, phi: 1.0, r: 180, target: new THREE.Vector3(0,20,0),
+              dragging: false, lastX:0, lastY:0 };
+
+function setupOrbitControls(canvas) {
+  canvas.addEventListener('mousedown', e=>{
+    orbit.dragging=true; orbit.lastX=e.clientX; orbit.lastY=e.clientY;
+  });
+  window.addEventListener('mouseup',()=>orbit.dragging=false);
+  window.addEventListener('mousemove', e=>{
+    if(!orbit.dragging) return;
+    const dx=e.clientX-orbit.lastX, dy=e.clientY-orbit.lastY;
+    orbit.theta -= dx*0.005; orbit.phi -= dy*0.005;
+    orbit.phi = Math.max(0.1, Math.min(1.5, orbit.phi));
+    orbit.lastX=e.clientX; orbit.lastY=e.clientY;
+    applyOrbit();
+  });
+  canvas.addEventListener('wheel', e=>{
+    orbit.r = Math.max(20, Math.min(400, orbit.r+e.deltaY*0.1));
+    applyOrbit(); e.preventDefault();
+  },{passive:false});
+}
+
+function applyOrbit() {
+  const x = orbit.r*Math.sin(orbit.phi)*Math.sin(orbit.theta);
+  const y = orbit.r*Math.cos(orbit.phi);
+  const z = orbit.r*Math.sin(orbit.phi)*Math.cos(orbit.theta);
+  camera.position.set(orbit.target.x+x, orbit.target.y+y, orbit.target.z+z);
+  camera.lookAt(orbit.target);
+}
+
+function setCameraView(mode) {
+  cameraMode = mode;
+  if(mode==='iso') {
+    orbit.theta=0.7; orbit.phi=1.0; orbit.r=180;
+    orbit.target.set(0,20,0);
+  } else if(mode==='top') {
+    orbit.theta=0; orbit.phi=0.15; orbit.r=160;
+    orbit.target.set(0,0,0);
+  } else if(mode==='section') {
+    orbit.theta=Math.PI/2; orbit.phi=0.85; orbit.r=100;
+    orbit.target.set(0,25,0);
+  }
+  applyOrbit();
+}
+
+// ── MATERIALS ────────────────────────────────────────────
+function makeMat(color, metalness=0.7, roughness=0.3, emissive=0x000000, emissiveInt=0) {
+  return new THREE.MeshStandardMaterial({color, metalness, roughness, emissive, emissiveIntensity:emissiveInt});
+}
+
+const MATS = {
+  rpv:       makeMat(0x3a4a60, 0.9, 0.2),
+  rpvHot:    makeMat(0x5a3010, 0.8, 0.3, 0xff4400, 0.15),
+  steel:     makeMat(0x708090, 0.85, 0.25),
+  concrete:  makeMat(0x8a8070, 0.0, 0.95),
+  pipe_hot:  makeMat(0x8a4030, 0.75, 0.3),
+  pipe_cold: makeMat(0x304060, 0.75, 0.25),
+  sg:        makeMat(0x6070a0, 0.8, 0.3),
+  rcp:       makeMat(0x4a5a7a, 0.85, 0.2),
+  pzr:       makeMat(0x7a6050, 0.8, 0.35, 0xff6600, 0.05),
+  eccs:      makeMat(0x2a5a3a, 0.7, 0.4),
+  fuel:      makeMat(0x004488, 0.3, 0.7, 0x0044ff, 0.0),
+  turbine:   makeMat(0x5a6a7a, 0.8, 0.3),
+  tower:     makeMat(0x909090, 0.1, 0.9),
+  ground:    makeMat(0x2a3a2a, 0.0, 0.95),
+  amber:     makeMat(0xff8c00, 0.3, 0.5, 0xff8c00, 0.5),
+  glow:      new THREE.MeshBasicMaterial({color:0x0055ff, transparent:true, opacity:0.4}),
+};
+
+// ── BUILD PLANT ──────────────────────────────────────────
+function buildPlant() {
+  buildContainment();
+  buildRPV();
+  buildPrimaryLoops();
+  buildPressurizer();
+  buildECCS();
+  buildSecondaryBuilding();
+  buildCoolingTowers();
+  buildAuxBuilding();
+  buildCherenkovCore();
+  buildSiteStructures();
+}
+
+// ── CONTAINMENT BUILDING ─────────────────────────────────
+function buildContainment() {
+  containmentGroup = new THREE.Group();
+
+  // Outer shell (65m inner dia, 75m height to springline)
+  // Scale: 1 unit = 1 meter
+  const R_outer = 33.0; // m (inner 32.5 + 0.5m liner)
+  const H = 75;
+
+  // Cylindrical base
+  const cylGeo = new THREE.CylinderGeometry(R_outer+0.9, R_outer+0.9, H*0.85, 64, 1, true);
+  const cylMat = new THREE.MeshStandardMaterial({
+    color: 0x9a9080, roughness:0.85, metalness:0.05,
+    side: THREE.DoubleSide, transparent:true, opacity:0.55,
+    wireframe: false
+  });
+  const cyl = new THREE.Mesh(cylGeo, cylMat);
+  cyl.position.y = H*0.85/2;
+  containmentGroup.add(cyl);
+
+  // Dome
+  const domeGeo = new THREE.SphereGeometry(R_outer+0.9, 64, 32, 0, Math.PI*2, 0, Math.PI*0.5);
+  const dome = new THREE.Mesh(domeGeo, cylMat.clone());
+  dome.position.y = H*0.85;
+  containmentGroup.add(dome);
+
+  // Inner steel liner
+  const linerGeo = new THREE.CylinderGeometry(R_outer, R_outer, H*0.85, 64, 1, true);
+  const linerMat = new THREE.MeshStandardMaterial({
+    color: 0x607080, metalness:0.9, roughness:0.2, transparent:true, opacity:0.3,
+    side: THREE.BackSide
+  });
+  const liner = new THREE.Mesh(linerGeo, linerMat);
+  liner.position.y = H*0.85/2;
+  containmentGroup.add(liner);
+
+  // Equipment hatch (rectangular protrusion)
+  const hatchGeo = new THREE.BoxGeometry(8,8,4);
+  const hatch = new THREE.Mesh(hatchGeo, MATS.steel);
+  hatch.position.set(R_outer+2, 12, 0);
+  containmentGroup.add(hatch);
+
+  // Bioshield ring
+  const bsGeo = new THREE.CylinderGeometry(7, 7, 14, 48, 1, true);
+  const bsMat = new THREE.MeshStandardMaterial({color:0x7a7060, roughness:0.9, metalness:0.05});
+  const bs = new THREE.Mesh(bsGeo, bsMat);
+  bs.position.y = 7;
+  containmentGroup.add(bs);
+
+  // Polar crane ring
+  const craneRingGeo = new THREE.TorusGeometry(28, 0.8, 8, 64);
+  const craneRing = new THREE.Mesh(craneRingGeo, MATS.steel);
+  craneRing.rotation.x = Math.PI/2;
+  craneRing.position.y = 55;
+  containmentGroup.add(craneRing);
+
+  // Polar crane bridge
+  const craneBridgeGeo = new THREE.BoxGeometry(56, 1.5, 3);
+  const craneBridge = new THREE.Mesh(craneBridgeGeo, MATS.steel);
+  craneBridge.position.y = 55.5;
+  containmentGroup.add(craneBridge);
+
+  scene.add(containmentGroup);
+}
+
+// ── REACTOR PRESSURE VESSEL ──────────────────────────────
+function buildRPV() {
+  rpvGroup = new THREE.Group();
+
+  // AP1000 reference: height 12.03m, inner dia 3.988m → outer dia ~4.43m
+  const R_outer = 2.215;
+  const H_cyl = 8.0;
+  const wall = 0.22;
+
+  // Main barrel
+  const barrelGeo = new THREE.CylinderGeometry(R_outer, R_outer, H_cyl, 64, 1, true);
+  const barrel = new THREE.Mesh(barrelGeo, MATS.rpv);
+  barrel.position.y = H_cyl/2;
+  barrel.castShadow=true;
+  rpvGroup.add(barrel);
+
+  // Bottom head (hemisphere)
+  const botGeo = new THREE.SphereGeometry(R_outer, 64, 32, 0, Math.PI*2, 0, Math.PI/2);
+  const bot = new THREE.Mesh(botGeo, MATS.rpv);
+  bot.rotation.x = Math.PI;
+  bot.position.y = 0;
+  rpvGroup.add(bot);
+
+  // Upper flange (thicker ring)
+  const flangeGeo = new THREE.CylinderGeometry(R_outer+0.15, R_outer+0.05, 0.4, 64);
+  const flange = new THREE.Mesh(flangeGeo, MATS.steel);
+  flange.position.y = H_cyl+0.2;
+  rpvGroup.add(flange);
+
+  // Upper head (dome)
+  const upHeadGeo = new THREE.SphereGeometry(R_outer+0.05, 64, 32, 0, Math.PI*2, 0, Math.PI/2);
+  const upHead = new THREE.Mesh(upHeadGeo, MATS.rpv);
+  upHead.position.y = H_cyl+0.4;
+  rpvGroup.add(upHead);
+
+  // CRDM penetrations (69 — instanced, simplified)
+  const crdmGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8);
+  const crdmMat = new THREE.MeshStandardMaterial({color:0x334455, metalness:0.9, roughness:0.2});
+  crdmGroup = new THREE.InstancedMesh(crdmGeo, crdmMat, 69);
+  const dummy = new THREE.Object3D();
+  // Hex pattern on upper head
+  let idx=0;
+  for(let row=-4;row<=4;row++) {
+    for(let col=-4;col<=4;col++) {
+      if(idx>=69) break;
+      const x = col*0.28+(row%2)*0.14;
+      const z = row*0.28;
+      if(Math.sqrt(x*x+z*z)>1.6) continue;
+      dummy.position.set(x, H_cyl+0.4+R_outer*0.55, z);
+      dummy.updateMatrix();
+      crdmGroup.setMatrixAt(idx++, dummy.matrix);
+    }
+  }
+  crdmGroup.instanceMatrix.needsUpdate=true;
+  rpvGroup.add(crdmGroup);
+
+  // Nozzles (4-loop: 4 hot + 4 cold)
+  for(let i=0;i<4;i++) {
+    const angle = i*Math.PI/2;
+    // Hot leg nozzle (upper)
+    const hotNozzleGeo = new THREE.CylinderGeometry(0.38, 0.38, 1.5, 16);
+    const hotNozzle = new THREE.Mesh(hotNozzleGeo, MATS.pipe_hot);
+    hotNozzle.position.set(Math.cos(angle+0.15)*R_outer, H_cyl*0.65, Math.sin(angle+0.15)*R_outer);
+    hotNozzle.rotation.z = Math.PI/2+0.15;
+    hotNozzle.rotation.y = angle;
+    rpvGroup.add(hotNozzle);
+    // Cold leg nozzle (lower)
+    const coldNozzle = hotNozzle.clone();
+    coldNozzle.material = MATS.pipe_cold;
+    coldNozzle.position.set(Math.cos(angle-0.15)*R_outer, H_cyl*0.45, Math.sin(angle-0.15)*R_outer);
+    rpvGroup.add(coldNozzle);
+  }
+
+  // Core barrel (visible interior)
+  const coreBarrelGeo = new THREE.CylinderGeometry(1.75, 1.75, 3.66, 48, 1, true);
+  const coreBarrel = new THREE.Mesh(coreBarrelGeo, new THREE.MeshStandardMaterial({
+    color:0x334466, metalness:0.7, roughness:0.4, transparent:true, opacity:0.6, side:THREE.DoubleSide
+  }));
+  coreBarrel.position.y = 3.7;
+  rpvGroup.add(coreBarrel);
+
+  // Fuel assemblies — InstancedMesh (193)
+  const faGeo = new THREE.BoxGeometry(0.18, 3.65, 0.18);
+  const faMat = new THREE.MeshStandardMaterial({color:0x2266aa, metalness:0.4, roughness:0.6});
+  fuelMesh = new THREE.InstancedMesh(faGeo, faMat, 193);
+  fuelMesh.userData.faData = [];
+  let faIdx=0;
+  const dummy2 = new THREE.Object3D();
+  // 17×17 grid, circular fuel region
+  for(let row=0;row<17;row++) {
+    for(let col=0;col<17;col++) {
+      const x = (col-8)*0.205;
+      const z = (row-8)*0.205;
+      if(Math.sqrt(x*x+z*z)>1.65 || faIdx>=193) continue;
+      dummy2.position.set(x, 3.7, z);
+      dummy2.updateMatrix();
+      fuelMesh.setMatrixAt(faIdx, dummy2.matrix);
+      fuelMesh.userData.faData.push({row, col, burnup:Math.random()*15000, id:`FA-${faIdx+1}`});
+      faIdx++;
+    }
+  }
+  fuelMesh.instanceMatrix.needsUpdate=true;
+  rpvGroup.add(fuelMesh);
+
+  // Control rod guide tubes
+  const crgGeo = new THREE.CylinderGeometry(0.04, 0.04, 4.5, 6);
+  const crgMat = new THREE.MeshStandardMaterial({color:0x667788, metalness:0.8, roughness:0.3});
+  for(let i=0;i<12;i++) {
+    const angle = i/12*Math.PI*2;
+    const r = 0.8;
+    const crg = new THREE.Mesh(crgGeo, crgMat);
+    crg.position.set(Math.cos(angle)*r, 4.5, Math.sin(angle)*r);
+    rpvGroup.add(crg);
+  }
+
+  // Position RPV in plant
+  rpvGroup.position.set(0, 2, 0);
+  scene.add(rpvGroup);
+}
+
+// ── PRIMARY LOOPS (4×) ────────────────────────────────────
+function buildPrimaryLoops() {
+  primaryLoopGroup = new THREE.Group();
+
+  for(let i=0;i<4;i++) {
+    const loopAngle = i*Math.PI/2 + Math.PI/4;
+    const loopGroup = new THREE.Group();
+    loopGroups.push(loopGroup);
+
+    const R_loop = 22; // distance from center
+
+    // Steam Generator
+    const sgGroup = buildSteamGenerator();
+    sgGroup.position.set(Math.cos(loopAngle)*R_loop, 8, Math.sin(loopAngle)*R_loop);
+    sgGroup.rotation.y = loopAngle;
+    loopGroup.add(sgGroup);
+
+    // RCP
+    const rcpMesh = buildRCP(i);
+    rcpMesh.position.set(Math.cos(loopAngle+0.35)*19, 2, Math.sin(loopAngle+0.35)*19);
+    rcpMesh.rotation.y = loopAngle;
+    loopGroup.add(rcpMesh);
+
+    // Hot leg pipe (curved tube)
+    addCurvedPipe(loopGroup,
+      new THREE.Vector3(Math.cos(loopAngle)*2.2, 9.5, Math.sin(loopAngle)*2.2),
+      new THREE.Vector3(Math.cos(loopAngle)*R_loop, 14, Math.sin(loopAngle)*R_loop),
+      MATS.pipe_hot, 0.36
+    );
+
+    // Cold leg pipe
+    addCurvedPipe(loopGroup,
+      new THREE.Vector3(Math.cos(loopAngle)*R_loop, 4, Math.sin(loopAngle)*R_loop),
+      new THREE.Vector3(Math.cos(loopAngle+0.35)*19, 3, Math.sin(loopAngle+0.35)*19),
+      MATS.pipe_cold, 0.36
+    );
+
+    // Pump discharge to RPV
+    addCurvedPipe(loopGroup,
+      new THREE.Vector3(Math.cos(loopAngle+0.35)*19, 3, Math.sin(loopAngle+0.35)*19),
+      new THREE.Vector3(Math.cos(loopAngle)*2.2, 7, Math.sin(loopAngle)*2.2),
+      MATS.pipe_cold, 0.36
+    );
+
+    primaryLoopGroup.add(loopGroup);
+  }
+
+  // Surge line (Pressurizer connection to Loop 1A hot leg)
+  addCurvedPipe(primaryLoopGroup,
+    new THREE.Vector3(Math.cos(Math.PI/4)*22, 14, Math.sin(Math.PI/4)*22),
+    new THREE.Vector3(-18, 28, 0),
+    MATS.pipe_hot, 0.12
+  );
+
+  scene.add(primaryLoopGroup);
+}
+
+function addCurvedPipe(parent, start, end, mat, radius) {
+  const mid = new THREE.Vector3().addVectors(start,end).multiplyScalar(0.5);
+  mid.y += 3;
+  const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+  const points = curve.getPoints(20);
+  const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 20, radius, 8, false);
+  const pipe = new THREE.Mesh(tubeGeo, mat);
+  pipe.castShadow=true;
+  parent.add(pipe);
+  pipeLines.push(pipe);
+}
+
+function buildSteamGenerator() {
+  const sg = new THREE.Group();
+
+  // Lower channel head (primary side)
+  const lchGeo = new THREE.SphereGeometry(2.2, 32, 16, 0, Math.PI*2, 0, Math.PI/2);
+  const lch = new THREE.Mesh(lchGeo, MATS.rpv);
+  lch.rotation.x = Math.PI;
+  sg.add(lch);
+
+  // Shell (tube bundle region)
+  const shellGeo = new THREE.CylinderGeometry(2.2, 1.8, 14, 32);
+  const shell = new THREE.Mesh(shellGeo, MATS.sg);
+  shell.position.y = 7;
+  shell.castShadow=true;
+  sg.add(shell);
+
+  // Upper steam drum
+  const drumGeo = new THREE.CylinderGeometry(2.5, 2.2, 5, 32);
+  const drum = new THREE.Mesh(drumGeo, MATS.sg);
+  drum.position.y = 16.5;
+  sg.add(drum);
+
+  // Steam outlet nozzle
+  const steamNGeo = new THREE.CylinderGeometry(0.45, 0.45, 2, 12);
+  const steamN = new THREE.Mesh(steamNGeo, MATS.pipe_cold);
+  steamN.position.set(0, 20, 0);
+  sg.add(steamN);
+
+  // Feedwater nozzle
+  const fwNGeo = new THREE.CylinderGeometry(0.3, 0.3, 1.5, 12);
+  const fwN = new THREE.Mesh(fwNGeo, MATS.pipe_cold);
+  fwN.rotation.z = Math.PI/2;
+  fwN.position.set(2.2, 14, 0);
+  sg.add(fwN);
+
+  // Support skirt
+  const skirtGeo = new THREE.CylinderGeometry(2.4, 2.6, 3, 32, 1, true);
+  const skirt = new THREE.Mesh(skirtGeo, MATS.steel);
+  skirt.position.y = -2;
+  sg.add(skirt);
+
+  return sg;
+}
+
+function buildRCP(idx) {
+  const rcpGroup = new THREE.Group();
+  rcpGroup.userData.rcpIdx = idx;
+
+  // Pump casing
+  const casingGeo = new THREE.CylinderGeometry(1.1, 0.9, 1.8, 32);
+  const casing = new THREE.Mesh(casingGeo, MATS.rcp);
+  casing.castShadow=true;
+  rcpGroup.add(casing);
+
+  // Motor
+  const motorGeo = new THREE.CylinderGeometry(0.7, 0.7, 2.5, 24);
+  const motor = new THREE.Mesh(motorGeo, makeMat(0x2a3a5a, 0.8, 0.3));
+  motor.position.y = 2.2;
+  rcpGroup.add(motor);
+
+  // Flywheel
+  const fwGeo = new THREE.CylinderGeometry(1.0, 1.0, 0.4, 24);
+  const fw = new THREE.Mesh(fwGeo, MATS.steel);
+  fw.position.y = 3.6;
+  rcpGroup.add(fw);
+
+  // Impeller (visible bottom)
+  const impGeo = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 12);
+  const imp = new THREE.Mesh(impGeo, MATS.steel);
+  imp.position.y = -0.9;
+  rcpGroup.add(imp);
+
+  return rcpGroup;
+}
+
+// ── PRESSURIZER ───────────────────────────────────────────
+function buildPressurizer() {
+  const pzrGroup = new THREE.Group();
+
+  // Main vessel (tall, 2.4m dia, ~12m tall)
+  const pzrGeo = new THREE.CylinderGeometry(1.2, 1.2, 12, 32);
+  const pzr = new THREE.Mesh(pzrGeo, MATS.pzr);
+  pzr.castShadow=true;
+  pzrGroup.add(pzr);
+
+  // Top head
+  const topGeo = new THREE.SphereGeometry(1.2, 32, 16, 0, Math.PI*2, 0, Math.PI/2);
+  const top = new THREE.Mesh(topGeo, MATS.pzr);
+  top.position.y = 6;
+  pzrGroup.add(top);
+
+  // Bottom head
+  const botGeo = new THREE.SphereGeometry(1.2, 32, 16, 0, Math.PI*2, 0, Math.PI/2);
+  const bot2 = new THREE.Mesh(botGeo, MATS.pzr);
+  bot2.rotation.x = Math.PI; bot2.position.y = -6;
+  pzrGroup.add(bot2);
+
+  // PORV (on top)
+  const porvGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 8);
+  const porv = new THREE.Mesh(porvGeo, MATS.amber);
+  porv.position.set(0.5, 7.2, 0);
+  porv.rotation.z = Math.PI/6;
+  pzrGroup.add(porv);
+
+  // Safety valves (2)
+  for(let i=0;i<2;i++) {
+    const sv = porv.clone();
+    sv.position.set(-0.3+i*0.3, 7.2, 0.5);
+    sv.material = makeMat(0xff4400, 0.5, 0.4, 0xff4400, 0.3);
+    pzrGroup.add(sv);
+  }
+
+  // Heaters (bottom)
+  for(let i=0;i<5;i++) {
+    const htrGeo = new THREE.CylinderGeometry(0.04, 0.04, 3, 6);
+    const htr = new THREE.Mesh(htrGeo, makeMat(0xffaa00, 0.3, 0.6, 0xff8800, 0.4));
+    htr.position.set(Math.cos(i/5*Math.PI*2)*0.6, -4.5, Math.sin(i/5*Math.PI*2)*0.6);
+    pzrGroup.add(htr);
+  }
+
+  // Spray nozzle (top)
+  const sprayGeo = new THREE.CylinderGeometry(0.08, 0.08, 1, 6);
+  const spray = new THREE.Mesh(sprayGeo, MATS.pipe_cold);
+  spray.position.set(-0.8, 5.5, 0); spray.rotation.z = Math.PI/3;
+  pzrGroup.add(spray);
+
+  // Support skirt
+  const skGeo = new THREE.CylinderGeometry(1.3, 1.4, 3, 32, 1, true);
+  const sk = new THREE.Mesh(skGeo, MATS.steel);
+  sk.position.y = -7.5;
+  pzrGroup.add(sk);
+
+  pzrGroup.position.set(-18, 20, 0);
+  scene.add(pzrGroup);
+}
+
+// ── ECCS SYSTEMS ─────────────────────────────────────────
+function buildECCS() {
+  const eccsGroup = new THREE.Group();
+
+  // RWST (Refueling Water Storage Tank) — large tank outside containment
+  const rwstGeo = new THREE.CylinderGeometry(7, 7, 14, 32);
+  const rwst = new THREE.Mesh(rwstGeo, new THREE.MeshStandardMaterial({
+    color:0x1a4a2a, metalness:0.6, roughness:0.4
+  }));
+  rwst.position.set(55, 7, 0);
+  rwst.castShadow=true;
+  eccsGroup.add(rwst);
+
+  // RWST label
+  const rwstLabel = makeLabelSprite('RWST');
+  rwstLabel.position.set(55, 17, 0);
+  eccsGroup.add(rwstLabel);
+
+  // HPSI Pumps (4 — Train A/B/C/D)
+  const pumpColors = [0x1a5a3a, 0x1a3a5a, 0x5a1a3a, 0x5a5a1a];
+  for(let i=0;i<4;i++) {
+    const pGeo = new THREE.CylinderGeometry(0.7, 0.6, 2.2, 16);
+    const pump = new THREE.Mesh(pGeo, new THREE.MeshStandardMaterial({
+      color:pumpColors[i], metalness:0.7, roughness:0.35
+    }));
+    const angle = i/4*Math.PI*2+Math.PI/4;
+    pump.position.set(45+Math.cos(angle)*4, 1.1, Math.sin(angle)*4);
+    eccsGroup.add(pump);
+
+    const mGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.5, 12);
+    const motor = new THREE.Mesh(mGeo, makeMat(0x222232, 0.7, 0.4));
+    motor.position.copy(pump.position); motor.position.y += 1.85;
+    eccsGroup.add(motor);
+  }
+
+  // Accumulators (4 — horizontal vessels)
+  for(let i=0;i<4;i++) {
+    const angle = i/4*Math.PI*2;
+    const accGroup = new THREE.Group();
+
+    const accGeo = new THREE.CylinderGeometry(1.5, 1.5, 6, 32);
+    const acc = new THREE.Mesh(accGeo, MATS.eccs);
+    acc.rotation.z = Math.PI/2;
+    accGroup.add(acc);
+
+    // N2 gas cushion (top half)
+    const n2Geo = new THREE.CylinderGeometry(1.48, 1.48, 2.8, 32, 1, true);
+    const n2 = new THREE.Mesh(n2Geo, new THREE.MeshStandardMaterial({
+      color:0xaaddff, transparent:true, opacity:0.25
+    }));
+    n2.rotation.z = Math.PI/2; n2.position.x = 1.6;
+    accGroup.add(n2);
+
+    // Heads
+    for(let s of[-1,1]) {
+      const hGeo = new THREE.SphereGeometry(1.5, 16, 8, 0, Math.PI*2, 0, Math.PI/2);
+      const h = new THREE.Mesh(hGeo, MATS.eccs);
+      h.rotation.z = s>0?0:Math.PI;
+      h.position.x = s*3;
+      accGroup.add(h);
+    }
+
+    accGroup.position.set(
+      40+Math.cos(angle)*10, 3, Math.sin(angle)*10
+    );
+    accGroup.rotation.y = angle;
+    eccsGroup.add(accGroup);
+  }
+
+  scene.add(eccsGroup);
+}
+
+// ── SECONDARY BUILDING + TURBINE ─────────────────────────
+function buildSecondaryBuilding() {
+  const secGroup = new THREE.Group();
+
+  // Turbine building
+  const tbGeo = new THREE.BoxGeometry(60, 20, 30);
+  const tb = new THREE.Mesh(tbGeo, new THREE.MeshStandardMaterial({
+    color:0x6a7a8a, roughness:0.8, metalness:0.2, transparent:true, opacity:0.7
+  }));
+  tb.position.set(80, 10, 0);
+  secGroup.add(tb);
+
+  // HP turbine
+  const hpGeo = new THREE.CylinderGeometry(2.5, 2, 12, 24);
+  const hp = new THREE.Mesh(hpGeo, MATS.turbine);
+  hp.rotation.z = Math.PI/2; hp.position.set(65, 10, 0);
+  secGroup.add(hp);
+
+  // LP turbines (2)
+  for(let i=0;i<2;i++) {
+    const lpGeo = new THREE.CylinderGeometry(3.5, 3, 14, 24);
+    const lp = new THREE.Mesh(lpGeo, MATS.turbine);
+    lp.rotation.z = Math.PI/2; lp.position.set(80, 10, (i-0.5)*12);
+    secGroup.add(lp);
+  }
+
+  // Generator
+  const genGeo = new THREE.CylinderGeometry(2.8, 2.8, 10, 24);
+  const gen = new THREE.Mesh(genGeo, makeMat(0x2a4a7a, 0.7, 0.35));
+  gen.rotation.z = Math.PI/2; gen.position.set(97, 10, 0);
+  secGroup.add(gen);
+
+  // Condenser (below turbine building)
+  const condGeo = new THREE.BoxGeometry(30, 6, 20);
+  const cond = new THREE.Mesh(condGeo, makeMat(0x3a5a7a, 0.6, 0.5));
+  cond.position.set(80, 0, 0);
+  secGroup.add(cond);
+
+  // Main steam lines (4 lines from containment)
+  for(let i=0;i<4;i++) {
+    const angle = i*Math.PI/2+Math.PI/4;
+    const start = new THREE.Vector3(Math.cos(angle)*35, 15, Math.sin(angle)*35);
+    const end = new THREE.Vector3(65, 12, (i-1.5)*4);
+    addCurvedPipe(secGroup, start, end, MATS.pipe_cold, 0.35);
+  }
+
+  scene.add(secGroup);
+}
+
+// ── COOLING TOWERS (2) ────────────────────────────────────
+function buildCoolingTowers() {
+  for(let t=0;t<2;t++) {
+    const ctGroup = new THREE.Group();
+
+    // Hyperbolic shell (parametric) using LatheGeometry
+    const points = [];
+    const H_ct = 120, R_base=37.5, R_throat=18, R_top=22;
+    for(let y=0;y<=40;y++) {
+      const yy = (y/40);
+      // Hyperbolic profile
+      const r = Math.sqrt(R_throat*R_throat + (R_base*R_base - R_throat*R_throat)*Math.pow(1-yy,1.4));
+      points.push(new THREE.Vector2(r, yy*H_ct));
+    }
+    const ctGeo = new THREE.LatheGeometry(points, 48);
+    const ctMat = new THREE.MeshStandardMaterial({
+      color:0x9a9a90, roughness:0.85, metalness:0.0,
+      transparent:true, opacity:0.6, side:THREE.DoubleSide
+    });
+    const ct = new THREE.Mesh(ctGeo, ctMat);
+    ct.castShadow=true;
+    ctGroup.add(ct);
+
+    // Basin
+    const basinGeo = new THREE.CylinderGeometry(R_base+2, R_base+2, 2, 48);
+    const basin = new THREE.Mesh(basinGeo, makeMat(0x3a4a3a, 0.1, 0.9));
+    basin.position.y = -1;
+    ctGroup.add(basin);
+
+    // Steam plume (particle-like billboard)
+    const plumeGeo = new THREE.CylinderGeometry(8, 22, 40, 24, 1, true);
+    const plumeMat = new THREE.MeshBasicMaterial({
+      color:0xffffff, transparent:true, opacity:0.06, side:THREE.DoubleSide
+    });
+    const plume = new THREE.Mesh(plumeGeo, plumeMat);
+    plume.position.y = H_ct+20;
+    ctGroup.add(plume);
+
+    ctGroup.position.set(60+t*80, 0, -130);
+    scene.add(ctGroup);
+  }
+}
+
+// ── AUX BUILDING ─────────────────────────────────────────
+function buildAuxBuilding() {
+  const auxGeo = new THREE.BoxGeometry(40, 30, 35);
+  const aux = new THREE.Mesh(auxGeo, new THREE.MeshStandardMaterial({
+    color:0x7a8a8a, roughness:0.9, metalness:0.05, transparent:true, opacity:0.75
+  }));
+  aux.position.set(-60, 15, 0);
+  scene.add(aux);
+
+  // Fuel building
+  const fbGeo = new THREE.BoxGeometry(30, 20, 25);
+  const fb = new THREE.Mesh(fbGeo, new THREE.MeshStandardMaterial({
+    color:0x6a8a7a, roughness:0.9, metalness:0.05, transparent:true, opacity:0.75
+  }));
+  fb.position.set(0, 10, -65);
+  scene.add(fb);
+
+  // Diesel generator buildings
+  for(let i=0;i<2;i++) {
+    const dgGeo = new THREE.BoxGeometry(20, 10, 12);
+    const dg = new THREE.Mesh(dgGeo, new THREE.MeshStandardMaterial({color:0x5a7a5a, roughness:0.9}));
+    dg.position.set(-80, 5, (i-0.5)*30);
+    scene.add(dg);
+  }
+}
+
+// ── CHERENKOV GLOW ────────────────────────────────────────
+function buildCherenkovCore() {
+  const glowGeo = new THREE.CylinderGeometry(1.6, 1.6, 3.65, 32);
+  cherenkovMat = new THREE.MeshBasicMaterial({
+    color:0x0033ff, transparent:true, opacity:0.0,
+    blending: THREE.AdditiveBlending, depthWrite:false
+  });
+  cherenkovMesh = new THREE.Mesh(glowGeo, cherenkovMat);
+  cherenkovMesh.position.set(0, 5.7, 0);
+  scene.add(cherenkovMesh);
+
+  // Inner glow (brighter center)
+  const innerGlowGeo = new THREE.CylinderGeometry(0.8, 0.8, 3.6, 16);
+  const innerGlowMat = new THREE.MeshBasicMaterial({
+    color:0x2255ff, transparent:true, opacity:0.0,
+    blending: THREE.AdditiveBlending, depthWrite:false
+  });
+  const innerGlow = new THREE.Mesh(innerGlowGeo, innerGlowMat);
+  innerGlow.position.set(0, 5.7, 0);
+  innerGlow.userData.isInnerGlow = true;
+  scene.add(innerGlow);
+
+  // Point light inside core (drives blue ambient)
+  const coreLight = new THREE.PointLight(0x2255ff, 0, 20);
+  coreLight.position.set(0, 6, 0);
+  coreLight.userData.isCoreLight = true;
+  scene.add(coreLight);
+}
+
+// ── LABEL SPRITE ─────────────────────────────────────────
+function makeLabelSprite(text) {
+  const canvas2d = document.createElement('canvas');
+  canvas2d.width = 256; canvas2d.height = 64;
+  const ctx = canvas2d.getContext('2d');
+  ctx.fillStyle = 'rgba(255,140,0,0.0)';
+  ctx.fillRect(0,0,256,64);
+  ctx.font = 'bold 24px Orbitron, monospace';
+  ctx.fillStyle = '#ff8c00';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, 128, 40);
+  const tex = new THREE.CanvasTexture(canvas2d);
+  const mat = new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false});
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(12, 3, 1);
+  return sprite;
+}
+
+// ── SITE STRUCTURES ───────────────────────────────────────
+function buildSiteStructures() {
+  // Site boundary fence posts
+  const fencePositions = [];
+  for(let i=0;i<80;i++) {
+    const angle = i/80*Math.PI*2;
+    fencePositions.push(new THREE.Vector3(Math.cos(angle)*180, 1, Math.sin(angle)*180));
+  }
+  const postGeo = new THREE.CylinderGeometry(0.2, 0.2, 3, 4);
+  const postMat = new THREE.MeshLambertMaterial({color:0x888888});
+  const posts = new THREE.InstancedMesh(postGeo, postMat, 80);
+  const d3 = new THREE.Object3D();
+  fencePositions.forEach((p,i)=>{
+    d3.position.copy(p); d3.updateMatrix();
+    posts.setMatrixAt(i, d3.matrix);
+  });
+  posts.instanceMatrix.needsUpdate=true;
+  scene.add(posts);
+
+  // Site roads (flat planes)
+  [[0,0,90,3],[90,0,3,200]].forEach(([x,z,w,d])=>{
+    const road = new THREE.Mesh(
+      new THREE.PlaneGeometry(w,d),
+      new THREE.MeshLambertMaterial({color:0x1a2020})
+    );
+    road.rotation.x=-Math.PI/2; road.position.set(x,-1.8,z);
+    scene.add(road);
+  });
+}
+
+// ── P&ID (SVG Layer) ─────────────────────────────────────
+function buildPID() {
+  const svg = document.getElementById('pid-svg');
+  svg.innerHTML = `
+  <defs>
+    <style>
+      .pid-pipe { stroke-width:3; fill:none; }
+      .pid-hot  { stroke:#cc4422; }
+      .pid-cold { stroke:#224488; }
+      .pid-steam{ stroke:#669999; stroke-dasharray:8,4; }
+      .pid-safety{ stroke:#ff2244; stroke-width:2; }
+      text { font-family:'Share Tech Mono',monospace; fill:#c8d8f0; font-size:11px; }
+      .label-box { fill:rgba(10,22,40,0.85); stroke:rgba(255,140,0,0.4); stroke-width:1; }
+      .inst-circle { fill:rgba(10,22,40,0.9); stroke:#ff8c00; stroke-width:1.5; }
+      .inst-square { fill:rgba(10,22,40,0.9); stroke:#00e5ff; stroke-width:1.5; }
+      .class1 { stroke:#ff2244; stroke-width:3; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ff8c00"/>
+    </marker>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1920" height="960" fill="#060e1a" opacity="0.95"/>
+  
+  <!-- Title block -->
+  <rect x="10" y="10" width="400" height="50" class="label-box" rx="2"/>
+  <text x="20" y="32" fill="#ff8c00" font-size="14" font-weight="bold">XIOM NUCLEAR SUITE v4.0 — P&amp;ID</text>
+  <text x="20" y="50" fill="#6688aa" font-size="10">AP1000 REFERENCE | 4-LOOP PWR | ENG_ALAA MOHAMMED</text>
+
+  <!-- ═══ RPV SYMBOL ═══ -->
+  ${pidRPV(300, 350)}
+  
+  <!-- ═══ STEAM GENERATORS (4) ═══ -->
+  ${pidSG(160, 250, '1A')}
+  ${pidSG(440, 250, '1B')}
+  ${pidSG(160, 500, '2A')}
+  ${pidSG(440, 500, '2B')}
+
+  <!-- ═══ PRESSURIZER ═══ -->
+  ${pidPZR(700, 280)}
+  
+  <!-- ═══ PRIMARY PIPES ═══ -->
+  <!-- Hot legs -->
+  <path class="pid-pipe pid-hot class1" d="M240,340 H290" marker-end="url(#arrow)"/>
+  <path class="pid-pipe pid-hot class1" d="M420,340 H380 Q360,340 360,340"/>
+  <path class="pid-pipe pid-hot class1" d="M240,490 H290"/>
+  <path class="pid-pipe pid-hot class1" d="M420,490 H380"/>
+  
+  <!-- Cold legs -->
+  <path class="pid-pipe pid-cold class1" d="M200,440 V490 H250" stroke="#224488"/>
+  <path class="pid-pipe pid-cold class1" d="M400,440 V490 H350" stroke="#224488"/>
+  <path class="pid-pipe pid-cold class1" d="M200,200 V150 H250" stroke="#224488"/>
+  <path class="pid-pipe pid-cold class1" d="M400,200 V150 H350" stroke="#224488"/>
+  
+  <!-- Surge line -->
+  <path class="pid-pipe" stroke="#886644" stroke-width="2" d="M370,320 H680 Q700,320 700,340"/>
+
+  <!-- ═══ ECCS ═══ -->
+  ${pidECCS(800, 600)}
+  
+  <!-- ═══ RCPs ═══ -->
+  ${pidRCP(145, 370, 'RCP-1A')}
+  ${pidRCP(425, 370, 'RCP-1B')}
+  ${pidRCP(145, 430, 'RCP-2A')}
+  ${pidRCP(425, 430, 'RCP-2B')}
+
+  <!-- ═══ INSTRUMENTS ═══ -->
+  ${pidInst(335, 260, 'PT','101','A')}
+  ${pidInst(365, 260, 'TT','102','A')}
+  ${pidInst(335, 460, 'PT','103','B')}
+  ${pidInst(365, 460, 'TT','104','B')}
+  ${pidInst(700, 250, 'LT','110','')}
+  ${pidInst(720, 250, 'PT','111','')}
+  ${pidInst(735, 270, 'TE','112','')}
+  
+  <!-- Neutron instruments -->
+  ${pidNI(300, 560, 'NI-01')}
+  ${pidNI(320, 560, 'NI-02')}
+  ${pidNI(340, 560, 'NI-03')}
+
+  <!-- ═══ SECONDARY SYSTEM ═══ -->
+  ${pidSecondary(900, 250)}
+  
+  <!-- ═══ CONTAINMENT BOUNDARY ═══ -->
+  <ellipse cx="340" cy="380" rx="280" ry="250" fill="none" stroke="rgba(255,140,0,0.25)" stroke-width="3" stroke-dasharray="12,6"/>
+  <text x="100" y="640" fill="rgba(255,140,0,0.4)" font-size="12" transform="rotate(-15,100,640)">CONTAINMENT BOUNDARY</text>
+
+  <!-- ═══ LEGEND ═══ -->
+  ${pidLegend(1700, 50)}
+  `;
+}
+
+function pidRPV(cx,cy) {
+  return `
+  <g filter="url(#glow)">
+  <rect x="${cx-45}" y="${cy-120}" width="90" height="240" rx="45" fill="rgba(30,40,70,0.9)" stroke="#ff2244" stroke-width="3"/>
+  <!-- Core active length -->
+  <rect x="${cx-30}" y="${cy-60}" width="60" height="120" fill="none" stroke="#0055ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- CRDM heads -->
+  ${[...Array(8)].map((_,i)=>`<line x1="${cx-28+i*8}" y1="${cy-120}" x2="${cx-28+i*8}" y2="${cy-138}" stroke="#7788aa" stroke-width="2"/>`).join('')}
+  <!-- Nozzles -->
+  <line x1="${cx-45}" y1="${cy-40}" x2="${cx-65}" y2="${cy-40}" stroke="#cc4422" stroke-width="4"/>
+  <line x1="${cx+45}" y1="${cy-40}" x2="${cx+65}" y2="${cy-40}" stroke="#cc4422" stroke-width="4"/>
+  <line x1="${cx-45}" y1="${cy+30}" x2="${cx-65}" y2="${cy+30}" stroke="#224488" stroke-width="4"/>
+  <line x1="${cx+45}" y1="${cy+30}" x2="${cx+65}" y2="${cy+30}" stroke="#224488" stroke-width="4"/>
+  <!-- Tag -->
+  <rect x="${cx-38}" y="${cy-13}" width="76" height="16" class="label-box" rx="2"/>
+  <text x="${cx}" y="${cy}" text-anchor="middle" fill="#ff8c00" font-size="10">RPV-01</text>
+  <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#6688aa" font-size="8">3400 MWt</text>
+  <text x="${cx}" y="${cy-128}" fill="#ff2244" font-size="9" text-anchor="middle">⬛ SC-1</text>
+  </g>`;
+}
+
+function pidSG(cx,cy,tag) {
+  return `
+  <g>
+  <!-- Upper drum -->
+  <ellipse cx="${cx}" cy="${cy-50}" rx="30" ry="15" fill="rgba(20,30,60,0.9)" stroke="#6677aa" stroke-width="2"/>
+  <!-- Shell -->
+  <rect x="${cx-30}" y="${cy-50}" width="60" height="90" fill="rgba(20,30,60,0.9)" stroke="#6677aa" stroke-width="2"/>
+  <!-- Primary boundary dashed -->
+  <line x1="${cx-30}" y1="${cy+10}" x2="${cx+30}" y2="${cy+10}" stroke="#ff8c00" stroke-width="1" stroke-dasharray="5,3"/>
+  <!-- Lower channel head -->
+  <ellipse cx="${cx}" cy="${cy+40}" rx="25" ry="12" fill="rgba(30,20,20,0.9)" stroke="#cc4422" stroke-width="2"/>
+  <!-- FW nozzle -->
+  <line x1="${cx+30}" y1="${cy-20}" x2="${cx+45}" y2="${cy-20}" stroke="#224488" stroke-width="2"/>
+  <!-- Steam outlet -->
+  <line x1="${cx}" y1="${cy-65}" x2="${cx}" y2="${cy-80}" stroke="#669999" stroke-width="3"/>
+  <!-- Tag -->
+  <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#aabbcc" font-size="9">SG-${tag}</text>
+  </g>`;
+}
+
+function pidPZR(cx,cy) {
+  return `
+  <g>
+  <rect x="${cx-20}" y="${cy-80}" width="40" height="150" rx="20" fill="rgba(40,25,15,0.9)" stroke="#ff2244" stroke-width="2.5"/>
+  <!-- Heaters -->
+  <line x1="${cx-12}" y1="${cy+60}" x2="${cx-12}" y2="${cy+45}" stroke="#ffaa00" stroke-width="3"/>
+  <line x1="${cx}"    y1="${cy+60}" x2="${cx}"    y2="${cy+45}" stroke="#ffaa00" stroke-width="3"/>
+  <line x1="${cx+12}" y1="${cy+60}" x2="${cx+12}" y2="${cy+45}" stroke="#ffaa00" stroke-width="3"/>
+  <!-- Spray -->
+  <line x1="${cx}" y1="${cy-80}" x2="${cx}" y2="${cy-95}" stroke="#224488" stroke-width="2"/>
+  <!-- PORV -->
+  <polygon points="${cx+20},${cy-65} ${cx+28},${cy-55} ${cx+20},${cy-55}" fill="#ff8c00" stroke="#ff8c00"/>
+  <!-- Safety valves -->
+  <polygon points="${cx-20},${cy-70} ${cx-28},${cy-60} ${cx-20},${cy-60}" fill="#ff4444" stroke="#ff4444"/>
+  <text x="${cx}" y="${cy-88}" text-anchor="middle" fill="#aabbcc" font-size="9">PZR-01</text>
+  <text x="${cx}" y="${cy-3}" text-anchor="middle" fill="#6688aa" font-size="8" id="pid-pzr-p">155.1 bar</text>
+  </g>`;
+}
+
+function pidRCP(cx,cy,tag) {
+  return `
+  <g>
+  <circle cx="${cx}" cy="${cy}" r="18" fill="rgba(20,25,45,0.9)" stroke="#4488cc" stroke-width="2"/>
+  <line x1="${cx-10}" y1="${cy}" x2="${cx+10}" y2="${cy}" stroke="#4488cc" stroke-width="1.5"/>
+  <line x1="${cx}" y1="${cy-10}" x2="${cx}" y2="${cy+10}" stroke="#4488cc" stroke-width="1.5"/>
+  <text x="${cx}" y="${cy+28}" text-anchor="middle" fill="#6688aa" font-size="8">${tag}</text>
+  </g>`;
+}
+
+function pidECCS(cx,cy) {
+  return `
+  <g>
+  <rect x="${cx-5}" y="${cy-5}" width="200" height="160" fill="rgba(0,30,10,0.3)" stroke="rgba(0,255,136,0.3)" stroke-width="1" stroke-dasharray="6,3" rx="4"/>
+  <text x="${cx+5}" y="${cy+12}" fill="#00ff88" font-size="10" font-weight="bold">ECCS — TRAIN A/B/C/D</text>
+  
+  <!-- RWST -->
+  <rect x="${cx+10}" y="${cy+20}" width="50" height="70" rx="5" fill="rgba(10,40,20,0.9)" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="${cx+35}" y="${cy+60}" text-anchor="middle" fill="#00ff88" font-size="9">RWST</text>
+  <text x="${cx+35}" y="${cy+75}" text-anchor="middle" fill="#6688aa" font-size="8">100%</text>
+
+  <!-- HPSI Pumps -->
+  ${[0,1,2,3].map(i=>`
+  <circle cx="${cx+90+i*24}" cy="${cy+55}" r="12" fill="rgba(10,30,20,0.9)" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="${cx+90+i*24}" y="${cy+59}" text-anchor="middle" fill="#00ff88" font-size="7">HP${i+1}</text>
+  `).join('')}
+  
+  <!-- Accumulators -->
+  ${[0,1,2,3].map(i=>`
+  <rect x="${cx+80+i*24}" y="${cy+100}" width="18" height="30" rx="9" fill="rgba(10,20,40,0.9)" stroke="#4488cc" stroke-width="1.5"/>
+  <text x="${cx+89+i*24}" y="${cy+120}" text-anchor="middle" fill="#4488cc" font-size="7">ACC</text>
+  `).join('')}
+  
+  <!-- N2 pressure lines -->
+  ${[0,1,2,3].map(i=>`
+  <line x1="${cx+89+i*24}" y1="${cy+100}" x2="${cx+89+i*24}" y2="${cy+80}" stroke="#aaccee" stroke-width="1" stroke-dasharray="3,2"/>
+  `).join('')}
+  
+  <!-- SIAS label -->
+  <rect x="${cx+5}" y="${cy+140}" width="185" height="14" class="label-box" rx="2"/>
+  <text x="${cx+97}" y="${cy+151}" text-anchor="middle" fill="#ff8c00" font-size="9">SIAS SET: P &lt; 138 bar | t_delay: 25s</text>
+  </g>`;
+}
+
+function pidSecondary(cx,cy) {
+  return `
+  <g>
+  <text x="${cx}" y="${cy}" fill="#ff8c00" font-size="11" font-weight="bold">SECONDARY / BOP SYSTEM</text>
+  <!-- HP Turbine -->
+  <polygon points="${cx},${cy+30} ${cx+60},${cy+15} ${cx+60},${cy+65} ${cx},${cy+80}" fill="rgba(20,30,50,0.9)" stroke="#5577aa" stroke-width="2"/>
+  <text x="${cx+30}" y="${cy+53}" text-anchor="middle" fill="#aabbcc" font-size="9">HP TURB</text>
+  <!-- LP Turbines -->
+  <polygon points="${cx+80},${cy+20} ${cx+150},${cy+10} ${cx+150},${cy+75} ${cx+80},${cy+75}" fill="rgba(20,30,50,0.9)" stroke="#5577aa" stroke-width="2"/>
+  <text x="${cx+115}" y="${cy+48}" text-anchor="middle" fill="#aabbcc" font-size="9">LP TURB ×2</text>
+  <!-- Generator -->
+  <rect x="${cx+165}" y="${cy+20}" width="50" height="50" rx="4" fill="rgba(15,25,45,0.9)" stroke="#4488ff" stroke-width="2"/>
+  <text x="${cx+190}" y="${cy+50}" text-anchor="middle" fill="#4488ff" font-size="9">GEN</text>
+  <!-- Condenser -->
+  <rect x="${cx+80}" y="${cy+90}" width="70" height="35" fill="rgba(15,35,50,0.9)" stroke="#336699" stroke-width="1.5"/>
+  <text x="${cx+115}" y="${cy+113}" text-anchor="middle" fill="#336699" font-size="9">CONDENSER</text>
+  <!-- Main steam lines -->
+  <line x1="${cx}" y1="${cy+55}" x2="${cx-30}" y2="${cy+55}" stroke="#669999" stroke-width="3" stroke-dasharray="6,3"/>
+  <!-- FW line -->
+  <line x1="${cx}" y1="${cy+80}" x2="${cx-30}" y2="${cy+80}" stroke="#224488" stroke-width="2"/>
+  </g>`;
+}
+
+function pidInst(cx,cy,measured,loop,suffix) {
+  const tag = `${measured}-${loop}${suffix}`;
+  return `
+  <circle cx="${cx}" cy="${cy}" r="12" class="inst-circle"/>
+  <text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="8">${measured}</text>
+  <text x="${cx}" y="${cy+6}" text-anchor="middle" font-size="7">${loop}${suffix}</text>
+  <title>${tag}</title>`;
+}
+
+function pidNI(cx,cy,tag) {
+  return `
+  <rect x="${cx-12}" y="${cy-12}" width="24" height="24" class="inst-square" rx="2"/>
+  <text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="7">NI</text>
+  <text x="${cx}" y="${cy+7}" text-anchor="middle" font-size="7">${tag.split('-')[1]}</text>`;
+}
+
+function pidLegend(x,y) {
+  return `
+  <rect x="${x-10}" y="${y}" width="220" height="180" class="label-box" rx="4"/>
+  <text x="${x+100}" y="${y+18}" text-anchor="middle" fill="#ff8c00" font-size="11" font-weight="bold">LEGEND</text>
+  <line x1="${x}" y1="${y+35}" x2="${x+40}" y2="${y+35}" stroke="#cc4422" stroke-width="3"/>
+  <text x="${x+45}" y="${y+39}" fill="#aabbcc" font-size="9">HOT LEG — SC-1</text>
+  <line x1="${x}" y1="${y+55}" x2="${x+40}" y2="${y+55}" stroke="#224488" stroke-width="3"/>
+  <text x="${x+45}" y="${y+59}" fill="#aabbcc" font-size="9">COLD LEG — SC-1</text>
+  <line x1="${x}" y1="${y+75}" x2="${x+40}" y2="${y+75}" stroke="#669999" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="${x+45}" y="${y+79}" fill="#aabbcc" font-size="9">STEAM LINE</text>
+  <circle cx="${x+10}" cy="${y+98}" r="10" class="inst-circle"/>
+  <text x="${x+10}" y="${y+102}" text-anchor="middle" font-size="7">T</text>
+  <text x="${x+45}" y="${y+102}" fill="#aabbcc" font-size="9">Field Instrument (ISA 5.1)</text>
+  <rect x="${x}" y="${y+115}" width="20" height="20" class="inst-square" rx="2"/>
+  <text x="${x+10}" y="${y+129}" text-anchor="middle" font-size="7">T</text>
+  <text x="${x+45}" y="${y+129}" fill="#aabbcc" font-size="9">Control Room Indicator</text>
+  <rect x="${x}" y="${y+140}" width="80" height="16" fill="rgba(30,5,5,0.9)" stroke="#ff2244" stroke-width="2"/>
+  <text x="${x+40}" y="${y+152}" text-anchor="middle" fill="#ff2244" font-size="9">Safety Class 1</text>
+  <rect x="${x+90}" y="${y+140}" width="80" height="16" fill="rgba(5,25,5,0.9)" stroke="#00ff88" stroke-width="2"/>
+  <text x="${x+130}" y="${y+152}" text-anchor="middle" fill="#00ff88" font-size="9">Safety Class 2</text>
+  <line x1="${x}" y1="${y+170}" x2="${x+200}" y2="${y+170}" stroke="rgba(255,140,0,0.3)" stroke-width="1"/>
+  <text x="${x+100}" y="${y+182}" text-anchor="middle" fill="#4a5a7a" font-size="8">ISA 5.1 | IAEA SSR-2/1 | IEEE 603</text>
+  `;
+}
+
+// ── CORE MAP (2D Canvas) ─────────────────────────────────
+let coreMapData = [];
+
+function initCoreMap() {
+  const canvas2d = document.getElementById('core-canvas');
+  canvas2d.width = 204; canvas2d.height = 204;
+
+  // Build FA data
+  coreMapData = [];
+  let idx=0;
+  for(let row=0;row<17;row++) {
+    for(let col=0;col<17;col++) {
+      const x = col-8, z = row-8;
+      if(Math.sqrt(x*x+z*z)>8.5) continue;
+      if(idx>=193) continue;
+      // Radial power profile: J0-like (higher at center)
+      const r = Math.sqrt(x*x+z*z)/8.5;
+      const basePower = (1-r*r*0.7) * (0.9+Math.random()*0.2);
+      coreMapData.push({row,col,x,z,basePower, T:292, burnup:Math.random()*20000, idx});
+      idx++;
+    }
+  }
+  drawCoreMap(0);
+
+  canvas2d.addEventListener('mousemove', e=>{
+    const rect = canvas2d.getBoundingClientRect();
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+    const col = Math.floor(mx/12), row = Math.floor(my/12);
+    const fa = coreMapData.find(f=>f.col===col && f.row===row);
+    if(fa) {
+      document.getElementById('fa-info').textContent =
+        `FA-${fa.idx+1} | T:${fa.T.toFixed(0)}°C | Bu:${(fa.burnup/1000).toFixed(1)} GWd/t | P:${(fa.basePower*100).toFixed(0)}%`;
+    }
+  });
+}
+
+function drawCoreMap(powerFrac) {
+  const canvas2d = document.getElementById('core-canvas');
+  const ctx = canvas2d.getContext('2d');
+  ctx.fillStyle = '#060e1a';
+  ctx.fillRect(0,0,204,204);
+
+  coreMapData.forEach(fa=>{
+    const normalPow = fa.basePower * powerFrac;
+    fa.T = 292 + normalPow * 33 * fa.basePower;
+    const t_norm = Math.min(1, normalPow * fa.basePower);
+    const col = thermalColor(t_norm);
+    ctx.fillStyle = col;
+    ctx.fillRect(fa.col*12+1, fa.row*12+1, 10, 10);
+
+    // Highlight overpower
+    if(normalPow * fa.basePower > 0.95 && powerFrac > 0.9) {
+      ctx.strokeStyle = '#ff2244';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(fa.col*12+1, fa.row*12+1, 10, 10);
+    }
+  });
+}
+
+function thermalColor(t) {
+  // Cold→blue→cyan→green→yellow→orange→red
+  if(t<0.001) return '#0a1628';
+  if(t<0.15) return `rgb(${Math.round(20+t*200)},${Math.round(50+t*100)},${Math.round(160+t*95)})`;
+  if(t<0.35) return `rgb(0,${Math.round(180+t*75)},${Math.round(255-t*255)})`;
+  if(t<0.55) return `rgb(0,255,${Math.round(255-(t-0.35)*1000)})`;
+  if(t<0.75) return `rgb(${Math.round((t-0.55)*1275)},255,0)`;
+  if(t<0.90) return `rgb(255,${Math.round(255-(t-0.75)*1700)},0)`;
+  return `rgb(255,${Math.round(Math.max(0,100-(t-0.90)*1000))},0)`;
+}
+
+// ── DOSE RATE MONITORS ───────────────────────────────────
+const DOSE_NODES = [
+  {name:'RPV TOP HEAD', base:0.5, pos:[0,13,0]},
+  {name:'SG NOZZLE', base:0.2, pos:[22,12,0]},
+  {name:'CIV ROOM', base:0.05, pos:[35,5,0]},
+  {name:'CONT. ANNULUS N', base:0.08, pos:[0,20,33]},
+  {name:'CONT. ANNULUS E', base:0.08, pos:[33,20,0]},
+  {name:'CONT. ANNULUS S', base:0.08, pos:[0,20,-33]},
+  {name:'CONTROL ROOM', base:0.002, pos:[-60,10,0]},
+  {name:'SPENT FUEL POOL', base:0.15, pos:[0,10,-65]},
+  {name:'TURBINE BLDG', base:0.04, pos:[80,10,0]},
+  {name:'MAIN STEAM LINE', base:0.02, pos:[40,15,0]},
+  {name:'RWST AREA', base:0.001, pos:[55,7,0]},
+  {name:'SITE BOUNDARY', base:0.0001, pos:[180,0,0]},
+];
+
+function updateDoseMap(powerFrac) {
+  const container = document.getElementById('dose-nodes');
+  container.innerHTML = DOSE_NODES.map((node,i)=>{
+    const dose = node.base * (1 + powerFrac * 50) * (PlantState.meltdown ? 1000 : 1);
+    const unit = dose > 1000 ? `${(dose/1000).toFixed(1)} mSv/hr` :
+                 dose > 1 ? `${dose.toFixed(1)} µSv/hr` :
+                 `${(dose*1000).toFixed(0)} nSv/hr`;
+    const color = dose > 100 ? '#ff2244' : dose > 10 ? '#ffd700' : dose > 1 ? '#ff8c00' : '#00ff88';
+    return `<div class="dose-node">
+      <span class="dose-loc" style="font-size:8px;width:95px">${node.name}</span>
+      <span class="dose-val" style="color:${color}">${unit}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── PHYSICS SIMULATION LOOP ──────────────────────────────
+let simTime = 0;
+let lastSimTime = performance.now();
+
+function getTargetReactivity() {
+  const rod_pct = PlantState.rod_position/228;
+  const rod_rho = (rod_pct - 0.5) * 8000; // pcm
+  const boron_rho = -(PlantState.boron_ppm - 1200) * 1.5; // ~-1.5 pcm/ppm
+  const xenon_rho = PlantState.xenon_worth; // always negative
+  return rod_rho + boron_rho + xenon_rho;
+}
+
+function physicsUpdate(dt) {
+  if(PlantState.meltdown) return;
+
+  const dt_s = Math.min(dt, 0.1);
+  simTime += dt_s;
+
+  if(PlantState.scram) {
+    PlantState.scram_time += dt_s;
+    // Control rods drop (gravity, 2s full insertion)
+    PlantState.rod_insertion_pct = Math.min(100, PlantState.scram_time/2*100);
+    
+    // Point kinetics with full negative reactivity
+    const rho_scram = -9500 * (PlantState.rod_insertion_pct/100) - 3000; // pcm
+    NK.P = Math.max(0, NK.P * Math.exp(-dt_s * 20 * (PlantState.rod_insertion_pct/100+0.5)));
+    PlantState.power_pct = NK.P * 100;
+    
+    // Decay heat (ANS-5.1) kicks in after rod insertion
+    if(PlantState.scram_time > 2 && scram_timestamp > 0) {
+      const t_decay = PlantState.scram_time - 2;
+      PlantState.decay_power = decayHeat(t_decay, 3400);
+      PlantState.power_MWt = Math.max(PlantState.decay_power, 0);
+      PlantState.decay_time = t_decay;
+    }
+    
+    // Pressurizer / RCS thermalize
+    PlantState.RCS_pressure = Math.max(100, PlantState.RCS_pressure - dt_s * 8);
+    PlantState.T_hot = Math.max(PlantState.T_cold+5, PlantState.T_hot - dt_s*2);
+    PlantState.T_fuel = Math.max(PlantState.T_cold+50, PlantState.T_fuel - dt_s*5);
+    
+    // ECCS check
+    if(PlantState.loca_active && !PlantState.ECCS_active && PlantState.scram_time > 25) {
+      PlantState.ECCS_active = true;
+      addAlarm('SIAS ACTUATED — HPSI/LPSI INJECTION INITIATED');
+    }
+
+  } else {
+    // Normal operation: Point Kinetics
+    const rho = getTargetReactivity();
+    PlantState.reactivity_pcm = rho;
+    
+    NK.P = Math.max(0, NK.step(dt_s, rho));
+    
+    // Smooth power approach toward equilibrium
+    const eq_power = Math.max(0, Math.min(1, (rho + 2800) / 8000));
+    NK.P = NK.P * 0.97 + eq_power * 0.03;
+    PlantState.power_pct = NK.P * 100;
+    PlantState.power_MWt = PlantState.power_pct / 100 * 3400;
+
+    // Thermal hydraulics
+    const pf = PlantState.power_pct/100;
+    PlantState.T_hot = 292 + pf * 33;
+    PlantState.T_cold = 292 + pf * 5;
+    PlantState.T_fuel = 900 + pf * 1300; // centerline temp
+    PlantState.RCS_pressure = 155.1 + pf * 2 - (PlantState.T_hot-325)*0.5;
+
+    // DNBR (simplified): inversely proportional to power, worsens near limits
+    PlantState.DNBR = pf < 0.01 ? 99.9 : Math.max(1.0, 3.5 - pf * 2.2);
+
+    // keff
+    PlantState.keff = 1.0 + rho/100000;
+
+    // Pressurizer
+    PlantState.pzr_pressure = PlantState.RCS_pressure + (Math.random()-0.5)*0.2;
+    PlantState.pzr_level = 62.4 + pf*8;
+
+    // Secondary
+    PlantState.steam_pressure = 72.4 + pf*4;
+    PlantState.sg_level = 68.2 - pf*3;
+
+    // Trip checks
+    checkTrips();
+  }
+
+  // Mode detection
+  if(PlantState.scram) {
+    PlantState.mode = PlantState.power_pct > 0.1 ? 'scram' : 'hot-shutdown';
+  } else if(PlantState.power_pct > 95) PlantState.mode = 'full-power';
+  else if(PlantState.power_pct > 10) PlantState.mode = 'part-load';
+  else if(PlantState.power_pct > 0.1) PlantState.mode = 'hot-standby';
+  else PlantState.mode = 'sub-critical';
+
+  // Meltdown check
+  if(!PlantState.meltdown && !PlantState.scram && 
+     (PlantState.T_fuel > 2200 || (PlantState.DNBR < 1.0 && PlantState.power_pct>50))) {
+    initiateMeltdown();
+  }
+}
+
+function checkTrips() {
+  if(PlantState.scram || PlantState.meltdown) return;
+  const trips = [];
+  if(PlantState.RCS_pressure > 172) trips.push('HIGH_RCS_PRESSURE');
+  if(PlantState.RCS_pressure < 138) trips.push('LOW_RCS_PRESSURE');
+  if(PlantState.T_hot > 343) trips.push('HIGH_COOLANT_TEMP');
+  if(PlantState.power_pct > 118) trips.push('HIGH_NEUTRON_FLUX_HI-HI');
+  if(PlantState.DNBR < 1.30 && PlantState.DNBR > 0) trips.push('LOW_DNBR');
+  if(trips.length > 0) {
+    initiateSCRAM(trips[0]);
+  }
+}
+
+// ── SCRAM ────────────────────────────────────────────────
+function initiateSCRAM(reason) {
+  if(PlantState.scram || PlantState.meltdown) return;
+  PlantState.scram = true;
+  PlantState.scram_time = 0;
+  scram_timestamp = performance.now();
+
+  document.body.classList.add('scram-active');
+  setTimeout(()=>document.body.classList.remove('scram-active'),3000);
+
+  addAlarm(`⚡ REACTOR TRIP — ${reason}`);
+  addAlarm('CONTROL RODS INSERTING — 2.0s FULL INSERTION');
+  addAlarm('TURBINE TRIP — GENERATOR BREAKERS OPEN');
+  logTrip(`SCRAM: ${reason} @ t=${simTime.toFixed(1)}s`);
+
+  document.getElementById('mode-pill').className = 'status-pill red';
+  document.getElementById('mode-pill').textContent = 'SCRAM';
+
+  // Animate rod drop in 3D
+  animateRodInsertion();
+}
+
+function animateRodInsertion() {
+  let t=0;
+  const interval = setInterval(()=>{
+    t += 0.05;
+    const frac = Math.min(1, t/2.0);
+    // Move CRDM rods down
+    if(crdmGroup) {
+      // Visual representation: darken fuel assemblies
+      if(fuelMesh) {
+        const col = new THREE.Color().setHSL(0.6-frac*0.5, 0.8, 0.3+frac*0.2);
+        fuelMesh.material.color.copy(col);
+      }
+    }
+    if(t>=2.0) clearInterval(interval);
+  }, 50);
+}
+
+// ── MELTDOWN ─────────────────────────────────────────────
+function initiateMeltdown() {
+  if(PlantState.meltdown) return;
+  PlantState.meltdown = true;
+
+  // Force SCRAM if not already
+  if(!PlantState.scram) initiateSCRAM('FUEL_DAMAGE_DETECTED');
+
+  setTimeout(()=>{
+    addAlarm('☢ FUEL DAMAGE CONFIRMED — T_FUEL > 2200°C');
+    addAlarm('☢ CONTAINMENT ISOLATION SIGNAL INITIATED');
+    addAlarm('☢ 10 CFR 50.72 EMERGENCY NOTIFICATION REQUIRED');
+
+    // Close CIVs (animated)
+    PlantState.CIV_open = false;
+
+    // Change scene fog
+    if(scene) scene.fog = new THREE.FogExp2(0x200800, 0.012);
+
+    // Show meltdown overlay after 3s
+    setTimeout(()=>{
+      document.getElementById('meltdown-overlay').classList.add('active');
+    }, 3000);
+
+    document.getElementById('mode-pill').textContent = 'MELTDOWN ALERT';
+  }, 2000);
+}
+
+function attemptReset() {
+  const code = document.getElementById('reset-code').value;
+  if(code.trim().toUpperCase() === 'XIOM-RESET') {
+    PlantState.reset_step++;
+    if(PlantState.reset_step < 3) {
+      document.getElementById('reset-code').value='';
+      document.getElementById('reset-code').placeholder = 
+        `STEP ${PlantState.reset_step+1}/3: RE-ENTER AUTH CODE`;
+    } else {
+      performReset();
+    }
+  } else {
+    addAlarm('⚠ INVALID AUTH CODE — RESET DENIED');
+  }
+}
+
+function performReset() {
+  Object.assign(PlantState, {
+    mode:'sub-critical', power_pct:0, power_MWt:0,
+    keff:0.985, reactivity_pcm:-1500, rod_position:0,
+    boron_ppm:1200, RCS_pressure:155.1, T_cold:292, T_hot:325,
+    T_fuel:900, DNBR:99.9, pzr_level:62.4, pzr_pressure:155.1,
+    steam_pressure:72.4, sg_level:68.2, cont_pressure:1.013,
+    ECCS_active:false, RHR_active:false, scram:false, scram_time:0,
+    meltdown:false, meltdown_confirmed:false, rod_insertion_pct:0,
+    CIV_open:true, loca_active:false, transient_active:false,
+    decay_time:0, decay_power:0, reset_step:0
+  });
+  NK.P=0; NK.C.fill(0);
+  document.getElementById('rod-ctrl').value=0;
+  document.getElementById('boron-ctrl').value=1200;
+  document.getElementById('demand-ctrl').value=0;
+  document.getElementById('meltdown-overlay').classList.remove('active');
+  if(scene) scene.fog = new THREE.FogExp2(0x060e1a, 0.008);
+  if(fuelMesh) fuelMesh.material.color.set(0x2266aa);
+  document.getElementById('alarm-panel').innerHTML='';
+  document.getElementById('alarm-panel').classList.remove('active');
+  document.getElementById('mode-pill').className='status-pill amber';
+  document.getElementById('mode-pill').textContent='SUB-CRITICAL';
+  logTrip('SYSTEM RESET — COLD SHUTDOWN STATE');
+  alarms=[];
+}
+
+// ── UI CONTROLS ──────────────────────────────────────────
+function updateRods(val) {
+  PlantState.rod_position = parseInt(val);
+  document.getElementById('rod-val').textContent = `${val} steps`;
+  if(!PlantState.scram) NK.P = Math.max(0, NK.P*0.98+0.001);
+}
+
+function updateBoron(val) {
+  PlantState.boron_ppm = parseInt(val);
+  document.getElementById('boron-val').textContent = val;
+}
+
+function updateDemand(val) {
+  target_power_pct = parseInt(val);
+  document.getElementById('demand-val').textContent = val;
+}
+
+function startReactor() {
+  if(PlantState.meltdown) return;
+  PlantState.rod_position = 80;
+  PlantState.boron_ppm = 800;
+  document.getElementById('rod-ctrl').value = 80;
+  document.getElementById('boron-ctrl').value = 800;
+  NK.P = 0.001;
+  addAlarm('STARTUP MODE — REACTOR CRITICAL');
+  logTrip('Reactor startup initiated');
+}
+
+function rampPower(pct) {
+  if(PlantState.meltdown || PlantState.scram) return;
+  const rods = pct === 100 ? 180 : 130;
+  const boron = pct === 100 ? 400 : 700;
+  PlantState.rod_position = rods;
+  PlantState.boron_ppm = boron;
+  document.getElementById('rod-ctrl').value = rods;
+  document.getElementById('boron-ctrl').value = boron;
+  document.getElementById('demand-ctrl').value = pct;
+  target_power_pct = pct;
+}
+
+function initiateHotStandby() {
+  PlantState.rod_position = 50;
+  PlantState.boron_ppm = 1500;
+  document.getElementById('rod-ctrl').value=50;
+  document.getElementById('boron-ctrl').value=1500;
+  addAlarm('HOT STANDBY — ROD MIDPLANE, BORON 1500 ppm');
+}
+
+function triggerLOCA() {
+  if(PlantState.meltdown) return;
+  PlantState.loca_active = true;
+  PlantState.RCS_pressure = 120; // rapid depressurization
+  addAlarm('⚠ LARGE-BREAK LOCA — RCS DEPRESSURIZATION');
+  addAlarm('⚠ ECCS ACTUATION SIGNAL — 25s DELAY');
+  initiateSCRAM('LOCA_LOW_PRESSURE');
+  logTrip('LOCA event triggered');
+}
+
+function triggerControlRodEjection() {
+  if(PlantState.meltdown || PlantState.scram) return;
+  PlantState.reactivity_pcm += 3500;
+  NK.P = Math.min(2.0, NK.P * 5);
+  addAlarm('⚠ CONTROL ROD EJECTION — POSITIVE REACTIVITY INSERTION');
+  addAlarm('⚠ HIGH NEUTRON FLUX — TRIP SIGNAL GENERATED');
+  logTrip('Rod ejection event');
+}
+
+function triggerLOFW() {
+  if(PlantState.meltdown || PlantState.scram) return;
+  PlantState.sg_level = 10;
+  addAlarm('⚠ LOSS OF MAIN FEEDWATER — SG LEVEL LOW');
+  addAlarm('⚠ EMERGENCY FEEDWATER ACTUATION');
+  logTrip('LOFW event triggered');
+  initiateSCRAM('LOSS_OF_FEEDWATER');
+}
+
+function triggerTransient() {
+  if(PlantState.meltdown || PlantState.scram) return;
+  PlantState.boron_ppm = Math.max(0, PlantState.boron_ppm - 300);
+  document.getElementById('boron-ctrl').value = PlantState.boron_ppm;
+  addAlarm('⚠ INADVERTENT BORON DILUTION — +REACTIVITY');
+  logTrip('Boron dilution transient');
+}
+
+// ── VIEW CONTROLS ─────────────────────────────────────────
+function toggleClipPlane() {
+  clipPlaneEnabled = !clipPlaneEnabled;
+  const btn = document.getElementById('clip-btn');
+  btn.classList.toggle('active', clipPlaneEnabled);
+
+  if(containmentGroup) {
+    containmentGroup.children.forEach(c=>{
+      if(c.material) {
+        c.material.opacity = clipPlaneEnabled ? 0.15 : (c.material.opacity < 0.3 ? 0.3 : 0.55);
+        c.material.transparent = true;
+      }
+    });
+  }
+}
+
+function toggleCherenkov() {
+  cherenkovEnabled = !cherenkovEnabled;
+  document.getElementById('glow-btn').classList.toggle('active', cherenkovEnabled);
+}
+
+function toggleWireframe() {
+  wireframeMode = !wireframeMode;
+  document.getElementById('wire-btn').classList.toggle('active', wireframeMode);
+  scene.traverse(obj=>{
+    if(obj.isMesh && obj.material && !obj.userData.noWireframe) {
+      if(Array.isArray(obj.material)) obj.material.forEach(m=>m.wireframe=wireframeMode);
+      else obj.material.wireframe = wireframeMode;
+    }
+  });
+}
+
+function toggleRCPRotation() {
+  rcpRotating = !rcpRotating;
+  document.getElementById('rpm-btn').classList.toggle('active', rcpRotating);
+}
+
+function setView(v) {
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if(v==='PID') {
+    document.getElementById('pid-overlay').classList.add('visible');
+    document.getElementById('dose-map').classList.remove('visible');
+  } else if(v==='3D') {
+    document.getElementById('pid-overlay').classList.remove('visible');
+    document.getElementById('dose-map').classList.remove('visible');
+  } else if(v==='DOSE') {
+    document.getElementById('pid-overlay').classList.remove('visible');
+    document.getElementById('dose-map').classList.add('visible');
+  }
+}
+
+// ── ALARM SYSTEM ─────────────────────────────────────────
+function addAlarm(msg) {
+  const panel = document.getElementById('alarm-panel');
+  panel.classList.add('active');
+  const item = document.createElement('div');
+  item.className = 'alarm-item';
+  item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  panel.prepend(item);
+  alarms.push({msg, time:Date.now()});
+  // Auto-remove after 8s
+  setTimeout(()=>{ if(item.parentNode) item.remove(); }, 8000);
+  if(panel.children.length === 0) panel.classList.remove('active');
+}
+
+function logTrip(msg) {
+  const log = document.getElementById('trip-log');
+  const entry = document.createElement('div');
+  entry.textContent = `[${simTime.toFixed(0)}s] ${msg}`;
+  log.prepend(entry);
+  if(log.children.length > 20) log.removeChild(log.lastChild);
+}
+
+// ── MOUSE TOOLTIP ─────────────────────────────────────────
+function onMouseMove(e) {
+  const tooltip = document.getElementById('tooltip');
+  if(e.clientX > window.innerWidth-250 || e.clientX < 230) {
+    tooltip.style.display='none'; return;
+  }
+  // Simple 3D raycasting for hover
+  tooltip.style.left = e.clientX+12+'px';
+  tooltip.style.top = e.clientY+12+'px';
+}
+
+// ── UI UPDATE ─────────────────────────────────────────────
+function updateUI() {
+  const p = PlantState;
+
+  // Mode display
+  document.getElementById('mode-disp').textContent = p.mode.toUpperCase().replace('-',' ');
+  document.getElementById('power-disp').textContent = `${p.power_MWt.toFixed(0)} MWt`;
+  document.getElementById('power-bar').style.width = `${Math.min(100,p.power_pct)}%`;
+
+  const keff_el = document.getElementById('keff-disp');
+  keff_el.textContent = p.keff.toFixed(5);
+  keff_el.className = 'data-value ' + (p.keff>1.005?'alarm':p.keff>1.0?'warn':'ok');
+
+  document.getElementById('rho-disp').textContent = `${p.reactivity_pcm.toFixed(0)} pcm`;
+
+  document.getElementById('rcs-p').textContent = `${p.RCS_pressure.toFixed(1)} bar`;
+  document.getElementById('rcs-p').className = 'data-value ' +
+    (p.RCS_pressure>170?'alarm':p.RCS_pressure>165?'warn':'ok');
+
+  document.getElementById('t-cold').textContent = `${p.T_cold.toFixed(1)} °C`;
+  document.getElementById('t-hot').textContent = `${p.T_hot.toFixed(1)} °C`;
+  document.getElementById('t-hot').className = 'data-value ' +
+    (p.T_hot>343?'alarm':p.T_hot>335?'warn':'ok');
+
+  document.getElementById('boron-disp').textContent = `${p.boron_ppm.toFixed(0)} ppm`;
+  document.getElementById('pzr-lvl').textContent = `${p.pzr_level.toFixed(1)} %`;
+
+  const dnbr_val = p.DNBR;
+  document.getElementById('dnbr-disp').textContent = dnbr_val>99?'≥ 1.30':`${dnbr_val.toFixed(2)}`;
+  document.getElementById('dnbr-disp').className = 'data-value ' +
+    (dnbr_val<1.17?'alarm':dnbr_val<1.30?'warn':'ok');
+
+  document.getElementById('eccs-disp').textContent = p.ECCS_active ? 'INJECTING' : 'STANDBY';
+  document.getElementById('eccs-disp').className = 'data-value ' + (p.ECCS_active?'alarm':'ok');
+
+  document.getElementById('sg1-lvl').textContent = `${p.sg_level.toFixed(1)} %`;
+  document.getElementById('steam-p').textContent = `${p.steam_pressure.toFixed(1)} bar`;
+
+  const mwe = p.power_MWt * 0.337;
+  document.getElementById('turb-load').textContent = `${mwe.toFixed(0)} MWe`;
+  document.getElementById('fw-flow').textContent = `${(p.power_MWt/2.8).toFixed(0)} t/hr`;
+
+  document.getElementById('cont-p').textContent = `${p.cont_pressure.toFixed(3)} bar`;
+  document.getElementById('cont-p').className = 'data-value ' + (p.cont_pressure>1.5?'alarm':'ok');
+
+  document.getElementById('rhr-status').textContent = p.RHR_active?'ACTIVE':'NOT ALIGNED';
+
+  // Decay heat
+  if(p.scram) {
+    document.getElementById('decay-t').textContent = `${p.decay_time.toFixed(0)} s`;
+    document.getElementById('decay-p').textContent = `${p.decay_power.toFixed(0)} MWt`;
+  }
+
+  // Instruments
+  const ni_el = document.getElementById('ni-power');
+  ni_el.textContent = p.power_pct.toFixed(2);
+  ni_el.className = 'inst-value ' + (p.power_pct>118?'alarm':p.power_pct>100?'warn':'ok');
+
+  const tf_el = document.getElementById('t-fuel');
+  tf_el.textContent = p.T_fuel.toFixed(0);
+  tf_el.className = 'inst-value ' + (p.T_fuel>2200?'alarm':p.T_fuel>1200?'warn':'ok');
+
+  const dnbr_el = document.getElementById('dnbr-inst');
+  dnbr_el.textContent = dnbr_val>99?'∞':dnbr_val.toFixed(2);
+  dnbr_el.className = 'inst-value ' + (dnbr_val<1.17?'alarm':dnbr_val<1.30?'warn':'ok');
+
+  document.getElementById('pzr-press').textContent = p.pzr_pressure.toFixed(1);
+  document.getElementById('pzr-press').className = 'inst-value ' +
+    (p.pzr_pressure>172?'alarm':p.pzr_pressure>165?'warn':'ok');
+
+  document.getElementById('dt-loop').textContent = (p.T_hot-p.T_cold).toFixed(1);
+
+  if(p.scram) {
+    document.getElementById('scram-time').textContent = p.scram_time.toFixed(1);
+    document.getElementById('scram-time').className = 'inst-value warn';
+  }
+
+  // Mode pill
+  if(!p.meltdown && !p.scram) {
+    const pill = document.getElementById('mode-pill');
+    if(p.power_pct > 50) { pill.className='status-pill green'; pill.textContent='POWER OPERATION'; }
+    else if(p.power_pct > 0.1) { pill.className='status-pill amber'; pill.textContent='LOW POWER'; }
+    else { pill.className='status-pill cyan'; pill.textContent='SUB-CRITICAL'; }
+  }
+
+  // ECCS pill
+  const ep = document.getElementById('eccs-pill');
+  ep.textContent = p.ECCS_active ? 'ECCS ACTIVE' : 'ECCS STANDBY';
+  ep.className = 'status-pill ' + (p.ECCS_active?'red':'amber');
+
+  // Core map
+  drawCoreMap(p.power_pct/100);
+
+  // Dose map
+  updateDoseMap(p.power_pct/100);
+}
+
+// ── 3D ANIMATION LOOP ────────────────────────────────────
+let lastTime = performance.now();
+
+function animate() {
+  animReq = requestAnimationFrame(animate);
+
+  const now = performance.now();
+  const dt = Math.min((now-lastTime)/1000, 0.1);
+  lastTime = now;
+
+  // FPS counter
+  frameCount++;
+  if(now - lastFPSTime > 1000) {
+    const fps = Math.round(frameCount * 1000/(now-lastFPSTime));
+    document.getElementById('fps-counter').textContent = `${fps} FPS | PHYSICS: 60Hz`;
+    frameCount=0; lastFPSTime=now;
+  }
+
+  // Physics
+  physicsUpdate(dt);
+  updateUI();
+
+  const pf = PlantState.power_pct/100;
+
+  // Cherenkov glow update
+  if(cherenkovEnabled && !PlantState.scram) {
+    const glowIntensity = Math.pow(pf, 0.5) * 0.65;
+    if(cherenkovMat) cherenkovMat.opacity = glowIntensity;
+    scene.traverse(obj=>{
+      if(obj.userData.isInnerGlow) obj.material.opacity = glowIntensity * 0.8;
+      if(obj.userData.isCoreLight) obj.intensity = glowIntensity * 3;
+    });
+  } else {
+    if(cherenkovMat) cherenkovMat.opacity *= 0.95;
+    scene.traverse(obj=>{
+      if(obj.userData.isInnerGlow) obj.material.opacity *= 0.95;
+      if(obj.userData.isCoreLight) obj.intensity *= 0.95;
+    });
+  }
+
+  // RCP rotation
+  if(rcpRotating && !PlantState.scram) {
+    rcpAngle += dt * (0.5 + pf * 4);
+    loopGroups.forEach((lg,i)=>{
+      lg.children.forEach(child=>{
+        if(child.userData.rcpIdx !== undefined) {
+          child.children.forEach(c=>{
+            if(c.geometry && c.geometry.type === 'CylinderGeometry' && c.position.y < 0) {
+              c.rotation.y = rcpAngle * (1+i*0.05);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // Fuel assembly color based on power + Doppler
+  if(fuelMesh && !PlantState.scram) {
+    const hue = 0.65 - pf*0.5;
+    const sat = 0.6 + pf*0.3;
+    const lit = 0.25 + pf*0.25;
+    fuelMesh.material.color.setHSL(hue, sat, lit);
+    fuelMesh.material.emissive.setHSL(0.6-pf*0.5, 0.8, pf*0.08);
+    fuelMesh.material.emissiveIntensity = pf;
+  }
+
+  // LOCA: slowly drop containment pressure over time
+  if(PlantState.loca_active && PlantState.ECCS_active) {
+    PlantState.cont_pressure = Math.min(3.5, PlantState.cont_pressure + dt*0.05);
+  }
+
+  // PID pressure oscillation (realistic)
+  if(!PlantState.scram) {
+    PlantState.pzr_pressure += (Math.random()-0.5)*0.04;
+    PlantState.pzr_pressure = Math.max(150, Math.min(165, PlantState.pzr_pressure));
+  }
+
+  // Clock
+  const now2 = new Date();
+  document.getElementById('clock').textContent =
+    `${now2.getHours().toString().padStart(2,'0')}:${now2.getMinutes().toString().padStart(2,'0')}:${now2.getSeconds().toString().padStart(2,'0')}`;
+
+  // Render
+  renderer.render(scene, camera);
+}
+
+function onResize() {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', ()=>{
+  initThree();
+  buildPID();
+  initCoreMap();
+  NK.init();
+  animate();
+
+  // Initial dose map
+  updateDoseMap(0);
+
+  // Welcome alarm
+  setTimeout(()=>{
+    addAlarm('XIOM NUCLEAR SUITE v4.0 — SYSTEM INITIALIZED');
+    addAlarm('AP1000 PWR REFERENCE PLANT — ALL SYSTEMS NOMINAL');
+    addAlarm('REACTOR IN SUB-CRITICAL — BORON: 1200 ppm');
+  }, 500);
+});
+</script>
+</body>
+</html>

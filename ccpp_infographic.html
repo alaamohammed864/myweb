@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural Gas Combined Cycle Power Plant — Technical Infographic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1b2a;
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: white;
+  }
+  .page-header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #e8f4fd;
+  }
+  .page-header p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #7cb9e8;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .diagram-container {
+    background: linear-gradient(160deg, #e8f0f7 0%, #d4e5f5 40%, #c8dff0 100%);
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 1200px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diagram-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(200,225,245,0.3) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    background: rgba(13,27,42,0.85);
+    border-radius: 8px;
+    padding: 12px 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    color: #cde;
+    letter-spacing: 0.5px;
+  }
+  .legend-line {
+    width: 32px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  svg text {
+    font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  }
+
+  @keyframes steam {
+    0%   { opacity: 0.7; transform: translateY(0) scaleX(1); }
+    50%  { opacity: 0.4; transform: translateY(-18px) scaleX(1.3); }
+    100% { opacity: 0; transform: translateY(-36px) scaleX(1.6); }
+  }
+  @keyframes steam2 {
+    0%   { opacity: 0.6; transform: translateY(0) scaleX(1); }
+    50%  { opacity: 0.3; transform: translateY(-22px) scaleX(1.4); }
+    100% { opacity: 0; transform: translateY(-44px) scaleX(1.8); }
+  }
+  .steam-puff { animation: steam 3s ease-out infinite; }
+  .steam-puff2 { animation: steam2 3.5s ease-out infinite 0.8s; }
+  .steam-puff3 { animation: steam 2.8s ease-out infinite 1.5s; }
+
+  @keyframes elec-pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .elec-pulse { animation: elec-pulse 1.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Natural Gas Combined Cycle Power Plant</h1>
+  <p>ENGINEERING SYSTEMS OVERVIEW — AERIAL ISOMETRIC DIAGRAM</p>
+</div>
+
+<div class="diagram-container">
+<svg viewBox="0 0 1140 760" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+  <defs>
+    <!-- Sky gradient background -->
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8d4ee"/>
+      <stop offset="100%" stop-color="#dceefa"/>
+    </linearGradient>
+    <!-- Ground gradient -->
+    <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7aab5e"/>
+      <stop offset="100%" stop-color="#5a8a42"/>
+    </linearGradient>
+    <!-- Concrete surface -->
+    <linearGradient id="concreteGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8c8c2"/>
+      <stop offset="100%" stop-color="#a8a8a0"/>
+    </linearGradient>
+    <!-- Metal roof -->
+    <linearGradient id="metalRoof" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d0d8e4"/>
+      <stop offset="100%" stop-color="#8a9aac"/>
+    </linearGradient>
+    <!-- Building wall light -->
+    <linearGradient id="wallLight" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e8eef4"/>
+      <stop offset="100%" stop-color="#b8c4ce"/>
+    </linearGradient>
+    <!-- Building wall dark -->
+    <linearGradient id="wallDark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9aa8b4"/>
+      <stop offset="100%" stop-color="#6a7880"/>
+    </linearGradient>
+    <!-- HRSG gradient -->
+    <linearGradient id="hrsgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c8d4dc"/>
+      <stop offset="100%" stop-color="#7a8e9e"/>
+    </linearGradient>
+    <!-- Water blue -->
+    <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a9fcc"/>
+      <stop offset="100%" stop-color="#2a6a9a"/>
+    </linearGradient>
+    <!-- Cooling tower -->
+    <linearGradient id="ctGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d0d8e0"/>
+      <stop offset="100%" stop-color="#8090a0"/>
+    </linearGradient>
+    <!-- Steam -->
+    <radialGradient id="steamGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Yellow pipe -->
+    <linearGradient id="pipeYellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd84d"/>
+      <stop offset="100%" stop-color="#c49a00"/>
+    </linearGradient>
+    <!-- Red pipe -->
+    <linearGradient id="pipeRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#cc0000"/>
+    </linearGradient>
+    <!-- Blue pipe -->
+    <linearGradient id="pipeBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4fc3f7"/>
+      <stop offset="100%" stop-color="#0277bd"/>
+    </linearGradient>
+    <!-- Tank gradient -->
+    <linearGradient id="tankGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8e8e0"/>
+      <stop offset="100%" stop-color="#a0a098"/>
+    </linearGradient>
+    <!-- Green landscaping -->
+    <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6db856"/>
+      <stop offset="100%" stop-color="#4a9038"/>
+    </linearGradient>
+    <!-- Solar panel -->
+    <linearGradient id="solarGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a3a6a"/>
+      <stop offset="100%" stop-color="#2a5aaa"/>
+    </linearGradient>
+
+    <!-- Label style filter -->
+    <filter id="labelShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+
+    <!-- Clip paths -->
+    <clipPath id="mainClip">
+      <rect x="0" y="0" width="1140" height="760"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#mainClip)">
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- BACKGROUND: sky, ground, main site pad -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="0" y="0" width="1140" height="760" fill="url(#skyGrad)"/>
+
+  <!-- Background hills / vegetation -->
+  <ellipse cx="200" cy="80" rx="220" ry="60" fill="#6aab4e" opacity="0.5"/>
+  <ellipse cx="900" cy="60" rx="280" ry="55" fill="#5a9a3e" opacity="0.4"/>
+  <ellipse cx="1060" cy="90" rx="150" ry="40" fill="#6aab4e" opacity="0.3"/>
+
+  <!-- River / water body top-right -->
+  <path d="M820,0 Q900,40 960,80 Q1000,100 1060,70 L1140,60 L1140,0 Z" fill="#5aaace" opacity="0.6"/>
+  <text x="1010" y="45" font-size="10" fill="#1a5a7a" font-family="Barlow Condensed" letter-spacing="1" text-anchor="middle">RIVER / WATER SOURCE</text>
+
+  <!-- Main site concrete ground -->
+  <path d="M60,220 L1080,180 L1120,720 L20,760 Z" fill="url(#concreteGrad)" stroke="#b0b0a8" stroke-width="1"/>
+
+  <!-- Internal road network -->
+  <!-- Main horizontal road -->
+  <path d="M60,560 L1090,520" stroke="#aaaaaa" stroke-width="14" fill="none"/>
+  <path d="M60,560 L1090,520" stroke="#ffffff" stroke-width="1" fill="none" stroke-dasharray="20,15"/>
+  <!-- Vertical road center -->
+  <path d="M570,220 L590,720" stroke="#aaaaaa" stroke-width="12" fill="none"/>
+  <path d="M570,220 L590,720" stroke="#ffffff" stroke-width="1" fill="none" stroke-dasharray="20,15"/>
+  <!-- Left road -->
+  <path d="M200,220 L220,720" stroke="#aaaaaa" stroke-width="10" fill="none"/>
+  <!-- Right road -->
+  <path d="M880,200 L900,720" stroke="#aaaaaa" stroke-width="10" fill="none"/>
+
+  <!-- Green buffer zones -->
+  <rect x="70" y="560" width="120" height="50" rx="4" fill="url(#grassGrad)" opacity="0.8"/>
+  <rect x="600" y="580" width="80" height="40" rx="4" fill="url(#grassGrad)" opacity="0.8"/>
+  <rect x="780" y="560" width="80" height="40" rx="4" fill="url(#grassGrad)" opacity="0.8"/>
+  <rect x="250" y="560" width="100" height="40" rx="4" fill="url(#grassGrad)" opacity="0.8"/>
+  <!-- Tree dots -->
+  <circle cx="90" cy="575" r="8" fill="#3a8a28"/>
+  <circle cx="105" cy="570" r="7" fill="#4aaa38"/>
+  <circle cx="160" cy="578" r="8" fill="#3a8a28"/>
+  <circle cx="620" cy="592" r="7" fill="#4aaa38"/>
+  <circle cx="800" cy="572" r="8" fill="#3a8a28"/>
+  <circle cx="815" cy="578" r="7" fill="#4aaa38"/>
+
+  <!-- Perimeter fence indicators -->
+  <rect x="55" y="215" width="1070" height="8" rx="2" fill="#888888" opacity="0.5"/>
+  <rect x="55" y="215" width="6" height="550" rx="2" fill="#888888" opacity="0.5"/>
+  <rect x="1115" y="180" width="6" height="550" rx="2" fill="#888888" opacity="0.5"/>
+  <rect x="22" y="755" width="1100" height="6" rx="2" fill="#888888" opacity="0.5"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ①: GAS METERING & FUEL SUPPLY (Far Left) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Pipeline from left edge (yellow) -->
+  <path d="M0,310 L130,305" stroke="url(#pipeYellow)" stroke-width="7" fill="none"/>
+  <path d="M0,316 L130,311" stroke="#c49a00" stroke-width="2" fill="none"/>
+
+  <!-- Gas Metering Station building -->
+  <!-- Base -->
+  <rect x="120" y="270" width="90" height="65" rx="3" fill="#c8ccc0"/>
+  <!-- Wall light -->
+  <rect x="120" y="270" width="90" height="65" rx="3" fill="url(#wallLight)" opacity="0.7"/>
+  <!-- Roof -->
+  <polygon points="115,270 215,270 220,255 120,255" fill="#7a8e9e"/>
+  <!-- Windows -->
+  <rect x="132" y="285" width="16" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="155" y="285" width="16" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="178" y="285" width="16" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <!-- Fence around station -->
+  <rect x="110" y="248" width="115" height="105" fill="none" stroke="#888" stroke-width="2" stroke-dasharray="4,3" rx="2"/>
+  <!-- Pressure gauges / valves symbolized -->
+  <circle cx="145" cy="318" r="5" fill="#ffd84d" stroke="#aa7700" stroke-width="1"/>
+  <circle cx="165" cy="318" r="5" fill="#ffd84d" stroke="#aa7700" stroke-width="1"/>
+  <circle cx="185" cy="318" r="5" fill="#ffd84d" stroke="#aa7700" stroke-width="1"/>
+  <text x="165" y="343" text-anchor="middle" font-size="8" fill="#555" font-family="Barlow Condensed">GAS METERING STN</text>
+
+  <!-- Fuel Gas KO Drums (horizontal cylinders) -->
+  <!-- Drum 1 -->
+  <ellipse cx="125" cy="375" rx="8" ry="18" fill="#c8ccd0"/>
+  <rect x="125" y="357" width="55" height="36" fill="url(#tankGrad)"/>
+  <ellipse cx="180" cy="375" rx="8" ry="18" fill="#e8eaec"/>
+  <text x="152" y="403" text-anchor="middle" font-size="7.5" fill="#555" font-family="Barlow Condensed">FUEL GAS KO DRUM 1</text>
+  <!-- Drum 2 -->
+  <ellipse cx="125" cy="420" rx="8" ry="18" fill="#c8ccd0"/>
+  <rect x="125" y="402" width="55" height="36" fill="url(#tankGrad)"/>
+  <ellipse cx="180" cy="420" rx="8" ry="18" fill="#e8eaec"/>
+  <text x="152" y="448" text-anchor="middle" font-size="7.5" fill="#555" font-family="Barlow Condensed">FUEL GAS KO DRUM 2</text>
+
+  <!-- Fuel storage tanks (vertical cylinders) -->
+  <!-- Tank 1 -->
+  <ellipse cx="80" cy="405" rx="22" ry="10" fill="#d8dce0"/>
+  <rect x="58" y="405" width="44" height="55" fill="url(#tankGrad)"/>
+  <ellipse cx="80" cy="460" rx="22" ry="10" fill="#b0b4b8"/>
+  <ellipse cx="80" cy="405" rx="22" ry="10" fill="#e8ecf0"/>
+  <text x="80" y="480" text-anchor="middle" font-size="7.5" fill="#555" font-family="Barlow Condensed">FUEL STORAGE</text>
+  <!-- Tank 2 -->
+  <ellipse cx="80" cy="490" rx="18" ry="8" fill="#d8dce0"/>
+  <rect x="62" y="490" width="36" height="42" fill="url(#tankGrad)"/>
+  <ellipse cx="80" cy="532" rx="18" ry="8" fill="#b0b4b8"/>
+  <ellipse cx="80" cy="490" rx="18" ry="8" fill="#e8ecf0"/>
+
+  <!-- Yellow fuel pipes connecting -->
+  <path d="M185,305 Q230,305 260,285" stroke="#ffd84d" stroke-width="5" fill="none"/>
+  <path d="M185,375 Q220,370 255,350" stroke="#ffd84d" stroke-width="4" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ②: GAS TURBINE GENERATOR UNITS -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- GTG Unit 1 (upper) -->
+  <!-- Air Intake Filter House -->
+  <rect x="250" y="220" width="75" height="55" rx="3" fill="#d8e0e8"/>
+  <polygon points="248,220 328,220 332,208 252,208" fill="#8a9aac"/>
+  <!-- Louvres on intake -->
+  <line x1="258" y1="225" x2="258" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="268" y1="225" x2="268" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="278" y1="225" x2="278" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="288" y1="225" x2="288" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="298" y1="225" x2="298" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="308" y1="225" x2="308" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="318" y1="225" x2="318" y2="270" stroke="#aabbc8" stroke-width="2"/>
+  <text x="288" y="284" text-anchor="middle" font-size="7.5" fill="#445" font-family="Barlow Condensed">AIR INTAKE</text>
+
+  <!-- Gas Turbine nacelle 1 -->
+  <path d="M330,225 L440,222 L444,268 L330,272 Z" fill="url(#metalRoof)"/>
+  <path d="M330,225 L330,272 L334,280 L334,233 Z" fill="#9aa8b4"/>
+  <!-- Aerodynamic curves on turbine -->
+  <ellipse cx="370" cy="248" rx="20" ry="12" fill="#b0bcc8" opacity="0.5"/>
+  <ellipse cx="405" cy="247" rx="18" ry="11" fill="#b0bcc8" opacity="0.5"/>
+  <text x="387" y="290" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">GAS TURBINE 1</text>
+
+  <!-- Generator 1 (cylindrical end-on) -->
+  <ellipse cx="455" cy="248" rx="14" ry="25" fill="#c0c8d0"/>
+  <rect x="455" y="223" width="40" height="50" fill="url(#tankGrad)"/>
+  <ellipse cx="495" cy="248" rx="12" ry="24" fill="#d8dce0"/>
+  <ellipse cx="455" cy="248" rx="14" ry="25" fill="#d0d8e0"/>
+  <text x="475" y="280" text-anchor="middle" font-size="7.5" fill="#445" font-family="Barlow Condensed">GEN 1</text>
+
+  <!-- GTG Unit 2 (lower, offset) -->
+  <!-- Air Intake Filter House 2 -->
+  <rect x="260" y="340" width="75" height="55" rx="3" fill="#d8e0e8"/>
+  <polygon points="258,340 338,340 342,328 262,328" fill="#8a9aac"/>
+  <!-- Louvres -->
+  <line x1="268" y1="345" x2="268" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="278" y1="345" x2="278" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="288" y1="345" x2="288" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="298" y1="345" x2="298" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="308" y1="345" x2="308" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="318" y1="345" x2="318" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <line x1="328" y1="345" x2="328" y2="390" stroke="#aabbc8" stroke-width="2"/>
+  <text x="298" y="404" text-anchor="middle" font-size="7.5" fill="#445" font-family="Barlow Condensed">AIR INTAKE</text>
+
+  <!-- Gas Turbine nacelle 2 -->
+  <path d="M340,345 L450,342 L454,388 L340,392 Z" fill="url(#metalRoof)"/>
+  <path d="M340,345 L340,392 L344,400 L344,353 Z" fill="#9aa8b4"/>
+  <ellipse cx="380" cy="368" rx="20" ry="12" fill="#b0bcc8" opacity="0.5"/>
+  <ellipse cx="415" cy="367" rx="18" ry="11" fill="#b0bcc8" opacity="0.5"/>
+  <text x="397" y="408" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">GAS TURBINE 2</text>
+
+  <!-- Generator 2 -->
+  <ellipse cx="465" cy="368" rx="14" ry="25" fill="#c0c8d0"/>
+  <rect x="465" y="343" width="40" height="50" fill="url(#tankGrad)"/>
+  <ellipse cx="505" cy="368" rx="12" ry="24" fill="#d8dce0"/>
+  <ellipse cx="465" cy="368" rx="14" ry="25" fill="#d0d8e0"/>
+  <text x="485" y="400" text-anchor="middle" font-size="7.5" fill="#445" font-family="Barlow Condensed">GEN 2</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ②: HRSG Units -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Ductwork from GT1 to HRSG1 -->
+  <path d="M440,248 Q510,248 540,248" stroke="#8a9aac" stroke-width="14" fill="none"/>
+  <path d="M440,248 Q510,248 540,248" stroke="#c8d4dc" stroke-width="10" fill="none"/>
+  <!-- Hot exhaust flow arrow -->
+  <path d="M450,244 Q490,244 520,244" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-dasharray="6,3" opacity="0.7"/>
+
+  <!-- Ductwork from GT2 to HRSG2 -->
+  <path d="M450,368 Q520,368 550,368" stroke="#8a9aac" stroke-width="14" fill="none"/>
+  <path d="M450,368 Q520,368 550,368" stroke="#c8d4dc" stroke-width="10" fill="none"/>
+  <path d="M460,364 Q500,364 530,364" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-dasharray="6,3" opacity="0.7"/>
+
+  <!-- HRSG 1 — big multi-story building -->
+  <!-- Shadow -->
+  <rect x="545" y="190" width="115" height="140" rx="4" fill="#8090a0" opacity="0.2" transform="translate(6,6)"/>
+  <!-- Main body -->
+  <rect x="545" y="190" width="115" height="140" rx="4" fill="url(#hrsgGrad)"/>
+  <!-- Roof -->
+  <polygon points="540,190 665,190 670,175 545,175" fill="#6a7e8e"/>
+  <!-- Finned tube detail (horizontal lines) -->
+  <line x1="550" y1="205" x2="655" y2="205" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="215" x2="655" y2="215" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="225" x2="655" y2="225" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="235" x2="655" y2="235" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="245" x2="655" y2="245" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="255" x2="655" y2="255" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="265" x2="655" y2="265" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="275" x2="655" y2="275" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="285" x2="655" y2="285" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="295" x2="655" y2="295" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="550" y1="305" x2="655" y2="305" stroke="#9aacb8" stroke-width="1.5"/>
+  <!-- HRSG label -->
+  <text x="602" y="337" text-anchor="middle" font-size="8.5" fill="#445" font-family="Barlow Condensed" font-weight="600">HRSG 1</text>
+  <text x="602" y="348" text-anchor="middle" font-size="6.5" fill="#667" font-family="Barlow Condensed">HEAT RECOVERY STEAM GENERATOR</text>
+
+  <!-- HRSG 2 — offset lower -->
+  <rect x="560" y="330" width="115" height="140" rx="4" fill="#8090a0" opacity="0.2" transform="translate(6,6)"/>
+  <rect x="560" y="330" width="115" height="140" rx="4" fill="url(#hrsgGrad)"/>
+  <polygon points="555,330 680,330 685,315 560,315" fill="#6a7e8e"/>
+  <line x1="565" y1="345" x2="670" y2="345" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="355" x2="670" y2="355" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="365" x2="670" y2="365" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="375" x2="670" y2="375" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="385" x2="670" y2="385" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="395" x2="670" y2="395" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="405" x2="670" y2="405" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="415" x2="670" y2="415" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="425" x2="670" y2="425" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="435" x2="670" y2="435" stroke="#9aacb8" stroke-width="1.5"/>
+  <line x1="565" y1="445" x2="670" y2="445" stroke="#9aacb8" stroke-width="1.5"/>
+  <text x="617" y="478" text-anchor="middle" font-size="8.5" fill="#445" font-family="Barlow Condensed" font-weight="600">HRSG 2</text>
+  <text x="617" y="489" text-anchor="middle" font-size="6.5" fill="#667" font-family="Barlow Condensed">HEAT RECOVERY STEAM GENERATOR</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ③: EXHAUST STACKS -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Stack 1 -->
+  <!-- Stack base to top (red & white striped) -->
+  <rect x="598" y="60" width="24" height="135" fill="white" rx="2"/>
+  <rect x="598" y="60" width="24" height="20" fill="#cc2222" rx="1"/>
+  <rect x="598" y="95" width="24" height="20" fill="#cc2222"/>
+  <rect x="598" y="130" width="24" height="20" fill="#cc2222"/>
+  <rect x="598" y="165" width="24" height="20" fill="#cc2222"/>
+  <!-- Stack shadow side -->
+  <rect x="622" y="68" width="6" height="127" fill="#8a9aa4" rx="1" opacity="0.5"/>
+  <!-- Stack cap -->
+  <ellipse cx="610" cy="60" rx="14" ry="5" fill="#cc2222"/>
+  <text x="610" y="205" text-anchor="middle" font-size="7" fill="#445" font-family="Barlow Condensed">EXHAUST STACK 1</text>
+
+  <!-- Steam plumes from Stack 1 -->
+  <g class="steam-puff" style="transform-origin: 610px 58px;">
+    <ellipse cx="610" cy="38" rx="20" ry="16" fill="white" opacity="0.7"/>
+  </g>
+  <g class="steam-puff2" style="transform-origin: 615px 30px;">
+    <ellipse cx="618" cy="22" rx="26" ry="20" fill="white" opacity="0.5"/>
+  </g>
+  <g class="steam-puff3" style="transform-origin: 606px 14px;">
+    <ellipse cx="606" cy="10" rx="22" ry="16" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Stack 2 (offset for HRSG2) -->
+  <rect x="625" y="185" width="22" height="130" fill="white" rx="2"/>
+  <rect x="625" y="185" width="22" height="18" fill="#cc2222" rx="1"/>
+  <rect x="625" y="218" width="22" height="18" fill="#cc2222"/>
+  <rect x="625" y="250" width="22" height="18" fill="#cc2222"/>
+  <rect x="625" y="282" width="22" height="18" fill="#cc2222"/>
+  <rect x="647" y="193" width="5" height="122" fill="#8a9aa4" rx="1" opacity="0.5"/>
+  <ellipse cx="636" cy="185" rx="12" ry="4" fill="#cc2222"/>
+  <text x="636" y="325" text-anchor="middle" font-size="7" fill="#445" font-family="Barlow Condensed">EXHAUST STACK 2</text>
+
+  <!-- Steam plumes from Stack 2 -->
+  <g class="steam-puff2" style="transform-origin: 636px 183px;">
+    <ellipse cx="636" cy="163" rx="18" ry="14" fill="white" opacity="0.7"/>
+  </g>
+  <g class="steam-puff" style="transform-origin: 642px 153px;">
+    <ellipse cx="645" cy="147" rx="24" ry="18" fill="white" opacity="0.5"/>
+  </g>
+  <g class="steam-puff3" style="transform-origin: 630px 137px;">
+    <ellipse cx="630" cy="132" rx="20" ry="15" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- STEAM TURBINE GENERATOR (between the two HRSGs) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Red steam pipes from HRSG1 to STG -->
+  <path d="M660,260 Q695,260 700,290" stroke="#cc0000" stroke-width="5" fill="none"/>
+  <path d="M675,470 Q700,470 700,430" stroke="#cc0000" stroke-width="5" fill="none"/>
+
+  <!-- STG building -->
+  <rect x="695" y="285" width="100" height="140" rx="4" fill="#d0d8e0"/>
+  <polygon points="690,285 800,285 805,270 695,270" fill="#8090a0"/>
+  <!-- Details on STG -->
+  <rect x="708" y="300" width="22" height="18" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="738" y="300" width="22" height="18" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="768" y="300" width="20" height="18" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="708" y="330" width="75" height="8" rx="2" fill="#b0bcca"/>
+  <rect x="708" y="345" width="75" height="8" rx="2" fill="#b0bcca"/>
+  <rect x="708" y="360" width="75" height="8" rx="2" fill="#b0bcca"/>
+  <!-- Generator coupled -->
+  <ellipse cx="808" cy="355" rx="12" ry="22" fill="#c0c8d0"/>
+  <rect x="808" y="333" width="32" height="44" fill="url(#tankGrad)"/>
+  <ellipse cx="840" cy="355" rx="10" ry="21" fill="#d0d8e0"/>
+  <ellipse cx="808" cy="355" rx="12" ry="22" fill="#d0d8e0"/>
+  <text x="747" y="436" text-anchor="middle" font-size="9" fill="#334" font-family="Barlow Condensed" font-weight="700">STEAM TURBINE</text>
+  <text x="747" y="447" text-anchor="middle" font-size="7" fill="#556" font-family="Barlow Condensed">GENERATOR (STG)</text>
+
+  <!-- Electrical output from STG to switchyard -->
+  <path d="M700,355 L200,525" stroke="#222222" stroke-width="4" fill="none" stroke-dasharray="10,5" class="elec-pulse"/>
+  <path d="M700,355 L200,525" stroke="#444444" stroke-width="2" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ④: COOLING SYSTEM (Right Side) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Cooling Tower 1 (hyperboloid) -->
+  <!-- Using path to simulate hyperboloid shape -->
+  <path d="M910,130 Q880,210 888,280 Q896,320 910,330 Q924,320 932,280 Q940,210 910,130 Z" 
+        fill="url(#ctGrad)" stroke="#8090a0" stroke-width="1.5"/>
+  <!-- Interior shadow -->
+  <path d="M905,135 Q893,215 900,282 Q905,314 910,325" fill="none" stroke="#7888a0" stroke-width="2" opacity="0.5"/>
+  <!-- Top rim -->
+  <ellipse cx="910" cy="130" rx="30" ry="8" fill="#c8d0d8"/>
+  <!-- Base rim -->
+  <ellipse cx="910" cy="330" rx="44" ry="12" fill="#9aa4ae"/>
+  <!-- Internal structure lines -->
+  <line x1="900" y1="140" x2="900" y2="320" stroke="#9aa8b4" stroke-width="0.8" opacity="0.4"/>
+  <line x1="918" y1="140" x2="920" y2="320" stroke="#9aa8b4" stroke-width="0.8" opacity="0.4"/>
+  <text x="910" y="348" text-anchor="middle" font-size="8.5" fill="#445" font-family="Barlow Condensed" font-weight="600">COOLING TOWER 1</text>
+
+  <!-- Steam from CT1 -->
+  <g class="steam-puff" style="transform-origin:910px 128px">
+    <ellipse cx="910" cy="108" rx="28" ry="20" fill="white" opacity="0.75"/>
+  </g>
+  <g class="steam-puff2" style="transform-origin:920px 90px">
+    <ellipse cx="922" cy="78" rx="36" ry="26" fill="white" opacity="0.55"/>
+  </g>
+  <g class="steam-puff3" style="transform-origin:905px 62px">
+    <ellipse cx="905" cy="52" rx="30" ry="22" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Cooling Tower 2 -->
+  <path d="M1010,155 Q980,235 988,305 Q996,345 1010,355 Q1024,345 1032,305 Q1040,235 1010,155 Z" 
+        fill="url(#ctGrad)" stroke="#8090a0" stroke-width="1.5"/>
+  <path d="M1005,160 Q993,238 1000,307 Q1005,338 1010,350" fill="none" stroke="#7888a0" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="1010" cy="155" rx="30" ry="8" fill="#c8d0d8"/>
+  <ellipse cx="1010" cy="355" rx="44" ry="12" fill="#9aa4ae"/>
+  <line x1="1000" y1="165" x2="1000" y2="345" stroke="#9aa8b4" stroke-width="0.8" opacity="0.4"/>
+  <line x1="1018" y1="165" x2="1020" y2="345" stroke="#9aa8b4" stroke-width="0.8" opacity="0.4"/>
+  <text x="1010" y="372" text-anchor="middle" font-size="8.5" fill="#445" font-family="Barlow Condensed" font-weight="600">COOLING TOWER 2</text>
+
+  <!-- Steam from CT2 -->
+  <g class="steam-puff2" style="transform-origin:1010px 153px">
+    <ellipse cx="1010" cy="133" rx="28" ry="20" fill="white" opacity="0.75"/>
+  </g>
+  <g class="steam-puff" style="transform-origin:1018px 113px">
+    <ellipse cx="1020" cy="105" rx="36" ry="26" fill="white" opacity="0.55"/>
+  </g>
+  <g class="steam-puff3" style="transform-origin:1005px 88px">
+    <ellipse cx="1005" cy="80" rx="30" ry="22" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Cooling Water Basin -->
+  <rect x="870" y="385" width="220" height="100" rx="4" fill="url(#waterGrad)" opacity="0.85"/>
+  <rect x="870" y="385" width="220" height="8" rx="2" fill="#6abce0"/>
+  <!-- Ripple lines -->
+  <line x1="880" y1="410" x2="1080" y2="405" stroke="#7ad0f0" stroke-width="1" opacity="0.5"/>
+  <line x1="880" y1="430" x2="1080" y2="425" stroke="#7ad0f0" stroke-width="1" opacity="0.5"/>
+  <line x1="880" y1="450" x2="1080" y2="445" stroke="#7ad0f0" stroke-width="1" opacity="0.5"/>
+  <text x="980" y="440" text-anchor="middle" font-size="9" fill="white" font-family="Barlow Condensed" font-weight="600">COOLING WATER BASIN</text>
+
+  <!-- Blue cooling water pipes -->
+  <path d="M966,330 L966,385" stroke="#4fc3f7" stroke-width="6" fill="none"/>
+  <path d="M966,385 L966,490" stroke="#4fc3f7" stroke-width="6" fill="none"/>
+  <path d="M1010,355 L1010,385" stroke="#4fc3f7" stroke-width="6" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ④: WATER TREATMENT PLANT -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Three circular clarifier tanks -->
+  <!-- Clarifier 1 -->
+  <ellipse cx="930" cy="530" rx="35" ry="16" fill="#3a8aba"/>
+  <rect x="895" y="530" width="70" height="35" fill="#2a6a9a"/>
+  <ellipse cx="930" cy="565" rx="35" ry="16" fill="#1a4a7a"/>
+  <ellipse cx="930" cy="530" rx="35" ry="16" fill="#4aade0"/>
+  <!-- Center mechanism -->
+  <circle cx="930" cy="530" r="8" fill="#3a8aba"/>
+  <line x1="918" y1="530" x2="942" y2="530" stroke="#7ad0f0" stroke-width="2"/>
+  <line x1="930" y1="518" x2="930" y2="542" stroke="#7ad0f0" stroke-width="2"/>
+
+  <!-- Clarifier 2 -->
+  <ellipse cx="1000" cy="540" rx="32" ry="14" fill="#3a8aba"/>
+  <rect x="968" y="540" width="64" height="32" fill="#2a6a9a"/>
+  <ellipse cx="1000" cy="572" rx="32" ry="14" fill="#1a4a7a"/>
+  <ellipse cx="1000" cy="540" rx="32" ry="14" fill="#4aade0"/>
+  <circle cx="1000" cy="540" r="7" fill="#3a8aba"/>
+  <line x1="990" y1="540" x2="1010" y2="540" stroke="#7ad0f0" stroke-width="2"/>
+  <line x1="1000" y1="530" x2="1000" y2="550" stroke="#7ad0f0" stroke-width="2"/>
+
+  <!-- Clarifier 3 -->
+  <ellipse cx="1065" cy="530" rx="30" ry="13" fill="#3a8aba"/>
+  <rect x="1035" y="530" width="60" height="30" fill="#2a6a9a"/>
+  <ellipse cx="1065" cy="560" rx="30" ry="13" fill="#1a4a7a"/>
+  <ellipse cx="1065" cy="530" rx="30" ry="13" fill="#4aade0"/>
+
+  <text x="995" y="595" text-anchor="middle" font-size="8.5" fill="#334" font-family="Barlow Condensed" font-weight="600">WATER TREATMENT PLANT</text>
+
+  <!-- Green treated water pipe to feedwater -->
+  <path d="M895,548 Q850,548 820,520" stroke="#4caf50" stroke-width="4" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ⑤: CONDENSATE & FEEDWATER -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Condensate storage tanks (row of 3) -->
+  <!-- Tank A -->
+  <ellipse cx="725" cy="500" rx="25" ry="11" fill="#d8dce0"/>
+  <rect x="700" y="500" width="50" height="36" fill="url(#tankGrad)"/>
+  <ellipse cx="725" cy="536" rx="25" ry="11" fill="#b0b4b8"/>
+  <ellipse cx="725" cy="500" rx="25" ry="11" fill="#e8ecf0"/>
+  <!-- Tank B -->
+  <ellipse cx="775" cy="498" rx="25" ry="11" fill="#d8dce0"/>
+  <rect x="750" y="498" width="50" height="36" fill="url(#tankGrad)"/>
+  <ellipse cx="775" cy="534" rx="25" ry="11" fill="#b0b4b8"/>
+  <ellipse cx="775" cy="498" rx="25" ry="11" fill="#e8ecf0"/>
+  <!-- Tank C -->
+  <ellipse cx="825" cy="497" rx="25" ry="11" fill="#d8dce0"/>
+  <rect x="800" y="497" width="50" height="36" fill="url(#tankGrad)"/>
+  <ellipse cx="825" cy="533" rx="25" ry="11" fill="#b0b4b8"/>
+  <ellipse cx="825" cy="497" rx="25" ry="11" fill="#e8ecf0"/>
+  <text x="775" y="555" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">CONDENSATE STORAGE TANKS</text>
+
+  <!-- Feedwater Pump House -->
+  <rect x="700" y="590" width="105" height="65" rx="3" fill="#d0d8e4"/>
+  <polygon points="695,590 810,590 814,577 698,577" fill="#8090a2"/>
+  <!-- Pump symbols -->
+  <circle cx="718" cy="618" r="10" fill="#9aacba" stroke="#7888a0" stroke-width="1.5"/>
+  <circle cx="745" cy="618" r="10" fill="#9aacba" stroke="#7888a0" stroke-width="1.5"/>
+  <circle cx="772" cy="618" r="10" fill="#9aacba" stroke="#7888a0" stroke-width="1.5"/>
+  <!-- Deaerator tower -->
+  <ellipse cx="800" cy="600" rx="9" ry="4" fill="#b0bcc8"/>
+  <rect x="791" y="600" width="18" height="40" fill="#9aacb8"/>
+  <ellipse cx="800" cy="640" rx="9" ry="4" fill="#8898a8"/>
+  <text x="752" y="665" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">FEEDWATER SYSTEM</text>
+
+  <!-- Red steam pipes from feedwater back to HRSG -->
+  <path d="M752,590 Q752,470 675,470" stroke="#cc0000" stroke-width="4" fill="none" stroke-dasharray="8,4"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ⑥: ELECTRICAL INFRASTRUCTURE (Left) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Main Transformer Bank -->
+  <!-- Transformer 1 -->
+  <rect x="90" y="580" width="40" height="50" rx="2" fill="#7a8a98"/>
+  <rect x="92" y="582" width="36" height="46" rx="1" fill="#9aaab8"/>
+  <!-- Cooling fins -->
+  <line x1="95" y1="582" x2="95" y2="628" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="101" y1="582" x2="101" y2="628" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="107" y1="582" x2="107" y2="628" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="113" y1="582" x2="113" y2="628" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="119" y1="582" x2="119" y2="628" stroke="#7a8a9a" stroke-width="2"/>
+  <!-- Bushings on top -->
+  <line x1="98" y1="580" x2="98" y2="570" stroke="#cc0000" stroke-width="2"/>
+  <line x1="110" y1="580" x2="110" y2="570" stroke="#cc0000" stroke-width="2"/>
+  <line x1="122" y1="580" x2="122" y2="570" stroke="#cc0000" stroke-width="2"/>
+
+  <!-- Transformer 2 -->
+  <rect x="140" y="578" width="40" height="50" rx="2" fill="#7a8a98"/>
+  <rect x="142" y="580" width="36" height="46" rx="1" fill="#9aaab8"/>
+  <line x1="145" y1="580" x2="145" y2="626" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="151" y1="580" x2="151" y2="626" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="157" y1="580" x2="157" y2="626" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="163" y1="580" x2="163" y2="626" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="169" y1="580" x2="169" y2="626" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="148" y1="578" x2="148" y2="568" stroke="#cc0000" stroke-width="2"/>
+  <line x1="160" y1="578" x2="160" y2="568" stroke="#cc0000" stroke-width="2"/>
+  <line x1="172" y1="578" x2="172" y2="568" stroke="#cc0000" stroke-width="2"/>
+
+  <!-- Transformer 3 -->
+  <rect x="190" y="576" width="40" height="50" rx="2" fill="#7a8a98"/>
+  <rect x="192" y="578" width="36" height="46" rx="1" fill="#9aaab8"/>
+  <line x1="195" y1="578" x2="195" y2="624" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="201" y1="578" x2="201" y2="624" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="207" y1="578" x2="207" y2="624" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="213" y1="578" x2="213" y2="624" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="219" y1="578" x2="219" y2="624" stroke="#7a8a9a" stroke-width="2"/>
+  <line x1="198" y1="576" x2="198" y2="566" stroke="#cc0000" stroke-width="2"/>
+  <line x1="210" y1="576" x2="210" y2="566" stroke="#cc0000" stroke-width="2"/>
+  <line x1="222" y1="576" x2="222" y2="566" stroke="#cc0000" stroke-width="2"/>
+
+  <text x="155" y="642" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">MAIN TRANSFORMER BANK</text>
+
+  <!-- Switchyard -->
+  <!-- Lattice structures -->
+  <!-- Row 1 -->
+  <line x1="70" y1="660" x2="70" y2="700" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="70" y1="660" x2="90" y2="700" stroke="#8090a0" stroke-width="1"/>
+  <line x1="70" y1="660" x2="50" y2="700" stroke="#8090a0" stroke-width="1"/>
+  <line x1="55" y1="680" x2="85" y2="680" stroke="#8090a0" stroke-width="1"/>
+  <line x1="70" y1="660" x2="70" y2="655" stroke="#8090a0" stroke-width="2"/>
+  <line x1="60" y1="655" x2="80" y2="655" stroke="#8090a0" stroke-width="2"/>
+
+  <line x1="115" y1="655" x2="115" y2="695" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="115" y1="655" x2="135" y2="695" stroke="#8090a0" stroke-width="1"/>
+  <line x1="115" y1="655" x2="95" y2="695" stroke="#8090a0" stroke-width="1"/>
+  <line x1="100" y1="675" x2="130" y2="675" stroke="#8090a0" stroke-width="1"/>
+  <line x1="115" y1="655" x2="115" y2="650" stroke="#8090a0" stroke-width="2"/>
+  <line x1="105" y1="650" x2="125" y2="650" stroke="#8090a0" stroke-width="2"/>
+
+  <line x1="160" y1="650" x2="160" y2="690" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="160" y1="650" x2="180" y2="690" stroke="#8090a0" stroke-width="1"/>
+  <line x1="160" y1="650" x2="140" y2="690" stroke="#8090a0" stroke-width="1"/>
+  <line x1="145" y1="670" x2="175" y2="670" stroke="#8090a0" stroke-width="1"/>
+  <line x1="160" y1="650" x2="160" y2="645" stroke="#8090a0" stroke-width="2"/>
+  <line x1="150" y1="645" x2="170" y2="645" stroke="#8090a0" stroke-width="2"/>
+
+  <!-- Horizontal busbars -->
+  <line x1="60" y1="655" x2="175" y2="645" stroke="#cc6600" stroke-width="2.5"/>
+  <line x1="60" y1="660" x2="175" y2="650" stroke="#cc6600" stroke-width="1.5"/>
+
+  <!-- String insulators (dots on busbar) -->
+  <circle cx="88" cy="657" r="3" fill="#e8dcc8" stroke="#9a8870" stroke-width="1"/>
+  <circle cx="133" cy="653" r="3" fill="#e8dcc8" stroke="#9a8870" stroke-width="1"/>
+  <circle cx="178" cy="650" r="3" fill="#e8dcc8" stroke="#9a8870" stroke-width="1"/>
+
+  <!-- Circuit breakers (small rectangles on poles) -->
+  <rect x="66" y="672" width="8" height="5" rx="1" fill="#556"/>
+  <rect x="111" y="668" width="8" height="5" rx="1" fill="#556"/>
+  <rect x="156" y="665" width="8" height="5" rx="1" fill="#556"/>
+
+  <text x="120" y="718" text-anchor="middle" font-size="9" fill="#334" font-family="Barlow Condensed" font-weight="700">400kV SWITCHYARD</text>
+
+  <!-- Electrical output pylons marching away -->
+  <!-- Pylon 1 -->
+  <line x1="65" y1="740" x2="65" y2="760" stroke="#6a7a88" stroke-width="3"/>
+  <line x1="50" y1="750" x2="80" y2="750" stroke="#6a7a88" stroke-width="2.5"/>
+  <line x1="65" y1="745" x2="50" y2="755" stroke="#6a7a88" stroke-width="1"/>
+  <line x1="65" y1="745" x2="80" y2="755" stroke="#6a7a88" stroke-width="1"/>
+  <!-- Pylon wires to edge -->
+  <path d="M50,750 Q30,745 10,740" stroke="#333" stroke-width="1.5" fill="none"/>
+  <path d="M80,750 Q60,745 40,742" stroke="#333" stroke-width="1.5" fill="none"/>
+
+  <!-- ⚡ Electrical Output label arrow -->
+  <path d="M30,730 L30,760" stroke="#ffcc00" stroke-width="2" marker-end="url(#arrowYellow)"/>
+  <text x="28" y="728" text-anchor="middle" font-size="10" fill="#ffcc00" font-family="Barlow Condensed" font-weight="700" class="elec-pulse">⚡ ELECTRICAL OUTPUT TO GRID</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION ⑦: OPERATIONS & SUPPORT (Foreground Center) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Control Room Building -->
+  <rect x="380" y="600" width="120" height="75" rx="3" fill="#dce4ec"/>
+  <polygon points="376,600 504,600 508,585 380,585" fill="#8898a8"/>
+  <!-- Large windows -->
+  <rect x="390" y="612" width="22" height="15" rx="1" fill="#7ab8d8" opacity="0.9"/>
+  <rect x="420" y="612" width="22" height="15" rx="1" fill="#7ab8d8" opacity="0.9"/>
+  <rect x="450" y="612" width="22" height="15" rx="1" fill="#7ab8d8" opacity="0.9"/>
+  <rect x="480" y="612" width="15" height="15" rx="1" fill="#7ab8d8" opacity="0.9"/>
+  <!-- Door -->
+  <rect x="428" y="648" width="20" height="27" rx="1" fill="#8898a8"/>
+  <!-- Solar panels on roof -->
+  <rect x="388" y="587" width="55" height="14" rx="1" fill="url(#solarGrad)"/>
+  <line x1="402" y1="587" x2="402" y2="601" stroke="#1a4a8a" stroke-width="1"/>
+  <line x1="416" y1="587" x2="416" y2="601" stroke="#1a4a8a" stroke-width="1"/>
+  <line x1="430" y1="587" x2="430" y2="601" stroke="#1a4a8a" stroke-width="1"/>
+  <line x1="388" y1="594" x2="443" y2="594" stroke="#1a4a8a" stroke-width="1"/>
+  <text x="440" y="690" text-anchor="middle" font-size="9" fill="#334" font-family="Barlow Condensed" font-weight="700">CONTROL ROOM</text>
+
+  <!-- Admin Building -->
+  <rect x="515" y="610" width="80" height="60" rx="3" fill="#dce4ec"/>
+  <polygon points="512,610 598,610 602,598 515,598" fill="#8898a8"/>
+  <rect x="524" y="622" width="16" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="548" y="622" width="16" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="572" y="622" width="14" height="12" rx="1" fill="#7ab8d8" opacity="0.8"/>
+  <rect x="535" y="645" width="18" height="25" rx="1" fill="#8898a8"/>
+  <text x="557" y="682" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed">ADMIN BUILDING</text>
+
+  <!-- Workshop/Maintenance Bay -->
+  <rect x="315" y="615" width="60" height="55" rx="2" fill="#c8d0d8"/>
+  <polygon points="312,615 378,615 381,603 315,603" fill="#7a8898"/>
+  <!-- Roller shutter doors -->
+  <rect x="320" y="638" width="22" height="32" rx="1" fill="#9aaab8"/>
+  <line x1="320" y1="642" x2="342" y2="642" stroke="#8898a8" stroke-width="1"/>
+  <line x1="320" y1="648" x2="342" y2="648" stroke="#8898a8" stroke-width="1"/>
+  <line x1="320" y1="654" x2="342" y2="654" stroke="#8898a8" stroke-width="1"/>
+  <line x1="320" y1="660" x2="342" y2="660" stroke="#8898a8" stroke-width="1"/>
+  <rect x="347" y="638" width="22" height="32" rx="1" fill="#9aaab8"/>
+  <line x1="347" y1="642" x2="369" y2="642" stroke="#8898a8" stroke-width="1"/>
+  <line x1="347" y1="648" x2="369" y2="648" stroke="#8898a8" stroke-width="1"/>
+  <line x1="347" y1="654" x2="369" y2="654" stroke="#8898a8" stroke-width="1"/>
+  <line x1="347" y1="660" x2="369" y2="660" stroke="#8898a8" stroke-width="1"/>
+  <text x="345" y="682" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed">WORKSHOP / MAINT.</text>
+
+  <!-- Fire Station -->
+  <rect x="262" y="620" width="48" height="48" rx="2" fill="#e04040"/>
+  <polygon points="259,620 313,620 316,610 263,610" fill="#a82020"/>
+  <rect x="270" y="640" width="15" height="28" rx="1" fill="#e8b8b8"/>
+  <rect x="291" y="640" width="14" height="28" rx="1" fill="#e8b8b8"/>
+  <!-- Fire station sign -->
+  <text x="286" y="636" text-anchor="middle" font-size="6" fill="white" font-family="Barlow Condensed" font-weight="700">FIRE</text>
+  <text x="286" y="675" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed">FIRE STATION</text>
+
+  <!-- Parking area -->
+  <rect x="380" y="692" width="120" height="40" rx="2" fill="#b8b8b0" opacity="0.7"/>
+  <line x1="400" y1="692" x2="400" y2="732" stroke="white" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="420" y1="692" x2="420" y2="732" stroke="white" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="440" y1="692" x2="440" y2="732" stroke="white" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="460" y1="692" x2="460" y2="732" stroke="white" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="480" y1="692" x2="480" y2="732" stroke="white" stroke-width="1" stroke-dasharray="4,3"/>
+  <!-- Car symbols -->
+  <rect x="382" y="696" width="14" height="8" rx="2" fill="#6a8aaa"/>
+  <rect x="402" y="698" width="14" height="8" rx="2" fill="#aa6a6a"/>
+  <rect x="422" y="696" width="14" height="8" rx="2" fill="#6aaa6a"/>
+  <rect x="442" y="698" width="14" height="8" rx="2" fill="#8888aa"/>
+  <text x="440" y="745" text-anchor="middle" font-size="7.5" fill="#556" font-family="Barlow Condensed">PARKING</text>
+
+  <!-- Security Gate -->
+  <rect x="572" y="218" width="18" height="12" rx="1" fill="#c8ccd0"/>
+  <rect x="590" y="222" width="30" height="4" rx="2" fill="#cc2222"/>
+  <text x="590" y="215" text-anchor="middle" font-size="7" fill="#556" font-family="Barlow Condensed">SECURITY GATE</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- FLOW LINES (color-coded) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Yellow: Fuel Gas from metering to GTGs -->
+  <path d="M235,310 Q248,310 260,300 Q270,295 270,280" stroke="#ffd84d" stroke-width="4" fill="none" opacity="0.9"/>
+  <path d="M235,310 Q248,355 265,360 Q268,368 270,370" stroke="#ffd84d" stroke-width="4" fill="none" opacity="0.9"/>
+
+  <!-- Red: Hot steam from HRSG to STG -->
+  <path d="M660,248 Q680,248 695,310" stroke="#cc2222" stroke-width="5" fill="none" opacity="0.85"/>
+  <path d="M675,400 Q690,400 695,400" stroke="#cc2222" stroke-width="5" fill="none" opacity="0.85"/>
+
+  <!-- Blue: Cooling water from basin to condensers -->
+  <path d="M966,385 L966,330" stroke="#4fc3f7" stroke-width="5" fill="none" opacity="0.85"/>
+  <path d="M850,430 Q820,430 800,450 Q775,465 755,490" stroke="#4fc3f7" stroke-width="4" fill="none" opacity="0.75"/>
+
+  <!-- Green: Treated water from WTP to feedwater -->
+  <path d="M895,548 Q850,548 820,520 Q800,510 755,590" stroke="#4caf50" stroke-width="4" fill="none" opacity="0.8"/>
+
+  <!-- Black: Electrical from STG to switchyard -->
+  <path d="M700,355 Q420,470 200,525" stroke="#222" stroke-width="3" fill="none" opacity="0.7"/>
+  <path d="M840,355 Q500,470 200,540" stroke="#222" stroke-width="2" fill="none" opacity="0.5"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LABELS (white boxes with arrows) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Helper macro: label box = white rect + black text -->
+
+  <!-- Label: Natural Gas Supply -->
+  <line x1="128" y1="305" x2="95" y2="280" stroke="white" stroke-width="1.5"/>
+  <rect x="18" y="258" width="118" height="24" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <rect x="18" y="258" width="118" height="24" rx="3" fill="none" stroke="#ccc" stroke-width="0.5"/>
+  <text x="77" y="274" text-anchor="middle" font-size="9" fill="#112" font-family="Barlow Condensed" font-weight="700">NATURAL GAS SUPPLY →</text>
+
+  <!-- Label: Gas Metering Station -->
+  <line x1="165" y1="270" x2="180" y2="248" stroke="white" stroke-width="1.5"/>
+  <rect x="80" y="228" width="118" height="22" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="139" y="243" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">GAS METERING STATION</text>
+
+  <!-- Label: Fuel Gas Storage -->
+  <line x1="80" y1="430" x2="60" y2="445" stroke="white" stroke-width="1.5"/>
+  <rect x="14" y="434" width="98" height="22" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="63" y="449" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">FUEL STORAGE TANKS</text>
+
+  <!-- Label: Air Intake GTG1 -->
+  <line x1="288" y1="275" x2="300" y2="295" stroke="white" stroke-width="1.5"/>
+  <rect x="228" y="295" width="100" height="22" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="278" y="310" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">AIR INTAKE — GTG 1</text>
+
+  <!-- Label: Gas Turbine 1 -->
+  <line x1="387" y1="260" x2="387" y2="240" stroke="white" stroke-width="1.5"/>
+  <rect x="330" y="225" width="96" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="378" y="239" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">GAS TURBINE 1</text>
+
+  <!-- Label: Gas Turbine 2 -->
+  <line x1="395" y1="358" x2="380" y2="340" stroke="white" stroke-width="1.5"/>
+  <rect x="328" y="325" width="96" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="376" y="339" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">GAS TURBINE 2</text>
+
+  <!-- Label: HRSG 1 -->
+  <line x1="602" y1="190" x2="580" y2="170" stroke="white" stroke-width="1.5"/>
+  <rect x="514" y="154" width="130" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="579" y="168" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">HEAT RECOVERY STEAM GEN 1</text>
+
+  <!-- Label: HRSG 2 -->
+  <line x1="617" y1="330" x2="640" y2="310" stroke="white" stroke-width="1.5"/>
+  <rect x="553" y="295" width="130" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="618" y="309" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">HEAT RECOVERY STEAM GEN 2</text>
+
+  <!-- Label: HRSG Exhaust Stack 1 -->
+  <line x1="610" y1="140" x2="660" y2="140" stroke="white" stroke-width="1.5"/>
+  <rect x="658" y="130" width="132" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="724" y="144" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">HRSG EXHAUST STACK 1</text>
+
+  <!-- Label: HRSG Exhaust Stack 2 -->
+  <line x1="636" y1="248" x2="686" y2="248" stroke="white" stroke-width="1.5"/>
+  <rect x="684" y="238" width="132" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="750" y="252" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">HRSG EXHAUST STACK 2</text>
+
+  <!-- Label: Steam Turbine -->
+  <line x1="747" y1="285" x2="747" y2="265" stroke="white" stroke-width="1.5"/>
+  <rect x="688" y="250" width="120" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="748" y="264" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">STEAM TURBINE GEN</text>
+
+  <!-- Label: Electrical Generator (coupled) -->
+  <line x1="824" y1="355" x2="858" y2="340" stroke="white" stroke-width="1.5"/>
+  <rect x="856" y="328" width="100" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="906" y="342" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">ELECTRICAL GEN (STG)</text>
+
+  <!-- Label: Cooling Tower 1 -->
+  <line x1="910" y1="200" x2="950" y2="195" stroke="white" stroke-width="1.5"/>
+  <rect x="948" y="184" width="110" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="1003" y="198" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">COOLING TOWER 1</text>
+
+  <!-- Label: Cooling Tower 2 -->
+  <line x1="1045" y1="240" x2="1082" y2="240" stroke="white" stroke-width="1.5"/>
+  <rect x="1080" y="229" width="58" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="1109" y="243" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">CT 2</text>
+
+  <!-- Label: Cooling Water Basin -->
+  <line x1="980" y1="430" x2="980" y2="450" stroke="white" stroke-width="1.5"/>
+  <rect x="906" y="449" width="148" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="980" y="463" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">COOLING WATER BASIN</text>
+
+  <!-- Label: Water Treatment Plant -->
+  <line x1="995" y1="555" x2="1000" y2="580" stroke="white" stroke-width="1.5"/>
+  <rect x="924" y="578" width="152" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="1000" y="592" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">WATER TREATMENT PLANT</text>
+
+  <!-- Label: Condensate Tanks -->
+  <line x1="775" y1="498" x2="775" y2="477" stroke="white" stroke-width="1.5"/>
+  <rect x="708" y="462" width="136" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="776" y="476" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">CONDENSATE STORAGE TANKS</text>
+
+  <!-- Label: Feedwater System -->
+  <line x1="752" y1="590" x2="720" y2="572" stroke="white" stroke-width="1.5"/>
+  <rect x="660" y="558" width="118" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="719" y="572" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">FEEDWATER SYSTEM</text>
+
+  <!-- Label: Main Transformer -->
+  <line x1="155" y1="578" x2="155" y2="558" stroke="white" stroke-width="1.5"/>
+  <rect x="80" y="543" width="148" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="154" y="557" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">MAIN TRANSFORMER BANK</text>
+
+  <!-- Label: Switchyard -->
+  <line x1="120" y1="660" x2="118" y2="640" stroke="white" stroke-width="1.5"/>
+  <rect x="62" y="625" width="112" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="118" y="639" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">400kV SWITCHYARD</text>
+
+  <!-- Label: Control Room -->
+  <line x1="440" y1="600" x2="440" y2="580" stroke="white" stroke-width="1.5"/>
+  <rect x="382" y="566" width="116" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="440" y="580" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">CONTROL ROOM (DCS)</text>
+
+  <!-- Label: Auxiliary Buildings -->
+  <line x1="345" y1="615" x2="320" y2="598" stroke="white" stroke-width="1.5"/>
+  <rect x="244" y="583" width="130" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="309" y="597" text-anchor="middle" font-size="8.5" fill="#112" font-family="Barlow Condensed" font-weight="700">AUXILIARY / WORKSHOP</text>
+
+  <!-- Label: Fire Station -->
+  <line x1="286" y1="620" x2="268" y2="604" stroke="white" stroke-width="1.5"/>
+  <rect x="214" y="590" width="96" height="20" rx="3" fill="white" opacity="0.92" filter="url(#labelShadow)"/>
+  <text x="262" y="604" text-anchor="middle" font-size="8.5" fill="#cc2222" font-family="Barlow Condensed" font-weight="700">🔴 FIRE STATION</text>
+
+  <!-- Electrical Output Label with lightning bolt -->
+  <rect x="18" y="695" width="178" height="28" rx="4" fill="#1a2a3a" opacity="0.88" filter="url(#labelShadow)"/>
+  <text x="107" y="714" text-anchor="middle" font-size="11" fill="#ffcc00" font-family="Barlow Condensed" font-weight="700" class="elec-pulse">⚡ OUTPUT TO NATIONAL GRID</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- TITLE BANNER -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="0" y="0" width="1140" height="0" fill="none"/>
+
+  <!-- Flow legend bottom-right -->
+  <rect x="845" y="622" width="272" height="118" rx="5" fill="rgba(15,28,44,0.88)" filter="url(#labelShadow)"/>
+  <text x="981" y="641" text-anchor="middle" font-size="10" fill="#aaccee" font-family="Barlow Condensed" font-weight="700" letter-spacing="1">PROCESS FLOW LEGEND</text>
+  <!-- Fuel gas -->
+  <line x1="862" y1="656" x2="902" y2="656" stroke="#ffd84d" stroke-width="4"/>
+  <text x="910" y="660" font-size="9" fill="#ddeeff" font-family="Barlow Condensed">FUEL GAS (Yellow)</text>
+  <!-- Hot steam -->
+  <line x1="862" y1="672" x2="902" y2="672" stroke="#cc2222" stroke-width="4"/>
+  <text x="910" y="676" font-size="9" fill="#ddeeff" font-family="Barlow Condensed">HOT STEAM (Red)</text>
+  <!-- Cooling water -->
+  <line x1="862" y1="688" x2="902" y2="688" stroke="#4fc3f7" stroke-width="4"/>
+  <text x="910" y="692" font-size="9" fill="#ddeeff" font-family="Barlow Condensed">COOLING WATER (Blue)</text>
+  <!-- Electrical -->
+  <line x1="862" y1="704" x2="902" y2="704" stroke="#555" stroke-width="4"/>
+  <line x1="862" y1="704" x2="902" y2="704" stroke="#222" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="910" y="708" font-size="9" fill="#ddeeff" font-family="Barlow Condensed">ELECTRICAL (Black)</text>
+  <!-- Treated water -->
+  <line x1="862" y1="720" x2="902" y2="720" stroke="#4caf50" stroke-width="4"/>
+  <text x="910" y="724" font-size="9" fill="#ddeeff" font-family="Barlow Condensed">TREATED WATER (Green)</text>
+
+  <!-- Sunlight direction indicator -->
+  <circle cx="1105" cy="210" r="18" fill="#fff8d0" stroke="#ffd84d" stroke-width="2"/>
+  <!-- Sun rays -->
+  <line x1="1105" y1="186" x2="1105" y2="178" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1105" y1="232" x2="1105" y2="240" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1081" y1="210" x2="1073" y2="210" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1129" y1="210" x2="1137" y2="210" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1088" y1="193" x2="1082" y2="187" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1120" y1="225" x2="1126" y2="231" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1120" y1="193" x2="1126" y2="187" stroke="#ffd84d" stroke-width="2"/>
+  <line x1="1088" y1="225" x2="1082" y2="231" stroke="#ffd84d" stroke-width="2"/>
+  <text x="1105" y="214" text-anchor="middle" font-size="7" fill="#aa8800" font-family="Barlow Condensed" font-weight="700">SUN</text>
+  <!-- Shadow direction arrow -->
+  <path d="M1093,224 L1070,248" stroke="#aa8800" stroke-width="1.5" marker-end="url(#arrowSun)"/>
+  <text x="1072" y="262" text-anchor="middle" font-size="7" fill="#778899" font-family="Barlow Condensed">SHADOW DIR.</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#ffcc00"/>
+    </marker>
+    <marker id="arrowSun" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+      <polygon points="0 0, 6 2.5, 0 5" fill="#aa8800"/>
+    </marker>
+  </defs>
+
+  <!-- Plant efficiency badge -->
+  <rect x="860" y="180" width="108" height="34" rx="5" fill="#1a2a3a" opacity="0.85"/>
+  <text x="914" y="196" text-anchor="middle" font-size="8" fill="#7aaad0" font-family="Share Tech Mono">THERMAL EFF.</text>
+  <text x="914" y="210" text-anchor="middle" font-size="14" fill="#7fffaa" font-family="Barlow Condensed" font-weight="700">~60%</text>
+
+  <!-- North indicator -->
+  <circle cx="1100" cy="140" r="14" fill="rgba(15,28,44,0.8)" stroke="#4a6a8a" stroke-width="1.5"/>
+  <text x="1100" y="133" text-anchor="middle" font-size="10" fill="#4aacee" font-family="Barlow Condensed" font-weight="700">N</text>
+  <polygon points="1100,118 1096,130 1100,127 1104,130" fill="#4aacee"/>
+  <polygon points="1100,160 1096,148 1100,151 1104,148" fill="#556677"/>
+
+  </g>
+</svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-line" style="background:#ffd84d"></div> Fuel Gas</div>
+  <div class="legend-item"><div class="legend-line" style="background:#cc2222"></div> Hot Steam</div>
+  <div class="legend-item"><div class="legend-line" style="background:#4fc3f7"></div> Cooling Water</div>
+  <div class="legend-item"><div class="legend-line" style="background:#222; border:1px dashed #666"></div> Electrical</div>
+  <div class="legend-item"><div class="legend-line" style="background:#4caf50"></div> Treated Water</div>
+  <div class="legend-item" style="color:#8ab"><span>© CCPP Engineering Diagram — For Educational Use</span></div>
+</div>
+
+</body>
+</html>

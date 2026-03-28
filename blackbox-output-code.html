@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koi Treating - علاج أسماك الكوي</title>
+    <style>
+        /* ===========================================
+           جميع الـ CSS مدمج هنا - من ملفاتك الأصلية
+        =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .treatments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .treatment-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .treatment-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .treatment-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .treatment-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .treatment-desc {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .dosage {
+            background: rgba(255,215,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .calculator {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .calc-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            background: rgba(255,255,255,0.9);
+            text-align: center;
+        }
+
+        .calc-result {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,215,0,0.2);
+            border-radius: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255,215,0,0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .treatments-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .treatment-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .treatment-card:nth-child(1) { animation-delay: 0.1s; }
+        .treatment-card:nth-child(2) { animation-delay: 0.2s; }
+        .treatment-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🐟 علاج أسماك الكوي</h1>
+            <p class="subtitle">أفضل الحلول لأمراض أسماك الكوي الاستوائية</p>
+        </header>
+
+        <!-- العلاجات -->
+        <div class="treatments-grid">
+            <div class="treatment-card">
+                <div class="treatment-icon">🦠</div>
+                <h3 class="treatment-title">عدوى بكتيرية</h3>
+                <p class="treatment-desc">التهاب الزعانف والجلد، بقع حمراء، تقشر الجلد</p>
+                <div class="dosage">
+                    <strong>الجرعة:</strong> 1 جرام لكل 100 لتر<br>
+                    <strong>المدة:</strong> 7 أيام متتالية
+                </div>
+            </div>
+
+            <div class="treatment-card">
+                <div class="treatment-icon">🦠</div>
+                <h3 class="treatment-title">فطريات</h3>
+                <p class="treatment-desc">نمو أبيض على الجسم، بطء في الحركة</p>
+                <div class="dosage">
+                    <strong>الجرعة:</strong> 2 جرام لكل 100 لتر<br>
+                    <strong>المدة:</strong> 5 أيام
+                </div>
+            </div>
+
+            <div class="treatment-card">
+                <div class="treatment-icon">🐛</div>
+                <h3 class="treatment-title">طفيليات</h3>
+                <p class="treatment-desc">خدوش على الجسم، احتكاك بالصخور</p>
+                <div class="dosage">
+                    <strong>الجرعة:</strong> 1.5 جرام لكل 100 لتر<br>
+                    <strong>المدة:</strong> 3 أيام
+                </div>
+            </div>
+        </div>
+
+        <!-- الحاسبة -->
+        <div class="calculator">
+            <h2>🧮 حاسبة الجرعة الدقيقة</h2>
+            <p>أدخل حجم الحوض باللتر</p>
+            
+            <input type="number" class="calc-input" id="tankSize" placeholder="حجم الحوض (لتر)" min="1">
+            
+            <br>
+            <button class="btn" onclick="calculateDosage()">احسب الجرعة</button>
+            
+            <div id="result" class="calc-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 Koi Treating - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script>
+        // ===========================================
+        // جميع الـ JavaScript مدمج هنا
+        // ===========================================
+        
+        function calculateDosage() {
+            const tankSize = parseFloat(document.getElementById('tankSize').value);
+            const resultDiv = document.getElementById('result');
+            
+            if (!tankSize || tankSize <= 0) {
+                alert('يرجى إدخال حجم صحيح للحوض');
+                return;
+            }
+            
+            // جرعات مختلفة للأمراض
+            const dosages = {
+                bacterial: tankSize * 0.01,  // 1g/100L
+                fungal: tankSize * 0.02,     // 2g/100L
+                parasites: tankSize * 0.015  // 1.5g/100L
+            };
+            
+            resultDiv.innerHTML = `
+                <strong>الجرعات المطلوبة:</strong><br>
+                عدوى بكتيرية: ${dosages.bacterial.toFixed(1)} جرام<br>
+                فطريات: ${dosages.fungal.toFixed(1)} جرام<br>
+                طفيليات: ${dosages.parasites.toFixed(1)} جرام
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        // إضافة Enter key support
+        document.getElementById('tankSize').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateDosage();
+            }
+        });
+
+        // Smooth scroll للروابط
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        console.log('✅ Koi Treating App جاهز للعمل!');
+    </script>
+</body>
+</html>

@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XIOM NUCLEAR SUITE v3.0 | ENG_ALAA MOHAMMED</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg-deep: #020810;
+  --bg-panel: #050e1a;
+  --bg-card: #071525;
+  --border: #0a2a4a;
+  --border-bright: #1a5a8a;
+  --cyan: #00d4ff;
+  --cyan-dim: #005566;
+  --green: #00ff88;
+  --green-dim: #004422;
+  --red: #ff2244;
+  --red-dim: #440011;
+  --orange: #ff8800;
+  --yellow: #ffcc00;
+  --blue: #0066ff;
+  --white: #e8f4ff;
+  --muted: #2a4a6a;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--white);
+  font-family: var(--font-body);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ── SCANLINE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,212,255,0.015) 2px,
+    rgba(0,212,255,0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── LAYOUT ── */
+#app {
+  display: grid;
+  grid-template-rows: 48px 1fr 180px;
+  grid-template-columns: 280px 1fr 280px;
+  height: 100vh;
+  gap: 2px;
+  background: #000;
+}
+
+/* ── HEADER ── */
+#header {
+  grid-column: 1 / -1;
+  background: linear-gradient(90deg, var(--bg-panel), #071a2e, var(--bg-panel));
+  border-bottom: 1px solid var(--cyan-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: relative;
+}
+#header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: scanH 4s linear infinite;
+}
+@keyframes scanH { 0%{opacity:0.3} 50%{opacity:1} 100%{opacity:0.3} }
+
+.header-brand {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan);
+}
+.header-brand span { color: var(--orange); }
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border: 1px solid;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-family: var(--font-display);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.8} 50%{opacity:1} }
+
+.status-CRITICAL { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.status-SCRAM    { border-color: var(--red);   color: var(--red);   background: var(--red-dim);   animation: scramBlink 0.3s step-end infinite; }
+.status-WARNING  { border-color: var(--orange); color: var(--orange); }
+@keyframes scramBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.header-info { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-align: right; line-height: 1.6; }
+
+/* ── LEFT PANEL ── */
+#panel-left {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+}
+
+/* ── RIGHT PANEL ── */
+#panel-right {
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+}
+
+/* ── CENTER 3D VIEW ── */
+#view-3d {
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+#three-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.view-label {
+  position: absolute;
+  top: 8px; left: 12px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  opacity: 0.6;
+}
+
+/* ── BOTTOM BAR ── */
+#panel-bottom {
+  grid-column: 1 / -1;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 200px;
+  gap: 2px;
+  padding: 4px;
+}
+
+/* ── PANELS & CARDS ── */
+.panel-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-title::before {
+  content: '';
+  width: 3px; height: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
+
+/* ── GAUGES ── */
+.gauge-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.gauge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.gauge-label { color: var(--muted); font-size: 9px; }
+.gauge-value { color: var(--white); }
+.gauge-unit  { color: var(--cyan); font-size: 9px; }
+
+.gauge-bar {
+  height: 4px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.gauge-fill {
+  height: 100%;
+  transition: width 0.5s ease, background 0.5s;
+  position: relative;
+}
+.gauge-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0; width: 4px;
+  background: white;
+  filter: blur(2px);
+  opacity: 0.8;
+}
+
+.fill-green  { background: linear-gradient(90deg, #003322, var(--green)); }
+.fill-cyan   { background: linear-gradient(90deg, #002233, var(--cyan)); }
+.fill-orange { background: linear-gradient(90deg, #331100, var(--orange)); }
+.fill-red    { background: linear-gradient(90deg, #220000, var(--red)); animation: alertFlash 0.5s step-end infinite; }
+.fill-yellow { background: linear-gradient(90deg, #332200, var(--yellow)); }
+@keyframes alertFlash { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── CONTROL ROD GRID ── */
+.rod-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.rod-cell {
+  aspect-ratio: 1;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.rod-cell:hover { border-color: var(--cyan); }
+.rod-cell.rod-in  { background: #001122; }
+.rod-cell.rod-out { background: #002244; box-shadow: inset 0 0 4px rgba(0,212,255,0.3); }
+.rod-cell.rod-hot { background: #220800; box-shadow: inset 0 0 4px rgba(255,136,0,0.5); }
+.rod-cell.rod-scram { background: #220000; box-shadow: inset 0 0 4px rgba(255,34,68,0.8); animation: scramBlink 0.3s step-end infinite; }
+
+.rod-indicator {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transition: transform 0.8s ease;
+  transform-origin: top center;
+}
+
+/* ── CORE MAP ── */
+.core-map {
+  display: grid;
+  grid-template-columns: repeat(17, 1fr);
+  gap: 1px;
+}
+
+.assembly-cell {
+  aspect-ratio: 1;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+.assembly-cell:hover { transform: scale(1.5); z-index: 10; }
+
+/* ── METERS ── */
+.meter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.meter-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: center;
+}
+
+.meter-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  margin: 4px 0;
+}
+.meter-label { font-size: 8px; letter-spacing: 1px; color: var(--muted); }
+.meter-unit  { font-size: 9px; color: var(--cyan); }
+
+.mv-green  { color: var(--green);  text-shadow: 0 0 10px var(--green); }
+.mv-cyan   { color: var(--cyan);   text-shadow: 0 0 10px var(--cyan); }
+.mv-orange { color: var(--orange); text-shadow: 0 0 10px var(--orange); }
+.mv-red    { color: var(--red);    text-shadow: 0 0 10px var(--red); }
+.mv-yellow { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
+
+/* ── SLIDER ── */
+.control-slider {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--border);
+  outline: none;
+  margin: 6px 0;
+  cursor: pointer;
+}
+.control-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  cursor: pointer;
+}
+.control-slider.rod-slider::-webkit-slider-thumb { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  width: 100%;
+  margin: 2px 0;
+}
+.btn-cyan   { border-color: var(--cyan);   color: var(--cyan);   }
+.btn-cyan:hover   { background: rgba(0,212,255,0.1); box-shadow: 0 0 12px rgba(0,212,255,0.3); }
+.btn-green  { border-color: var(--green);  color: var(--green);  }
+.btn-green:hover  { background: rgba(0,255,136,0.1); }
+.btn-red    { border-color: var(--red);    color: var(--red);    }
+.btn-red:hover    { background: rgba(255,34,68,0.2); box-shadow: 0 0 20px rgba(255,34,68,0.5); }
+.btn-orange { border-color: var(--orange); color: var(--orange); }
+.btn-orange:hover { background: rgba(255,136,0,0.1); }
+
+/* ── LOG ── */
+.event-log {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.8;
+  overflow-y: auto;
+  max-height: 120px;
+}
+.log-entry { display: flex; gap: 8px; }
+.log-time  { color: var(--muted); flex-shrink: 0; }
+.log-INFO  { color: var(--cyan); }
+.log-WARN  { color: var(--orange); }
+.log-ALARM { color: var(--red); animation: scramBlink 0.5s step-end infinite; }
+.log-OK    { color: var(--green); }
+
+/* ── P&ID VIEW ── */
+#pid-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-deep);
+  display: none;
+  z-index: 100;
+}
+#pid-overlay.active { display: block; }
+#pid-canvas { width: 100%; height: 100%; }
+
+/* ── ALARM PANEL ── */
+.alarm-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.alarm-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.alarm-active   { background: var(--red);    box-shadow: 0 0 6px var(--red);   animation: scramBlink 0.5s step-end infinite; }
+.alarm-warning  { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+.alarm-normal   { background: var(--green);  box-shadow: 0 0 4px var(--green); }
+.alarm-inactive { background: var(--muted); }
+
+/* ── CONTAINMENT ISOLATION OVERLAY ── */
+#isolation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+#isolation-overlay.active { display: flex; }
+
+.iso-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: 0 0 40px var(--red);
+  letter-spacing: 8px;
+  animation: scramBlink 0.4s step-end infinite;
+}
+.iso-sub {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--orange);
+  letter-spacing: 3px;
+}
+.iso-sequence {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+.iso-step {
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  padding: 12px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--red);
+  animation: isoStep 2s ease-in-out infinite;
+}
+@keyframes isoStep { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.02)} }
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex;
+  gap: 1px;
+  margin-bottom: 4px;
+}
+.tab-btn {
+  flex: 1;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── NEUTRON FLUX HISTORY ── */
+.flux-chart {
+  width: 100%; height: 60px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+#flux-svg { width: 100%; height: 100%; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--cyan-dim); }
+
+/* ── VIEW CONTROLS ── */
+.view-controls {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+.view-btn {
+  background: rgba(5,14,26,0.9);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 5px 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.view-btn:hover { border-color: var(--cyan); background: rgba(0,212,255,0.1); }
+.view-btn.active { background: var(--cyan-dim); border-color: var(--cyan); }
+
+/* ── TOOLTIP ── */
+.tooltip {
+  position: fixed;
+  background: var(--bg-card);
+  border: 1px solid var(--cyan);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.8;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+  color: var(--white);
+  box-shadow: 0 0 20px rgba(0,212,255,0.2);
+}
+
+.cherenkov-indicator {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #4488ff;
+  display: flex; align-items: center; gap: 6px;
+}
+.cherenkov-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #0066ff;
+  box-shadow: 0 0 12px #0066ff;
+  animation: cherenkovPulse 1s ease-in-out infinite;
+}
+@keyframes cherenkovPulse { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.5);opacity:1} }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ HEADER ══ -->
+  <header id="header">
+    <div class="header-brand">XIOM <span>NUCLEAR</span> SUITE <span style="color:var(--muted)">v3.0</span></div>
+    <div class="header-center">
+      <span style="color:var(--muted);font-size:10px">PLANT:</span>
+      <span style="color:var(--white);font-family:var(--font-mono);font-size:10px">NPP-ALPHA · 1000 MWe · 4-LOOP PWR</span>
+      <div id="reactor-status-badge" class="status-badge status-CRITICAL">● CRITICAL</div>
+      <span id="header-time" style="font-family:var(--font-mono);font-size:10px;color:var(--cyan)">T+00:00:00</span>
+    </div>
+    <div class="header-info">
+      ENG_ALAA MOHAMMED | NUCLEAR DIVISION<br>
+      UNIT 1 · RX-101 · IEEE 603 · IAEA SSR-2/1
+    </div>
+  </header>
+
+  <!-- ══ LEFT PANEL ══ -->
+  <aside id="panel-left">
+
+    <!-- REACTOR CORE PARAMS -->
+    <div class="panel-section">
+      <div class="panel-title">REACTOR CORE · RX-101</div>
+      <div class="meter-grid">
+        <div class="meter-card">
+          <div class="meter-label">THERMAL PWR</div>
+          <div class="meter-value mv-green" id="m-thermal">3411</div>
+          <div class="meter-unit">MWt</div>
+        </div>
+        <div class="meter-card">
+          <div class="meter-label">ELECT. PWR</div>
+          <div class="meter-value mv-cyan" id="m-elec">1000</div>
+          <div class="meter-unit">MWe</div>
+        </div>
+        <div class="meter-card">
+          <div class="meter-label">COOLANT T°</div>
+          <div class="meter-value mv-orange" id="m-temp">325</div>
+          <div class="meter-unit">°C</div>
+        </div>
+        <div class="meter-card">
+          <div class="meter-label">PRESSURE</div>
+          <div class="meter-value mv-yellow" id="m-press">155.1</div>
+          <div class="meter-unit">bar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY PARAMETERS -->
+    <div class="panel-section">
+      <div class="panel-title">PRIMARY LOOP PARAMETERS</div>
+      <div class="gauge-row">
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">CORE POWER</span>
+            <span><span class="gauge-value" id="g-power">100</span> <span class="gauge-unit">%</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-green" id="gf-power" style="width:100%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">T_HOT LEG</span>
+            <span><span class="gauge-value" id="g-thot">325.0</span> <span class="gauge-unit">°C</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-orange" id="gf-thot" style="width:78%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">T_COLD LEG</span>
+            <span><span class="gauge-value" id="g-tcold">292.5</span> <span class="gauge-unit">°C</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-cyan" id="gf-tcold" style="width:65%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">PRIMARY FLOW</span>
+            <span><span class="gauge-value" id="g-flow">68600</span> <span class="gauge-unit">m³/h</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-cyan" id="gf-flow" style="width:85%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">BORON (H₃BO₃)</span>
+            <span><span class="gauge-value" id="g-boron">850</span> <span class="gauge-unit">ppm</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-yellow" id="gf-boron" style="width:42%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">NEUTRON FLUX</span>
+            <span><span class="gauge-value" id="g-flux">3.8e13</span> <span class="gauge-unit">n/cm²s</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-green" id="gf-flux" style="width:90%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROL RODS -->
+    <div class="panel-section">
+      <div class="panel-title">CONTROL ROD BANKS · CRDM</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-bottom:4px">INSERTION: <span id="cr-insert" style="color:var(--orange)">15</span>% &nbsp;|&nbsp; BANK D POSITION</div>
+      <input type="range" class="control-slider rod-slider" id="rod-slider" min="0" max="100" value="15" oninput="updateRodPosition(this.value)">
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:8px;color:var(--muted)"><span>FULLY IN</span><span>FULLY OUT</span></div>
+      <div class="rod-grid" id="rod-grid"></div>
+    </div>
+
+    <!-- SECONDARY LOOP -->
+    <div class="panel-section">
+      <div class="panel-title">SECONDARY LOOP</div>
+      <div class="gauge-row">
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">SG STEAM PRESS</span>
+            <span><span class="gauge-value" id="g-sgp">72.4</span> <span class="gauge-unit">bar</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-orange" id="gf-sgp" style="width:72%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">TURBINE SPEED</span>
+            <span><span class="gauge-value" id="g-turb">3000</span> <span class="gauge-unit">rpm</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-green" id="gf-turb" style="width:100%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">FEEDWATER TEMP</span>
+            <span><span class="gauge-value" id="g-fw">227</span> <span class="gauge-unit">°C</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-cyan" id="gf-fw" style="width:55%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">COND. VACUUM</span>
+            <span><span class="gauge-value" id="g-cond">-0.95</span> <span class="gauge-unit">bar</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-cyan" id="gf-cond" style="width:95%"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ CENTER 3D VIEW ══ -->
+  <main id="view-3d">
+    <canvas id="three-canvas"></canvas>
+    <div class="view-label">3D · CONTAINMENT · PRIMARY LOOP · HIGH-FIDELITY</div>
+    <div class="cherenkov-indicator">
+      <div class="cherenkov-dot" id="cherenkov-dot"></div>
+      <span id="cherenkov-label">CHERENKOV RADIATION ACTIVE</span>
+    </div>
+    <div class="view-controls">
+      <button class="view-btn active" onclick="setView('3d')" id="vb-3d">3D VIEW</button>
+      <button class="view-btn" onclick="setView('pid')" id="vb-pid">P&ID</button>
+      <button class="view-btn" onclick="setView('coremap')" id="vb-core">CORE MAP</button>
+      <button class="view-btn" onclick="toggleClip()" id="vb-clip">SLICE</button>
+    </div>
+    <!-- P&ID OVERLAY -->
+    <div id="pid-overlay">
+      <canvas id="pid-canvas"></canvas>
+    </div>
+    <!-- CORE MAP OVERLAY -->
+    <div id="coremap-overlay" style="position:absolute;inset:0;background:var(--bg-deep);display:none;overflow:auto;padding:20px">
+      <div style="font-family:var(--font-display);font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px">REACTOR CORE MAP · 193 FUEL ASSEMBLIES · 1000 MWe PWR</div>
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div id="core-map-grid" class="core-map" style="width:340px"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--font-mono);font-size:9px">
+          <div style="color:var(--white);margin-bottom:4px">ASSEMBLY TEMPERATURE</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#ff2244"></div> >1400°C FUEL MELT</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#ff6600"></div> 900-1400°C HOT</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#ffaa00"></div> 600-900°C WARM</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#004488"></div> &lt;600°C NOMINAL</div>
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#333333"></div> EMPTY / REFLECTOR</div>
+          <div style="margin-top:12px;color:var(--cyan)">PEAK T: <span id="peak-temp" style="color:var(--orange)">1250</span> °C</div>
+          <div>AVG BURNUP: <span style="color:var(--green)">23,450 MWd/tU</span></div>
+          <div>CYCLE DAY: <span style="color:var(--yellow)">287</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <aside id="panel-right">
+
+    <!-- SAFETY SYSTEMS -->
+    <div class="panel-section">
+      <div class="panel-title">SAFETY SYSTEMS · ECCS</div>
+      <div class="gauge-row">
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">ECCS ACCUMULATOR</span>
+            <span><span class="gauge-value" id="g-eccs">4.14</span> <span class="gauge-unit">MPa</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-green" id="gf-eccs" style="width:100%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">RESIDUAL HEAT</span>
+            <span><span class="gauge-value" id="g-rhr">0</span> <span class="gauge-unit">%Pn</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-orange" id="gf-rhr" style="width:0%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">CONTAINMENT PRESS</span>
+            <span><span class="gauge-value" id="g-cnt">1.02</span> <span class="gauge-unit">bar</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-cyan" id="gf-cnt" style="width:5%"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-header">
+            <span class="gauge-label">DOSE RATE (RC)</span>
+            <span><span class="gauge-value" id="g-dose">12.4</span> <span class="gauge-unit">Sv/h</span></span>
+          </div>
+          <div class="gauge-bar"><div class="gauge-fill fill-orange" id="gf-dose" style="width:40%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALARMS -->
+    <div class="panel-section">
+      <div class="panel-title">ALARM ANNUNCIATOR</div>
+      <div id="alarm-panel">
+        <div class="alarm-row"><div class="alarm-dot alarm-normal"></div><span>HIGH NEUTRON FLUX — NORMAL</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-normal"></div><span>PRIMARY PRESSURE — NORMAL</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-normal"></div><span>RCP VIBRATION — NORMAL</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-inactive"></div><span>CONTAINMENT ISOLATION — OFF</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-inactive"></div><span>SCRAM SIGNAL — OFF</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-inactive"></div><span>ECCS ACTUATION — OFF</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-normal"></div><span>SEISMIC MONITOR — NORMAL</span></div>
+        <div class="alarm-row"><div class="alarm-dot alarm-normal"></div><span>SG LEVEL — NORMAL</span></div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="panel-section">
+      <div class="panel-title">OPERATOR CONTROLS</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('t-ops','ops')">OPS</button>
+        <button class="tab-btn" onclick="switchTab('t-ops','chem')">CHEM</button>
+        <button class="tab-btn" onclick="switchTab('t-ops','dose')">DOSE</button>
+      </div>
+      <div id="tab-ops" class="tab-content active">
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-bottom:4px">POWER DEMAND</div>
+        <input type="range" class="control-slider" id="power-demand" min="0" max="100" value="100" oninput="setPowerDemand(this.value)">
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin:6px 0 4px">BORON INJECTION</div>
+        <input type="range" class="control-slider" id="boron-slider" min="0" max="2000" value="850" oninput="setBoron(this.value)">
+        <button class="btn btn-green" onclick="startReactor()">▶ START / CRITICALITY</button>
+        <button class="btn btn-orange" onclick="initiateScram()">⚡ MANUAL SCRAM</button>
+        <button class="btn btn-red" onclick="triggerMeltdown()">☢ MELTDOWN SIM</button>
+        <button class="btn btn-cyan" onclick="resetPlant()">↺ RESET PLANT</button>
+      </div>
+      <div id="tab-chem" class="tab-content">
+        <div style="font-family:var(--font-mono);font-size:9px;line-height:2;color:var(--white)">
+          <div>H₃BO₃: <span style="color:var(--yellow)" id="c-boron">850</span> ppm</div>
+          <div>pH (25°C): <span style="color:var(--green)">6.9</span></div>
+          <div>Li (LiOH): <span style="color:var(--cyan)">2.2</span> ppm</div>
+          <div>Cl⁻: <span style="color:var(--green)">&lt;0.15</span> ppm</div>
+          <div>H₂: <span style="color:var(--green)">25</span> cc/kg</div>
+          <div>O₂: <span style="color:var(--green)">&lt;5</span> ppb</div>
+          <div>Fe: <span style="color:var(--green)">&lt;5</span> ppb</div>
+          <div>Activity: <span style="color:var(--orange)" id="c-activity">2.4e10</span> Bq/L</div>
+        </div>
+      </div>
+      <div id="tab-dose" class="tab-content">
+        <div style="font-family:var(--font-mono);font-size:9px;line-height:2;color:var(--white)">
+          <div>RC AREA: <span style="color:var(--red)">12.4</span> Sv/h</div>
+          <div>STEAM GEN ROOM: <span style="color:var(--orange)">0.85</span> Sv/h</div>
+          <div>PRESSURIZER RM: <span style="color:var(--orange)">1.2</span> Sv/h</div>
+          <div>TURBINE HALL: <span style="color:var(--green)">0.002</span> mSv/h</div>
+          <div>MCR: <span style="color:var(--green)">&lt;0.001</span> mSv/h</div>
+          <div>SITE BOUNDARY: <span style="color:var(--green)">0.04</span> µSv/h</div>
+          <div style="color:var(--muted);margin-top:4px">DOSE LIMIT: 20 mSv/yr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENT LOG -->
+    <div class="panel-section" style="flex:1">
+      <div class="panel-title">EVENT LOG · SER</div>
+      <div class="event-log" id="event-log"></div>
+    </div>
+
+  </aside>
+
+  <!-- ══ BOTTOM PANELS ══ -->
+  <section id="panel-bottom">
+
+    <!-- NEUTRON FLUX HISTORY -->
+    <div class="panel-section">
+      <div class="panel-title">NEUTRON FLUX TREND</div>
+      <div class="flux-chart"><svg id="flux-svg"></svg></div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px">
+        Φ = <span id="flux-val" style="color:var(--green)">3.82e13</span> n·cm⁻²·s⁻¹ &nbsp;|&nbsp; keff = <span id="keff-val" style="color:var(--cyan)">1.0003</span>
+      </div>
+    </div>
+
+    <!-- STEAM GENERATORS -->
+    <div class="panel-section">
+      <div class="panel-title">STEAM GENERATORS · 4×SG</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px">
+        <div id="sg-1" style="text-align:center;font-family:var(--font-mono);font-size:9px">
+          <div style="color:var(--muted)">SG-1</div>
+          <div style="font-size:14px;font-family:var(--font-display);color:var(--green);margin:3px 0" id="sg1-pwr">100</div>
+          <div style="color:var(--muted)">%</div>
+          <div style="height:3px;background:var(--border);margin-top:4px"><div style="height:100%;background:var(--green);width:100%" id="sg1-bar"></div></div>
+        </div>
+        <div id="sg-2" style="text-align:center;font-family:var(--font-mono);font-size:9px">
+          <div style="color:var(--muted)">SG-2</div>
+          <div style="font-size:14px;font-family:var(--font-display);color:var(--green);margin:3px 0" id="sg2-pwr">100</div>
+          <div style="color:var(--muted)">%</div>
+          <div style="height:3px;background:var(--border);margin-top:4px"><div style="height:100%;background:var(--green);width:100%" id="sg2-bar"></div></div>
+        </div>
+        <div id="sg-3" style="text-align:center;font-family:var(--font-mono);font-size:9px">
+          <div style="color:var(--muted)">SG-3</div>
+          <div style="font-size:14px;font-family:var(--font-display);color:var(--green);margin:3px 0" id="sg3-pwr">100</div>
+          <div style="color:var(--muted)">%</div>
+          <div style="height:3px;background:var(--border);margin-top:4px"><div style="height:100%;background:var(--green);width:100%" id="sg3-bar"></div></div>
+        </div>
+        <div id="sg-4" style="text-align:center;font-family:var(--font-mono);font-size:9px">
+          <div style="color:var(--muted)">SG-4</div>
+          <div style="font-size:14px;font-family:var(--font-display);color:var(--green);margin:3px 0" id="sg4-pwr">100</div>
+          <div style="color:var(--muted)">%</div>
+          <div style="height:3px;background:var(--border);margin-top:4px"><div style="height:100%;background:var(--green);width:100%" id="sg4-bar"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--muted)">
+        <div>T_PRIMARY IN: <span style="color:var(--orange)">325°C</span></div>
+        <div>T_PRIMARY OUT: <span style="color:var(--cyan)">293°C</span></div>
+        <div>STEAM FLOW: <span style="color:var(--green)">1760 kg/s</span></div>
+        <div>LEVEL: <span style="color:var(--green)">65%</span></div>
+      </div>
+    </div>
+
+    <!-- PRESSURIZER -->
+    <div class="panel-section">
+      <div class="panel-title">PRESSURIZER · PZR-101</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <!-- SVG Pressurizer diagram -->
+        <svg viewBox="0 0 60 100" width="60" height="100" style="flex-shrink:0">
+          <!-- Vessel -->
+          <rect x="10" y="15" width="40" height="70" rx="4" fill="#050e1a" stroke="#0a2a4a" stroke-width="1.5"/>
+          <ellipse cx="30" cy="15" rx="20" ry="7" fill="#071525" stroke="#0a2a4a" stroke-width="1.5"/>
+          <ellipse cx="30" cy="85" rx="20" ry="7" fill="#071525" stroke="#0a2a4a" stroke-width="1.5"/>
+          <!-- Water level -->
+          <rect x="11" y="45" width="38" height="40" fill="rgba(0,100,200,0.3)" id="pzr-water"/>
+          <!-- Steam space -->
+          <rect x="11" y="16" width="38" height="28" fill="rgba(255,200,50,0.05)" id="pzr-steam"/>
+          <!-- Heaters -->
+          <line x1="18" y1="78" x2="18" y2="84" stroke="#ff6600" stroke-width="2" id="pzr-heater1"/>
+          <line x1="25" y1="78" x2="25" y2="84" stroke="#ff6600" stroke-width="2"/>
+          <line x1="32" y1="78" x2="32" y2="84" stroke="#ff6600" stroke-width="2"/>
+          <!-- Spray nozzle -->
+          <line x1="30" y1="15" x2="30" y2="22" stroke="#00d4ff" stroke-width="1.5"/>
+          <polygon points="27,22 33,22 30,28" fill="#00d4ff" opacity="0.6" id="pzr-spray"/>
+          <!-- Pressure line -->
+          <line x1="50" y1="50" x2="58" y2="50" stroke="#0a2a4a" stroke-width="1.5"/>
+          <!-- PORV -->
+          <rect x="54" y="20" width="6" height="12" rx="1" fill="#ff8800" opacity="0.8" id="pzr-porv"/>
+          <text x="30" y="55" text-anchor="middle" font-size="5" fill="#aaccff" font-family="Share Tech Mono">155</text>
+          <text x="30" y="61" text-anchor="middle" font-size="4" fill="#667788" font-family="Share Tech Mono">bar</text>
+        </svg>
+        <div style="flex:1;font-family:var(--font-mono);font-size:9px;line-height:2">
+          <div>PRESSURE: <span style="color:var(--yellow)" id="pzr-p">155.1</span> bar</div>
+          <div>TEMP: <span style="color:var(--orange)" id="pzr-t">345.5</span> °C</div>
+          <div>LEVEL: <span style="color:var(--cyan)" id="pzr-l">62.5</span> %</div>
+          <div>HEATERS: <span style="color:var(--green)" id="pzr-h">ON</span></div>
+          <div>SPRAY: <span style="color:var(--cyan)" id="pzr-s">OFF</span></div>
+          <div>PORV: <span style="color:var(--green)">CLOSED</span></div>
+          <div>SAFETY V: <span style="color:var(--green)">CLOSED</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECAY HEAT / RHR -->
+    <div class="panel-section">
+      <div class="panel-title">DECAY HEAT & RHR SYSTEM</div>
+      <div style="font-family:var(--font-mono);font-size:9px;line-height:2">
+        <div>STATUS: <span style="color:var(--muted)" id="rhr-status">STANDBY</span></div>
+        <div>DECAY POWER: <span style="color:var(--orange)" id="decay-power">0.0</span> MWt</div>
+        <div>RHR FLOW: <span style="color:var(--cyan)" id="rhr-flow">0</span> m³/h</div>
+        <div>RHR T_IN: <span style="color:var(--cyan)">—</span></div>
+        <div>RHR T_OUT: <span style="color:var(--cyan)">—</span></div>
+        <div style="margin-top:6px;color:var(--muted)">TRAIN A: <span style="color:var(--green)">READY</span></div>
+        <div>TRAIN B: <span style="color:var(--green)">READY</span></div>
+        <div>AC POWER: <span style="color:var(--green)">NORMAL</span></div>
+        <div>DIESEL G: <span style="color:var(--green)">STANDBY</span></div>
+      </div>
+    </div>
+
+    <!-- XIOM BRANDING -->
+    <div class="panel-section" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--cyan);text-shadow:0 0 20px var(--cyan);letter-spacing:4px">XIOM</div>
+      <div style="font-family:var(--font-display);font-size:7px;letter-spacing:3px;color:var(--orange)">NUCLEAR SUITE v3.0</div>
+      <div style="width:40px;height:1px;background:var(--cyan-dim)"></div>
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--muted);text-align:center;line-height:1.8">
+        ENG_ALAA MOHAMMED<br>
+        <span style="color:var(--cyan)">NUCLEAR DIVISION</span><br>
+        ASME §III · IEEE 603<br>
+        IAEA SSR-2/1
+      </div>
+      <div id="plant-time" style="font-family:var(--font-display);font-size:9px;color:var(--green);letter-spacing:2px">T+00:00:00</div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- CONTAINMENT ISOLATION OVERLAY -->
+<div id="isolation-overlay">
+  <div class="iso-title">☢ CONTAINMENT ISOLATION ☢</div>
+  <div class="iso-sub">AUTOMATIC SCRAM INITIATED · ALL CONTROL RODS INSERTED</div>
+  <div class="iso-sub" style="color:var(--red)">MELTDOWN CONDITION DETECTED · ECCS ACTUATION IN PROGRESS</div>
+  <div class="iso-sequence">
+    <div class="iso-step" style="animation-delay:0s">SCRAM<br>SIGNAL</div>
+    <div class="iso-step" style="animation-delay:0.5s">ROD<br>DROP</div>
+    <div class="iso-step" style="animation-delay:1s">CIV<br>CLOSE</div>
+    <div class="iso-step" style="animation-delay:1.5s">ECCS<br>INJECT</div>
+  </div>
+  <button class="btn btn-cyan" style="width:200px;margin-top:24px" onclick="dismissIsolation()">ACKNOWLEDGE · RESET</button>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// REACTOR STATE
+// ═══════════════════════════════════════════════════════
+const state = {
+  mode: 'CRITICAL',
+  power: 100,
+  thermalPower: 3411,
+  electricPower: 1000,
+  tHot: 325.0,
+  tCold: 292.5,
+  pressure: 155.1,
+  flow: 68600,
+  boron: 850,
+  neutronFlux: 3.82e13,
+  keff: 1.0003,
+  rodInsertion: 15,
+  powerDemand: 100,
+  steamPress: 72.4,
+  turbineRpm: 3000,
+  feedwaterTemp: 227,
+  condVacuum: -0.95,
+  containmentPress: 1.02,
+  doseRate: 12.4,
+  decayPower: 0,
+  scramTime: 0,
+  isScram: false,
+  isMeltdown: false,
+  startTime: Date.now(),
+  fluxHistory: [],
+  noiseT: 0
+};
+
+// ═══════════════════════════════════════════════════════
+// THREE.JS 3D ENGINE
+// ═══════════════════════════════════════════════════════
+let scene, camera, renderer, animId;
+let autoRotate = true;
+let clippingEnabled = false;
+const objects = {};
+let cherenkovIntensity = 0;
+
+function initThree() {
+  const canvas = document.getElementById('three-canvas');
+  const container = document.getElementById('view-3d');
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.localClippingEnabled = true;
+  renderer.setClearColor(0x000810, 1);
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000810, 0.008);
+
+  camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
+  camera.position.set(60, 45, 80);
+  camera.lookAt(0, 15, 0);
+
+  // ── LIGHTING ──
+  const ambient = new THREE.AmbientLight(0x112244, 0.5);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xaabbcc, 0.8);
+  sun.position.set(80, 120, 60);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  scene.add(sun);
+
+  const reactorGlow = new THREE.PointLight(0x0088ff, 3, 40);
+  reactorGlow.position.set(0, 8, 0);
+  scene.add(reactorGlow);
+  objects.reactorGlow = reactorGlow;
+
+  const blueAccent = new THREE.PointLight(0x00aaff, 1.5, 60);
+  blueAccent.position.set(-20, 20, 20);
+  scene.add(blueAccent);
+
+  // ── GRID FLOOR ──
+  const gridHelper = new THREE.GridHelper(200, 40, 0x0a2a4a, 0x051525);
+  gridHelper.position.y = -2;
+  scene.add(gridHelper);
+
+  buildScene();
+  setupMouseInteraction();
+  animate3D();
+}
+
+function buildScene() {
+  buildContainment();
+  buildRPV();
+  buildPressurizer();
+  buildSteamGenerators();
+  buildPrimaryPiping();
+  buildRCPs();
+  buildCoolingTowers();
+  buildAuxBuilding();
+  buildCherenkovEffect();
+}
+
+// ── MATERIALS ──
+const mats = {
+  concrete:    () => new THREE.MeshLambertMaterial({ color: 0x4a5060, side: THREE.DoubleSide }),
+  concreteInner: () => new THREE.MeshLambertMaterial({ color: 0x3a4050 }),
+  steel:       () => new THREE.MeshStandardMaterial({ color: 0x6688aa, metalness: 0.8, roughness: 0.2 }),
+  steelHot:    () => new THREE.MeshStandardMaterial({ color: 0xcc4400, metalness: 0.7, roughness: 0.3 }),
+  steelCold:   () => new THREE.MeshStandardMaterial({ color: 0x2244aa, metalness: 0.7, roughness: 0.3 }),
+  nuclearSS:   () => new THREE.MeshStandardMaterial({ color: 0x889aaa, metalness: 0.9, roughness: 0.15 }),
+  rpvHead:     () => new THREE.MeshStandardMaterial({ color: 0x7799bb, metalness: 0.85, roughness: 0.2 }),
+  insulation:  () => new THREE.MeshLambertMaterial({ color: 0xccaa44, roughness: 1 }),
+  fuelAssembly:() => new THREE.MeshStandardMaterial({ color: 0x333344, metalness: 0.6, roughness: 0.5 }),
+  glass:       () => new THREE.MeshStandardMaterial({ color: 0x88aacc, transparent: true, opacity: 0.15, metalness: 0.1 }),
+  reactor:     () => new THREE.MeshStandardMaterial({ color: 0x334455, metalness: 0.9, roughness: 0.1 }),
+  cherenkov:   () => new THREE.MeshBasicMaterial({ color: 0x0044ff, transparent: true, opacity: 0.3 }),
+};
+
+function buildContainment() {
+  const g = new THREE.Group();
+
+  // Outer containment dome — double wall
+  const outerGeom = new THREE.CylinderGeometry(22, 22, 45, 32, 1, true);
+  const outerDome = new THREE.Mesh(outerGeom, mats.concrete());
+  g.add(outerDome);
+
+  // Hemispherical dome top
+  const domeGeom = new THREE.SphereGeometry(22, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+  const dome = new THREE.Mesh(domeGeom, mats.concrete());
+  dome.position.y = 22.5;
+  g.add(dome);
+
+  // Inner wall
+  const innerGeom = new THREE.CylinderGeometry(19, 19, 44, 32, 1, true);
+  const innerWall = new THREE.Mesh(innerGeom, mats.concreteInner());
+  innerWall.position.y = 0.5;
+  g.add(innerWall);
+
+  // Dome cap inner
+  const innerDome = new THREE.Mesh(
+    new THREE.SphereGeometry(19, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+    mats.concreteInner()
+  );
+  innerDome.position.y = 23;
+  g.add(innerDome);
+
+  // Base mat
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(24, 26, 3, 32), mats.concrete());
+  base.position.y = -23.5;
+  g.add(base);
+
+  // Containment wall ring detail
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const pillar = new THREE.Mesh(
+      new THREE.BoxGeometry(1.5, 45, 1.5),
+      mats.concrete()
+    );
+    pillar.position.set(Math.cos(a) * 22, 0, Math.sin(a) * 22);
+    g.add(pillar);
+  }
+
+  // Equipment hatch
+  const hatch = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 1.5, 16), mats.steel());
+  hatch.rotation.z = Math.PI / 2;
+  hatch.position.set(22, -5, 0);
+  g.add(hatch);
+
+  // Polar crane rail
+  const craneRail = new THREE.Mesh(
+    new THREE.TorusGeometry(18, 0.3, 8, 64),
+    mats.steel()
+  );
+  craneRail.position.y = 20;
+  craneRail.rotation.x = Math.PI / 2;
+  g.add(craneRail);
+
+  // Polar crane arm
+  const craneArm = new THREE.Mesh(new THREE.BoxGeometry(36, 0.6, 0.8), mats.steel());
+  craneArm.position.y = 21;
+  g.add(craneArm);
+
+  g.position.set(0, 22, 0);
+  objects.containment = g;
+  scene.add(g);
+}
+
+function buildRPV() {
+  const g = new THREE.Group();
+
+  // Main vessel body
+  const vessel = new THREE.Mesh(
+    new THREE.CylinderGeometry(3.5, 3.5, 12, 24),
+    mats.reactor()
+  );
+  g.add(vessel);
+
+  // Hemispherical bottom head
+  const bottomHead = new THREE.Mesh(
+    new THREE.SphereGeometry(3.5, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    mats.reactor()
+  );
+  bottomHead.rotation.x = Math.PI;
+  bottomHead.position.y = -6;
+  g.add(bottomHead);
+
+  // Upper flange
+  const flange = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 0.8, 24), mats.steel());
+  flange.position.y = 5.8;
+  g.add(flange);
+
+  // RPV Head (removable)
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(3.6, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    mats.rpvHead()
+  );
+  head.position.y = 6.4;
+  g.add(head);
+  objects.rpvHead = head;
+
+  // CRDM penetrations atop head
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if ((r + c) % 2 === 0) continue;
+      const crdm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.1, 0.1, 1.8, 8),
+        mats.nuclearSS()
+      );
+      crdm.position.set(
+        (r - 1.5) * 1.0,
+        8.0,
+        (c - 1.5) * 1.0
+      );
+      g.add(crdm);
+    }
+  }
+
+  // Inlet/Outlet nozzles
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const nozzle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.7, 0.7, 3, 12),
+      mats.steel()
+    );
+    nozzle.rotation.z = Math.PI / 2;
+    nozzle.rotation.y = a;
+    nozzle.position.set(Math.cos(a) * 4.5, 2, Math.sin(a) * 4.5);
+    g.add(nozzle);
+  }
+
+  // Core internals (simplified)
+  const shroud = new THREE.Mesh(
+    new THREE.CylinderGeometry(3.0, 3.0, 9, 16, 1, true),
+    mats.fuelAssembly()
+  );
+  shroud.position.y = -1;
+  g.add(shroud);
+
+  // Fuel assembly rods
+  const fuelGroup = new THREE.Group();
+  const fuelGeom = new THREE.CylinderGeometry(0.08, 0.08, 8, 6);
+  const fuelMat = new THREE.MeshStandardMaterial({ color: 0x334466, metalness: 0.5 });
+  const dummy = new THREE.Object3D();
+  const fuelMesh = new THREE.InstancedMesh(fuelGeom, fuelMat, 120);
+  let idx = 0;
+  for (let r = -5; r <= 5; r++) {
+    for (let c = -5; c <= 5; c++) {
+      if (r * r + c * c > 25) continue;
+      if (idx >= 120) break;
+      dummy.position.set(r * 0.42, -1, c * 0.42);
+      dummy.updateMatrix();
+      fuelMesh.setMatrixAt(idx++, dummy.matrix);
+    }
+  }
+  fuelMesh.instanceMatrix.needsUpdate = true;
+  fuelGroup.add(fuelMesh);
+  g.add(fuelGroup);
+  objects.fuelMesh = fuelMesh;
+
+  // Thermal insulation wrap
+  const insulation = new THREE.Mesh(
+    new THREE.CylinderGeometry(4.0, 4.0, 13, 24, 1, true),
+    mats.insulation()
+  );
+  insulation.position.y = -0.5;
+  g.add(insulation);
+
+  g.position.set(0, 8, 0);
+  objects.rpv = g;
+  scene.add(g);
+}
+
+function buildPressurizer() {
+  const g = new THREE.Group();
+
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 8, 16), mats.steel());
+  g.add(body);
+
+  const topDome = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+    mats.steel()
+  );
+  topDome.position.y = 4;
+  g.add(topDome);
+
+  const botDome = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+    mats.steel()
+  );
+  botDome.rotation.x = Math.PI;
+  botDome.position.y = -4;
+  g.add(botDome);
+
+  // Heater elements
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    const heater = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3, 6), mats.steelHot());
+    heater.position.set(Math.cos(a) * 0.7, -2.5, Math.sin(a) * 0.7);
+    g.add(heater);
+  }
+
+  // Spray line at top
+  const spray = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.5, 8), mats.steelCold());
+  spray.position.y = 5;
+  g.add(spray);
+
+  // Surge line
+  const surge = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 4, 8), mats.steel());
+  surge.rotation.x = Math.PI / 4;
+  surge.position.set(0, -5, 2);
+  g.add(surge);
+
+  const insul = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 8.5, 16, 1, true), mats.insulation());
+  g.add(insul);
+
+  g.position.set(-12, 12, 0);
+  objects.pressurizer = g;
+  scene.add(g);
+}
+
+function buildSteamGenerators() {
+  const positions = [
+    { x:  14, z:  10 },
+    { x:  14, z: -10 },
+    { x: -14, z:  10 },
+    { x: -14, z: -10 },
+  ];
+  objects.steamGenerators = [];
+
+  positions.forEach((pos, i) => {
+    const g = new THREE.Group();
+
+    // Lower steam generator body (primary)
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 8, 16), mats.steel());
+    g.add(lower);
+
+    // Upper separator section (wider)
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.2, 6, 16), mats.steel());
+    upper.position.y = 7;
+    g.add(upper);
+
+    // Top dome
+    const topDome = new THREE.Mesh(
+      new THREE.SphereGeometry(2.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      mats.rpvHead()
+    );
+    topDome.position.y = 10;
+    g.add(topDome);
+
+    // Tube sheet
+    const sheet = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, 0.5, 16), mats.steel());
+    sheet.position.y = -3;
+    g.add(sheet);
+
+    // U-tubes (instanced for performance)
+    const tubeGeom = new THREE.TorusGeometry(1.2, 0.03, 6, 20, Math.PI);
+    const tubeMesh = new THREE.InstancedMesh(tubeGeom, mats.steelHot(), 80);
+    const dummy = new THREE.Object3D();
+    let ti = 0;
+    for (let r = 0; r < 8 && ti < 80; r++) {
+      for (let c = 0; c < 10 && ti < 80; c++) {
+        dummy.position.set((r - 3.5) * 0.4, 0, 0);
+        dummy.rotation.y = Math.PI / 2;
+        dummy.rotation.z = 0;
+        dummy.position.y = -1 + c * 0.2;
+        dummy.scale.setScalar(0.8 + Math.random() * 0.3);
+        dummy.updateMatrix();
+        tubeMesh.setMatrixAt(ti++, dummy.matrix);
+      }
+    }
+    tubeMesh.instanceMatrix.needsUpdate = true;
+    g.add(tubeMesh);
+
+    // Inlet/Outlet nozzles
+    const inlet = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2, 8), mats.steelHot());
+    inlet.rotation.z = Math.PI / 2;
+    inlet.position.set(2.5, -2, 0);
+    g.add(inlet);
+
+    const outlet = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2, 8), mats.steelCold());
+    outlet.rotation.z = Math.PI / 2;
+    outlet.position.set(-2.5, -2, 0);
+    g.add(outlet);
+
+    // Steam outlet top
+    const steamOut = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 2, 8), mats.nuclearSS());
+    steamOut.position.y = 12;
+    g.add(steamOut);
+
+    // Insulation
+    const insul = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 2.2, 14.5, 16, 1, true), mats.insulation());
+    insul.position.y = 3;
+    g.add(insul);
+
+    g.position.set(pos.x, 9, pos.z);
+    objects.steamGenerators.push(g);
+    scene.add(g);
+  });
+}
+
+function buildPrimaryPiping() {
+  // Hot legs and cold legs connecting RPV to SGs
+  const pipePositions = [
+    { from: { x: 3.5, y: 10, z: 0 }, to: { x: 12, y: 10, z: 0 }, hot: true },
+    { from: { x: 0, y: 10, z: 3.5 }, to: { x: 0, y: 10, z: 9 }, hot: true },
+    { from: { x: -3.5, y: 10, z: 0 }, to: { x: -12, y: 10, z: 0 }, hot: true },
+    { from: { x: 0, y: 10, z: -3.5 }, to: { x: 0, y: 10, z: -9 }, hot: true },
+  ];
+
+  const hotPipeMat = new THREE.MeshStandardMaterial({ color: 0xcc3300, metalness: 0.7, roughness: 0.3 });
+  const coldPipeMat = new THREE.MeshStandardMaterial({ color: 0x1144aa, metalness: 0.7, roughness: 0.3 });
+
+  pipePositions.forEach(p => {
+    const dir = new THREE.Vector3(p.to.x - p.from.x, p.to.y - p.from.y, p.to.z - p.from.z);
+    const len = dir.length();
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, len, 12), p.hot ? hotPipeMat : coldPipeMat);
+    pipe.position.set(
+      (p.from.x + p.to.x) / 2,
+      (p.from.y + p.to.y) / 2,
+      (p.from.z + p.to.z) / 2
+    );
+    const axis = new THREE.Vector3(0, 1, 0);
+    dir.normalize();
+    pipe.quaternion.setFromUnitVectors(axis, dir);
+    scene.add(pipe);
+  });
+
+  // Pipe with elbows (simplified)
+  const elbowGeom = new THREE.TorusGeometry(1.5, 0.6, 8, 16, Math.PI / 2);
+  const elbowMat = new THREE.MeshStandardMaterial({ color: 0xcc3300, metalness: 0.7 });
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+    const elbow = new THREE.Mesh(elbowGeom, i % 2 === 0 ? elbowMat : coldPipeMat);
+    elbow.position.set(Math.cos(a) * 8, 8, Math.sin(a) * 8);
+    elbow.rotation.y = -a;
+    scene.add(elbow);
+  }
+}
+
+function buildRCPs() {
+  // Reactor Coolant Pumps
+  const positions = [
+    { x: 10, z:  6 },
+    { x: 10, z: -6 },
+    { x: -10, z: 6 },
+    { x: -10, z: -6 },
+  ];
+  objects.rcps = [];
+  positions.forEach(pos => {
+    const g = new THREE.Group();
+
+    const casing = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 2.5, 12), mats.steel());
+    g.add(casing);
+
+    const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 3.5, 12), mats.reactor());
+    motor.position.y = 3;
+    g.add(motor);
+
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 4, 8), mats.nuclearSS());
+    shaft.position.y = 1;
+    g.add(shaft);
+
+    g.position.set(pos.x, 6, pos.z);
+    objects.rcps.push(g);
+    scene.add(g);
+  });
+}
+
+function buildCoolingTowers() {
+  // Two natural draft hyperbolic cooling towers
+  [-35, 35].forEach(xPos => {
+    const g = new THREE.Group();
+    // Hyperbolic profile using lathe geometry
+    const points = [];
+    for (let i = 0; i <= 20; i++) {
+      const t = i / 20;
+      const y = t * 30;
+      const r = 8 + (1 - 4 * (t - 0.5) * (t - 0.5)) * -4 + 8;
+      points.push(new THREE.Vector2(r, y));
+    }
+    const towerGeom = new THREE.LatheGeometry(points, 24);
+    const towerMat = new THREE.MeshLambertMaterial({ color: 0x4a5060, side: THREE.DoubleSide });
+    const tower = new THREE.Mesh(towerGeom, towerMat);
+    g.add(tower);
+
+    // Vapor plume
+    const plumeGeom = new THREE.ConeGeometry(4, 15, 8, 1, true);
+    const plumeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.08, side: THREE.DoubleSide });
+    const plume = new THREE.Mesh(plumeGeom, plumeMat);
+    plume.position.y = 38;
+    g.add(plume);
+
+    g.position.set(xPos, -22, -20);
+    scene.add(g);
+  });
+}
+
+function buildAuxBuilding() {
+  const mat = mats.concrete();
+  // Fuel handling building
+  const fhb = new THREE.Mesh(new THREE.BoxGeometry(20, 12, 15), mat);
+  fhb.position.set(30, -16, 0);
+  scene.add(fhb);
+
+  // Control building
+  const ctrl = new THREE.Mesh(new THREE.BoxGeometry(18, 14, 18), mats.concreteInner());
+  ctrl.position.set(-35, -15, 5);
+  scene.add(ctrl);
+
+  // MCR room detail
+  const window = new THREE.Mesh(new THREE.BoxGeometry(10, 2, 0.3), mats.glass());
+  window.position.set(-35, -10, 14.2);
+  scene.add(window);
+
+  // Diesel generator building
+  const dg = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 10), mat);
+  dg.position.set(30, -18, 20);
+  scene.add(dg);
+
+  // Stack
+  const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 40, 8), mat);
+  stack.position.set(25, 0, 30);
+  scene.add(stack);
+}
+
+function buildCherenkovEffect() {
+  // Blue Cherenkov glow around reactor core
+  const cherenkovGeom = new THREE.SphereGeometry(3.8, 24, 24);
+  const cherenkovMat = new THREE.MeshBasicMaterial({
+    color: 0x0033ff,
+    transparent: true,
+    opacity: 0.15,
+    side: THREE.BackSide
+  });
+  const cherenkov = new THREE.Mesh(cherenkovGeom, cherenkovMat);
+  cherenkov.position.set(0, 8, 0);
+  scene.add(cherenkov);
+  objects.cherenkov = cherenkov;
+  objects.cherenkovMat = cherenkovMat;
+}
+
+let clipPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+
+function toggleClip() {
+  clippingEnabled = !clippingEnabled;
+  renderer.clippingPlanes = clippingEnabled ? [clipPlane] : [];
+  document.getElementById('vb-clip').classList.toggle('active', clippingEnabled);
+}
+
+function setView(v) {
+  document.getElementById('vb-3d').classList.toggle('active', v==='3d');
+  document.getElementById('vb-pid').classList.toggle('active', v==='pid');
+  document.getElementById('vb-core').classList.toggle('active', v==='coremap');
+  document.getElementById('pid-overlay').classList.toggle('active', v==='pid');
+  document.getElementById('coremap-overlay').style.display = v==='coremap'?'block':'none';
+  if (v==='pid') drawPID();
+  if (v==='coremap') drawCoreMap();
+}
+
+// ── MOUSE ORBIT ──
+let isDragging = false, lastMX = 0, lastMY = 0;
+let theta = 0.8, phi = 0.5, radius = 100;
+
+function setupMouseInteraction() {
+  const c = document.getElementById('three-canvas');
+  c.addEventListener('mousedown', e => { isDragging=true; lastMX=e.clientX; lastMY=e.clientY; autoRotate=false; });
+  window.addEventListener('mouseup', () => { isDragging=false; });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastMX;
+    const dy = e.clientY - lastMY;
+    theta -= dx * 0.005;
+    phi = Math.max(0.1, Math.min(1.4, phi + dy * 0.005));
+    lastMX=e.clientX; lastMY=e.clientY;
+    updateCameraFromSpherical();
+  });
+  c.addEventListener('wheel', e => {
+    radius = Math.max(30, Math.min(200, radius + e.deltaY * 0.1));
+    updateCameraFromSpherical();
+  });
+}
+
+function updateCameraFromSpherical() {
+  camera.position.set(
+    radius * Math.sin(phi) * Math.sin(theta),
+    radius * Math.cos(phi) + 15,
+    radius * Math.sin(phi) * Math.cos(theta)
+  );
+  camera.lookAt(0, 15, 0);
+}
+
+function animate3D() {
+  animId = requestAnimationFrame(animate3D);
+  const t = Date.now() * 0.001;
+
+  if (autoRotate) {
+    theta += 0.002;
+    updateCameraFromSpherical();
+  }
+
+  // Cherenkov glow intensity based on power
+  const targetIntensity = state.power / 100;
+  cherenkovIntensity += (targetIntensity - cherenkovIntensity) * 0.05;
+  if (objects.cherenkovMat) {
+    objects.cherenkovMat.opacity = 0.05 + cherenkovIntensity * 0.3;
+  }
+  if (objects.reactorGlow) {
+    objects.reactorGlow.intensity = cherenkovIntensity * 4 + Math.sin(t * 3) * 0.3 * cherenkovIntensity;
+    objects.reactorGlow.color.setHex(
+      state.isScram ? 0xff4400 : 0x0066ff
+    );
+  }
+
+  // RCP rotation
+  if (objects.rcps && !state.isScram) {
+    objects.rcps.forEach((rcp, i) => {
+      rcp.rotation.y = t * (1 + i * 0.1);
+    });
+  }
+
+  // Clip plane slow sweep in slice mode
+  if (clippingEnabled) {
+    clipPlane.constant = Math.sin(t * 0.2) * 20;
+  }
+
+  const container = document.getElementById('view-3d');
+  if (renderer.domElement.width !== container.clientWidth) {
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+
+  renderer.render(scene, camera);
+}
+
+// ═══════════════════════════════════════════════════════
+// P&ID DRAWING ENGINE
+// ═══════════════════════════════════════════════════════
+function drawPID() {
+  const canvas = document.getElementById('pid-canvas');
+  const container = document.getElementById('view-3d');
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  const ctx = canvas.getContext('2d');
+
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#020810';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#051525';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  const cx = W / 2, cy = H / 2;
+
+  // ── HELPER FUNCTIONS ──
+  const drawPipe = (x1, y1, x2, y2, color = '#cc3300', w = 3) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  };
+
+  const drawValve = (x, y, r = 12, open = true, color = '#00d4ff') => {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = open ? '#001122' : '#220000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
+    ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
+    ctx.stroke();
+  };
+
+  const drawPump = (x, y, r = 18, color = '#00d4ff') => {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = '#05152a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.7, y + r * 0.5); ctx.lineTo(x - r * 0.7, y + r * 0.5); ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+  };
+
+  const drawVessel = (x, y, w, h, label, color = '#0066cc') => {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = '#030c18';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(x - w / 2, y - h / 2, w, h, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = 'bold 11px Share Tech Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 4);
+  };
+
+  const drawLabel = (x, y, text, color = '#aaccee', size = 9) => {
+    ctx.fillStyle = color;
+    ctx.font = `${size}px Share Tech Mono`;
+    ctx.textAlign = 'center';
+    ctx.fillText(text, x, y);
+  };
+
+  // ═══ PRIMARY LOOP ═══
+  // RPV center
+  const rpvX = cx, rpvY = cy;
+  ctx.strokeStyle = '#0066cc';
+  ctx.fillStyle = '#030c18';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.rect(rpvX - 50, rpvY - 80, 100, 140);
+  ctx.fill(); ctx.stroke();
+  // RPV dome top
+  ctx.beginPath();
+  ctx.arc(rpvX, rpvY - 80, 50, Math.PI, 0);
+  ctx.fill(); ctx.stroke();
+  // RPV dome bottom
+  ctx.beginPath();
+  ctx.arc(rpvX, rpvY + 60, 50, 0, Math.PI);
+  ctx.fill(); ctx.stroke();
+
+  drawLabel(rpvX, rpvY, 'RPV', '#00aaff', 13);
+  drawLabel(rpvX, rpvY + 20, 'RX-101', '#0066cc', 9);
+  drawLabel(rpvX, rpvY + 32, `${state.thermalPower.toFixed(0)} MWt`, '#cc4400', 9);
+
+  // Fuel assemblies representation
+  ctx.fillStyle = '#112233';
+  for (let i = -3; i <= 3; i++) {
+    ctx.fillRect(rpvX + i * 11 - 4, rpvY - 55, 8, 100);
+  }
+
+  // Control rods
+  const rodIns = state.rodInsertion / 100;
+  ctx.fillStyle = '#334466';
+  for (let i = -2; i <= 2; i++) {
+    ctx.fillRect(rpvX + i * 14 - 3, rpvY - 80 + rodIns * 80, 6, (1 - rodIns) * 80);
+  }
+  drawLabel(rpvX, rpvY - 95, 'CRDM', '#667788', 8);
+
+  // PRESSURIZER
+  const pzrX = rpvX - 180, pzrY = rpvY - 40;
+  ctx.strokeStyle = '#888800';
+  ctx.fillStyle = '#0a0a00';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.rect(pzrX - 22, pzrY - 55, 44, 90);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(pzrX, pzrY - 55, 22, Math.PI, 0);
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(pzrX, pzrY + 35, 22, 0, Math.PI);
+  ctx.fill(); ctx.stroke();
+  // Heaters
+  ctx.strokeStyle = '#ff6600'; ctx.lineWidth = 2;
+  for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(pzrX + i * 8, pzrY + 28); ctx.lineTo(pzrX + i * 8, pzrY + 34); ctx.stroke(); }
+  // Spray nozzle
+  ctx.strokeStyle = '#00aaff'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pzrX, pzrY - 58); ctx.lineTo(pzrX, pzrY - 65); ctx.stroke();
+  drawLabel(pzrX, pzrY, 'PZR', '#aaaa00', 11);
+  drawLabel(pzrX, pzrY + 18, `${state.pressure.toFixed(1)} bar`, '#ffcc00', 9);
+
+  // Surge line
+  drawPipe(pzrX + 22, pzrY + 20, rpvX - 50, rpvY + 20, '#888800', 2);
+
+  // STEAM GENERATORS (4 loops)
+  const sgOffsets = [
+    { x: cx + 200, y: cy - 100, label: 'SG-1' },
+    { x: cx + 200, y: cy + 100, label: 'SG-2' },
+    { x: cx - 200, y: cy - 100, label: 'SG-3' },
+    { x: cx - 200, y: cy + 100, label: 'SG-4' },
+  ];
+
+  sgOffsets.forEach((sg, i) => {
+    ctx.strokeStyle = '#0055aa';
+    ctx.fillStyle = '#020d1a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(sg.x - 35, sg.y - 70, 70, 110);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(sg.x, sg.y - 70, 35, Math.PI, 0); ctx.fill(); ctx.stroke();
+
+    // U-tubes inside
+    ctx.strokeStyle = '#cc3300'; ctx.lineWidth = 1;
+    for (let t = -3; t <= 3; t++) {
+      ctx.beginPath();
+      ctx.arc(sg.x + t * 8, sg.y - 20, 10, Math.PI, 0);
+      ctx.stroke();
+    }
+
+    drawLabel(sg.x, sg.y + 28, sg.label, '#0088ff', 10);
+    drawLabel(sg.x, sg.y + 42, `${(state.steamPress * (0.98 + i * 0.01)).toFixed(1)} bar`, '#ff6600', 9);
+
+    // Hot leg from RPV to SG
+    const hx = i < 2 ? rpvX + 50 : rpvX - 50;
+    const hy = rpvY - 30 + (i % 2) * 60;
+    ctx.strokeStyle = '#cc2200';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(hx, hy);
+    ctx.bezierCurveTo(hx + (sg.x - hx) * 0.4, hy, hx + (sg.x - hx) * 0.6, sg.y, sg.x, sg.y);
+    ctx.stroke();
+    drawLabel((hx + sg.x) / 2, hy - 10, 'HOT LEG', '#cc2200', 8);
+
+    // Cold leg back
+    ctx.strokeStyle = '#2244aa';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(sg.x, sg.y + 40);
+    ctx.bezierCurveTo(sg.x, sg.y + 80, hx, hy + 80, hx, hy + 40);
+    ctx.stroke();
+    drawLabel((hx + sg.x) / 2, sg.y + 90, 'COLD LEG', '#2244aa', 8);
+
+    // RCP on cold leg
+    const rcpX = (hx + sg.x) / 2;
+    const rcpY = sg.y + 80;
+    drawPump(rcpX, rcpY, 14, '#00d4ff');
+    drawLabel(rcpX, rcpY + 22, 'RCP', '#00d4ff', 8);
+  });
+
+  // ECCS injection points
+  ctx.strokeStyle = '#00ff88'; ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(rpvX - 80, rpvY - 100);
+  ctx.lineTo(rpvX - 50, rpvY - 50);
+  ctx.stroke();
+  drawLabel(rpvX - 100, rpvY - 110, 'ECCS', '#00ff88', 9);
+  ctx.setLineDash([]);
+
+  // Title
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = 'bold 11px Orbitron';
+  ctx.textAlign = 'left';
+  ctx.fillText('P&ID — NUCLEAR PRIMARY LOOP · NPP-ALPHA · 1000 MWe PWR · ENG_ALAA MOHAMMED', 12, 20);
+
+  // Legend
+  const lx = 12, ly = H - 80;
+  drawPipe(lx, ly, lx + 30, ly, '#cc2200', 3); drawLabel(lx + 60, ly + 4, 'PRIMARY (HOT)', '#cc2200', 9);
+  drawPipe(lx, ly + 15, lx + 30, ly + 15, '#2244aa', 2.5); drawLabel(lx + 60, ly + 19, 'PRIMARY (COLD)', '#2244aa', 9);
+  drawPipe(lx, ly + 30, lx + 30, ly + 30, '#00ff88', 1.5); drawLabel(lx + 60, ly + 34, 'ECCS', '#00ff88', 9);
+  drawPipe(lx, ly + 45, lx + 30, ly + 45, '#888800', 2); drawLabel(lx + 60, ly + 49, 'SECONDARY', '#888800', 9);
+}
+
+// ═══════════════════════════════════════════════════════
+// CORE MAP
+// ═══════════════════════════════════════════════════════
+function drawCoreMap() {
+  const grid = document.getElementById('core-map-grid');
+  grid.innerHTML = '';
+  const size = 17;
+
+  // 17×17 PWR fuel layout pattern (circular-ish)
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'assembly-cell';
+      const dist = Math.sqrt((r - 8) * (r - 8) + (c - 8) * (c - 8));
+
+      if (dist > 8.5) {
+        cell.style.background = 'transparent';
+        cell.style.border = 'none';
+      } else if (dist > 7) {
+        cell.style.background = '#1a2a3a';
+      } else {
+        const temp = 500 + (1 - dist / 7) * state.power * 8;
+        const normalized = Math.min(1, temp / 1400);
+        const r2 = Math.floor(normalized * 255);
+        const g2 = Math.floor((1 - normalized) * 100);
+        const b2 = Math.floor((1 - normalized) * 180);
+        cell.style.background = `rgb(${r2},${g2},${b2})`;
+        cell.title = `Assembly (${r},${c})\nT = ${temp.toFixed(0)}°C\nBurnup: ${(20000 + Math.random() * 10000).toFixed(0)} MWd/tU`;
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  const peakTemp = 500 + state.power * 8;
+  document.getElementById('peak-temp').textContent = peakTemp.toFixed(0);
+  document.getElementById('peak-temp').style.color = peakTemp > 1200 ? '#ff2244' : peakTemp > 800 ? '#ff8800' : '#ffcc00';
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTROL RODS GRID
+// ═══════════════════════════════════════════════════════
+function initRodGrid() {
+  const grid = document.getElementById('rod-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 64; i++) {
+    const cell = document.createElement('div');
+    const col = i % 8, row = Math.floor(i / 8);
+    const dist = Math.abs(col - 3.5) + Math.abs(row - 3.5);
+    cell.className = `rod-cell ${dist < 3 ? 'rod-out' : 'rod-in'}`;
+    cell.title = `Rod ${String.fromCharCode(65 + row)}-${col + 1}`;
+    grid.appendChild(cell);
+  }
+}
+
+function updateRodPosition(val) {
+  state.rodInsertion = parseInt(val);
+  document.getElementById('cr-insert').textContent = val;
+  const cells = document.querySelectorAll('.rod-cell');
+  cells.forEach((cell, i) => {
+    if (state.isScram) {
+      cell.className = 'rod-cell rod-scram';
+    } else {
+      const row = Math.floor(i / 8), col = i % 8;
+      const dist = Math.abs(col - 3.5) + Math.abs(row - 3.5);
+      const threshold = (val / 100) * 7;
+      if (val > 80) cell.className = 'rod-cell rod-hot';
+      else cell.className = `rod-cell ${dist < threshold ? 'rod-in' : 'rod-out'}`;
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// REACTOR PHYSICS — POINT KINETICS (simplified)
+// ═══════════════════════════════════════════════════════
+function updatePhysics() {
+  if (state.isMeltdown) return;
+  state.noiseT += 0.1;
+
+  const noise = () => (Math.random() - 0.5) * 0.3;
+  const rodEffect = 1 - state.rodInsertion / 100;
+  const boronEffect = 1 - (state.boron / 2000) * 0.3;
+  const targetPower = state.powerDemand * rodEffect * boronEffect * 100;
+
+  if (!state.isScram) {
+    state.power += (targetPower - state.power) * 0.02 + noise();
+    state.power = Math.max(0, Math.min(120, state.power));
+  } else {
+    // Decay heat
+    const timeSinceScram = (Date.now() - state.scramTime) / 1000;
+    state.decayPower = 3411 * 0.0666 * Math.pow(timeSinceScram + 1, -0.2);
+    state.power = (state.decayPower / 3411) * 100;
+    if (state.power < 0.1) state.power = 0;
+    document.getElementById('decay-power').textContent = state.decayPower.toFixed(1);
+    document.getElementById('rhr-status').textContent = 'ACTIVE';
+    document.getElementById('rhr-status').style.color = 'var(--orange)';
+    document.getElementById('rhr-flow').textContent = '1800';
+  }
+
+  state.thermalPower = (state.power / 100) * 3411;
+  state.electricPower = state.thermalPower / 3.411;
+  state.tHot = 260 + (state.power / 100) * 65 + noise() * 0.2;
+  state.tCold = state.tHot - 32.5;
+  state.pressure = 155.1 + (state.power / 100) * 1.5 + noise() * 0.15;
+  state.flow = 68600 * (state.isScram ? 0.3 : 1) + noise() * 100;
+  state.neutronFlux = (state.power / 100) * 4.2e13;
+  state.keff = state.isScram ? 0.9800 : 1 + (state.power - 100) * 0.00003;
+  state.steamPress = 72.4 * (state.power / 100) + noise() * 0.2;
+  state.turbineRpm = state.isScram ? 3000 * Math.max(0, 1 - (Date.now() - state.scramTime) / 60000) : 3000;
+  state.containmentPress = 1.02 + (state.power > 110 ? (state.power - 110) * 0.05 : 0);
+
+  // Meltdown condition check
+  if (state.tHot > 350 && !state.isScram) triggerAutoScram('HIGH TEMPERATURE TRIP');
+  if (state.pressure > 172 && !state.isScram) triggerAutoScram('HIGH PRESSURE TRIP');
+
+  // Track flux history
+  state.fluxHistory.push(state.neutronFlux);
+  if (state.fluxHistory.length > 100) state.fluxHistory.shift();
+
+  updateUI();
+  updateFluxChart();
+}
+
+// ═══════════════════════════════════════════════════════
+// UI UPDATES
+// ═══════════════════════════════════════════════════════
+function updateUI() {
+  const fmt = (n, d = 1) => isNaN(n) ? '---' : n.toFixed(d);
+
+  // Meters
+  document.getElementById('m-thermal').textContent = fmt(state.thermalPower, 0);
+  document.getElementById('m-elec').textContent = fmt(state.electricPower, 0);
+  document.getElementById('m-temp').textContent = fmt(state.tHot, 1);
+  document.getElementById('m-press').textContent = fmt(state.pressure, 1);
+
+  // Gauges
+  const setGauge = (id, val, barId, max, fillClass) => {
+    document.getElementById(id).textContent = typeof val === 'number' ? fmt(val) : val;
+    const bar = document.getElementById(barId);
+    if (bar) {
+      bar.style.width = Math.min(100, (val / max) * 100) + '%';
+      if (fillClass) bar.className = `gauge-fill ${fillClass}`;
+    }
+  };
+
+  setGauge('g-power', state.power, 'gf-power', 100, state.power > 105 ? 'fill-red' : 'fill-green');
+  setGauge('g-thot', state.tHot, 'gf-thot', 420, state.tHot > 340 ? 'fill-red' : 'fill-orange');
+  setGauge('g-tcold', state.tCold, 'gf-tcold', 420, 'fill-cyan');
+  setGauge('g-flow', fmt(state.flow, 0), 'gf-flow', 80000, 'fill-cyan');
+  setGauge('g-boron', state.boron, 'gf-boron', 2000, 'fill-yellow');
+  document.getElementById('g-flux').textContent = formatSci(state.neutronFlux);
+  document.getElementById('gf-flux').style.width = (state.power) + '%';
+  setGauge('g-sgp', state.steamPress, 'gf-sgp', 100, 'fill-orange');
+  setGauge('g-turb', state.turbineRpm, 'gf-turb', 3000, 'fill-green');
+  setGauge('g-fw', 227, 'gf-fw', 400, 'fill-cyan');
+  setGauge('g-eccs', 4.14, 'gf-eccs', 5, 'fill-green');
+  setGauge('g-rhr', state.isScram ? fmt(state.decayPower / 3411 * 100, 1) : 0, 'gf-rhr', 10, 'fill-orange');
+  setGauge('g-cnt', state.containmentPress, 'gf-cnt', 5, state.containmentPress > 2 ? 'fill-red' : 'fill-cyan');
+  setGauge('g-dose', state.doseRate, 'gf-dose', 30, state.doseRate > 20 ? 'fill-red' : 'fill-orange');
+
+  // Keff & flux
+  document.getElementById('flux-val').textContent = formatSci(state.neutronFlux);
+  document.getElementById('keff-val').textContent = state.keff.toFixed(4);
+  document.getElementById('keff-val').style.color = state.keff < 1 ? 'var(--cyan)' : 'var(--green)';
+
+  // PZR
+  document.getElementById('pzr-p').textContent = fmt(state.pressure, 1);
+  document.getElementById('pzr-t').textContent = fmt(state.tHot + 20, 1);
+  document.getElementById('pzr-l').textContent = '62.5';
+
+  // SG indicators
+  const sgPwr = state.isScram ? 0 : fmt(state.power, 0);
+  const sgColor = state.isScram ? 'var(--red)' : 'var(--green)';
+  [1, 2, 3, 4].forEach(i => {
+    const el = document.getElementById(`sg${i}-pwr`);
+    const bar = document.getElementById(`sg${i}-bar`);
+    if (el) { el.textContent = sgPwr; el.style.color = sgColor; }
+    if (bar) { bar.style.width = state.power + '%'; bar.style.background = sgColor; }
+  });
+
+  // Status badge
+  const badge = document.getElementById('reactor-status-badge');
+  if (state.isScram) {
+    badge.className = 'status-badge status-SCRAM';
+    badge.textContent = '⚡ SCRAM';
+  } else if (state.power > 102) {
+    badge.className = 'status-badge status-WARNING';
+    badge.textContent = '⚠ OVERPOWER';
+  } else if (state.power < 5) {
+    badge.className = 'status-badge status-WARNING';
+    badge.textContent = '● SHUTDOWN';
+  } else {
+    badge.className = 'status-badge status-CRITICAL';
+    badge.textContent = '● CRITICAL';
+  }
+
+  // Cherenkov indicator
+  const intensity = state.power / 100;
+  document.getElementById('cherenkov-dot').style.opacity = 0.3 + intensity * 0.7;
+  document.getElementById('cherenkov-label').textContent = state.power > 10 
+    ? `CHERENKOV ACTIVE — Φ ${formatSci(state.neutronFlux)}`
+    : 'CHERENKOV — SUB-CRITICAL';
+
+  // Plant time
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60), s = elapsed % 60;
+  const ts = `T+${pad(h)}:${pad(m)}:${pad(s)}`;
+  document.getElementById('header-time').textContent = ts;
+  document.getElementById('plant-time').textContent = ts;
+
+  // Alarms
+  updateAlarms();
+}
+
+function updateAlarms() {
+  const panel = document.getElementById('alarm-panel');
+  const alarms = [
+    { label: 'HIGH NEUTRON FLUX',    active: state.power > 105,    warn: state.power > 100 },
+    { label: 'PRIMARY PRESSURE',     active: state.pressure > 170, warn: state.pressure > 162 },
+    { label: 'RCP VIBRATION',        active: false,                 warn: false },
+    { label: 'CONTAINMENT ISOLATION',active: state.isMeltdown,     warn: state.containmentPress > 1.5 },
+    { label: 'SCRAM SIGNAL',         active: state.isScram,        warn: false },
+    { label: 'ECCS ACTUATION',       active: state.isMeltdown,     warn: false },
+    { label: 'SEISMIC MONITOR',      active: false,                 warn: false },
+    { label: 'SG LEVEL',             active: false,                 warn: state.isScram },
+  ];
+  panel.innerHTML = alarms.map(a => `
+    <div class="alarm-row">
+      <div class="alarm-dot ${a.active ? 'alarm-active' : a.warn ? 'alarm-warning' : 'alarm-normal'}"></div>
+      <span>${a.label} — ${a.active ? '<span style="color:var(--red)">ALARM</span>' : a.warn ? '<span style="color:var(--orange)">WARNING</span>' : 'NORMAL'}</span>
+    </div>
+  `).join('');
+}
+
+function formatSci(n) {
+  if (n === 0) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(n)));
+  const man = n / Math.pow(10, exp);
+  return `${man.toFixed(2)}e${exp}`;
+}
+
+function pad(n) { return n.toString().padStart(2, '0'); }
+
+// ═══════════════════════════════════════════════════════
+// FLUX CHART
+// ═══════════════════════════════════════════════════════
+function updateFluxChart() {
+  const svg = document.getElementById('flux-svg');
+  if (!svg) return;
+  const W = svg.clientWidth || 240, H = svg.clientHeight || 60;
+  const hist = state.fluxHistory;
+  if (hist.length < 2) return;
+
+  const maxF = Math.max(...hist, 1e10);
+  const pts = hist.map((v, i) => {
+    const x = (i / (hist.length - 1)) * W;
+    const y = H - (v / maxF) * (H - 4) - 2;
+    return `${x},${y}`;
+  }).join(' ');
+
+  svg.innerHTML = `
+    <polyline points="${pts}" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0.8"/>
+    <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="#0a2a4a" stroke-width="1"/>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// EVENT LOGGER
+// ═══════════════════════════════════════════════════════
+function addLog(msg, level = 'INFO') {
+  const log = document.getElementById('event-log');
+  const t = new Date().toTimeString().slice(0, 8);
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${t}</span><span class="log-${level}">[${level}] ${msg}</span>`;
+  log.insertBefore(entry, log.firstChild);
+  if (log.children.length > 50) log.removeChild(log.lastChild);
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTROL FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function updateRodPosition(val) {
+  state.rodInsertion = parseInt(val);
+  document.getElementById('cr-insert').textContent = val;
+  const cells = document.querySelectorAll('.rod-cell');
+  cells.forEach((cell, i) => {
+    const row = Math.floor(i / 8), col = i % 8;
+    const dist = Math.abs(col - 3.5) + Math.abs(row - 3.5);
+    const threshold = (parseInt(val) / 100) * 7;
+    cell.className = `rod-cell ${dist < threshold ? 'rod-in' : 'rod-out'}`;
+  });
+  addLog(`Rod Bank D position: ${val}% inserted`, 'INFO');
+}
+
+function setPowerDemand(val) {
+  state.powerDemand = parseInt(val);
+  addLog(`Power demand set to ${val}%`, 'INFO');
+}
+
+function setBoron(val) {
+  state.boron = parseInt(val);
+  document.getElementById('c-boron').textContent = val;
+  addLog(`Boron concentration set to ${val} ppm`, 'INFO');
+}
+
+function startReactor() {
+  if (state.isScram) { addLog('Cannot start — SCRAM condition active', 'WARN'); return; }
+  state.power = 0.001;
+  addLog('Reactor startup initiated — criticality approach', 'OK');
+  addLog('Neutron source visible — subcritical multiplication', 'INFO');
+}
+
+function initiateScram(reason = 'MANUAL SCRAM') {
+  state.isScram = true;
+  state.scramTime = Date.now();
+  state.powerDemand = 0;
+  document.getElementById('rod-slider').value = 100;
+  updateRodPosition(100);
+  document.querySelectorAll('.rod-cell').forEach(c => c.className = 'rod-cell rod-scram');
+  addLog(`⚡ SCRAM: ${reason}`, 'ALARM');
+  addLog('All control rod banks fully inserted', 'ALARM');
+  addLog('Reactor trip breakers opened', 'ALARM');
+  addLog('Turbine trip initiated', 'ALARM');
+  document.getElementById('reactor-status-badge').className = 'status-badge status-SCRAM';
+}
+
+function triggerAutoScram(reason) {
+  initiateScram(reason);
+  addLog(`AUTO SCRAM: ${reason}`, 'ALARM');
+}
+
+function triggerMeltdown() {
+  state.isMeltdown = true;
+  state.power = 115;
+  state.tHot = 400;
+  initiateScram('MELTDOWN SIMULATION');
+  document.getElementById('isolation-overlay').classList.add('active');
+  addLog('☢ MELTDOWN SCENARIO ACTIVATED', 'ALARM');
+  addLog('Containment isolation valves CLOSING', 'ALARM');
+  addLog('ECCS actuation — all trains', 'ALARM');
+  addLog('Emergency boration initiated', 'ALARM');
+  addLog('Site emergency declared — INES Level 7 sim', 'ALARM');
+  state.doseRate = 150;
+  state.containmentPress = 3.5;
+
+  // Flash reactor glow red
+  if (objects.reactorGlow) {
+    objects.reactorGlow.color.setHex(0xff2200);
+    objects.reactorGlow.intensity = 8;
+  }
+}
+
+function dismissIsolation() {
+  document.getElementById('isolation-overlay').classList.remove('active');
+  resetPlant();
+}
+
+function resetPlant() {
+  state.isScram = false;
+  state.isMeltdown = false;
+  state.power = 100;
+  state.powerDemand = 100;
+  state.rodInsertion = 15;
+  state.boron = 850;
+  state.doseRate = 12.4;
+  state.containmentPress = 1.02;
+  state.decayPower = 0;
+  document.getElementById('rod-slider').value = 15;
+  document.getElementById('power-demand').value = 100;
+  document.getElementById('boron-slider').value = 850;
+  updateRodPosition(15);
+  document.getElementById('rhr-status').textContent = 'STANDBY';
+  document.getElementById('rhr-status').style.color = 'var(--muted)';
+  document.getElementById('rhr-flow').textContent = '0';
+  document.getElementById('decay-power').textContent = '0.0';
+  addLog('Plant reset — nominal conditions restored', 'OK');
+  addLog('All safety systems — STANDBY', 'OK');
+  if (objects.reactorGlow) {
+    objects.reactorGlow.color.setHex(0x0066ff);
+    objects.reactorGlow.intensity = 3;
+  }
+}
+
+function switchTab(group, tab) {
+  document.querySelectorAll(`#tab-ops, #tab-chem, #tab-dose`).forEach(el => {
+    el.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  initThree();
+  initRodGrid();
+
+  // Initial log entries
+  addLog('XIOM Nuclear Suite v3.0 initialized', 'OK');
+  addLog('NPP-ALPHA · Unit 1 · 1000 MWe PWR · 4-Loop', 'INFO');
+  addLog('RX-101 at full power — CRITICAL state', 'OK');
+  addLog('All 4 RCPs running normally', 'OK');
+  addLog('Steam generators nominal — 72.4 bar', 'OK');
+  addLog('ECCS accumulators charged — 4.14 MPa', 'OK');
+  addLog('Primary pressure: 155.1 bar — nominal', 'INFO');
+  addLog('Boron concentration: 850 ppm', 'INFO');
+
+  // Start physics loop
+  setInterval(updatePhysics, 500);
+});
+
+window.addEventListener('resize', () => {
+  if (!renderer) return;
+  const c = document.getElementById('view-3d');
+  renderer.setSize(c.clientWidth, c.clientHeight);
+  camera.aspect = c.clientWidth / c.clientHeight;
+  camera.updateProjectionMatrix();
+});
+</script>
+</body>
+</html>

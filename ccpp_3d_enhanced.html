@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCPP — 3D Interactive Engineering Diagram</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap');
+
+:root {
+  --col-fuel:    #ffd84d;
+  --col-steam:   #ff4444;
+  --col-cool:    #29b6f6;
+  --col-elec:    #ffffff;
+  --col-water:   #66bb6a;
+  --col-bg:      #0a1628;
+  --col-panel:   rgba(10,22,44,0.92);
+  --col-accent:  #00e5ff;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background: var(--col-bg);
+  font-family:'Barlow',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  color:#cde;
+}
+
+/* ── TOP BAR ── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(5,12,28,0.97);
+  border-bottom:1px solid #1a3a5a;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 20px;
+  backdrop-filter:blur(12px);
+}
+#topbar h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;letter-spacing:3px;
+  color:#e8f4fd;text-transform:uppercase;
+}
+#topbar .subtitle{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:#4a9fd4;letter-spacing:1.5px;
+}
+.tbcontrols{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* Buttons */
+.btn{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:5px 12px;border-radius:4px;border:1px solid #2a4a6a;
+  background:rgba(20,40,70,0.8);color:#7ab8e0;
+  cursor:pointer;transition:all .2s;text-transform:uppercase;
+}
+.btn:hover{background:#1a3a60;color:#fff;border-color:#4a8ab8;}
+.btn.active{background:#1a4a7a;color:#00e5ff;border-color:#00e5ff;}
+.btn.danger{border-color:#cc2222;color:#ff8888;}
+.btn.danger.active{background:#3a0a0a;color:#ff4444;border-color:#ff4444;}
+
+/* ── MAIN CANVAS AREA ── */
+#canvas-wrapper{
+  margin-top:52px;
+  width:100%;
+  min-height:calc(100vh - 52px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:16px 12px 0;
+}
+
+#scene-container{
+  width:100%;max-width:1300px;
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 0 80px rgba(0,100,200,0.3),0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* 3-D CSS perspective wrapper */
+#iso-wrap{
+  width:100%;
+  perspective:1800px;
+  perspective-origin:50% 30%;
+}
+#iso-scene{
+  transform-origin:50% 50%;
+  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
+}
+#iso-scene.night #nightOverlay{opacity:1 !important;}
+#iso-scene.night #skyRect{
+  stop-color:#08152a !important;
+}
+
+/* Night overlay */
+#nightOverlay{
+  pointer-events:none;
+  transition:opacity 1.2s;
+  opacity:0;
+}
+
+/* ── SIDE PANEL (dashboard) ── */
+#dashboard{
+  position:fixed;right:0;top:52px;bottom:0;
+  width:220px;z-index:150;
+  background:var(--col-panel);
+  border-left:1px solid #1a3a5a;
+  padding:14px 12px;
+  overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  backdrop-filter:blur(16px);
+}
+#dashboard.open{transform:translateX(0);}
+.dash-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:2px;
+  color:#4a9fd4;text-transform:uppercase;
+  border-bottom:1px solid #1a3a5a;
+  padding-bottom:6px;margin-bottom:10px;
+}
+.metric{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.metric-label{font-size:10px;color:#8ab;font-family:'Share Tech Mono',monospace;}
+.metric-value{
+  font-size:13px;font-weight:700;
+  font-family:'Share Tech Mono',monospace;
+  color:#7fffaa;
+}
+.metric-bar{
+  width:100%;height:4px;background:#0d2a4a;border-radius:2px;margin:3px 0 6px;
+}
+.metric-fill{
+  height:4px;border-radius:2px;
+  transition:width 1s ease;
+}
+
+/* ── TOOLTIP ── */
+#tooltip{
+  position:fixed;z-index:300;
+  background:rgba(5,15,35,0.97);
+  border:1px solid #2a5a8a;
+  border-radius:8px;padding:12px 16px;
+  max-width:240px;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+}
+#tooltip.show{opacity:1;}
+#tooltip h3{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;font-weight:700;color:#00e5ff;
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:6px;
+}
+#tooltip p{font-size:11px;color:#aabbcc;line-height:1.5;}
+#tooltip .spec{
+  margin-top:8px;font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:#66aacc;
+  border-top:1px solid #1a3a5a;padding-top:6px;
+}
+
+/* ── FLOW CONTROL PANEL ── */
+#flowpanel{
+  position:fixed;left:12px;bottom:80px;z-index:150;
+  background:var(--col-panel);
+  border:1px solid #1a3a5a;border-radius:8px;
+  padding:10px 14px;
+  backdrop-filter:blur(16px);
+  min-width:160px;
+}
+.flow-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 0;
+}
+.flow-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;color:#9ab;}
+.flow-toggle{
+  width:28px;height:14px;border-radius:7px;
+  background:#1a3a5a;border:1px solid #2a5a8a;
+  cursor:pointer;position:relative;transition:background .3s;
+}
+.flow-toggle.on{background:#0a4a0a;border-color:#4a8a4a;}
+.flow-toggle::after{
+  content:'';position:absolute;
+  top:2px;left:2px;
+  width:8px;height:8px;border-radius:50%;
+  background:#4a6a8a;transition:all .3s;
+}
+.flow-toggle.on::after{left:16px;background:#66bb6a;}
+
+/* ── TOUR OVERLAY ── */
+#tour-overlay{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,0.7);pointer-events:none;
+  opacity:0;transition:opacity .5s;
+}
+#tour-overlay.active{opacity:1;pointer-events:all;}
+#tour-box{
+  position:absolute;
+  background:rgba(5,15,35,0.97);
+  border:1px solid #00e5ff;border-radius:10px;
+  padding:16px 20px;max-width:260px;
+  box-shadow:0 0 40px rgba(0,229,255,0.3);
+}
+#tour-box h2{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;font-weight:700;color:#00e5ff;
+  letter-spacing:1px;margin-bottom:6px;
+}
+#tour-box p{font-size:12px;color:#aabbcc;line-height:1.6;}
+#tour-nav{margin-top:12px;display:flex;gap:8px;}
+
+/* ── EXPORT BTN ── */
+#exportBtn{
+  position:fixed;left:12px;bottom:40px;z-index:150;
+}
+
+/* ── LANG TOGGLE ── */
+#langBtn{cursor:pointer;}
+
+/* ── BOTTOM STATUS BAR ── */
+#statusbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(5,12,28,0.97);
+  border-top:1px solid #1a3a5a;
+  display:flex;align-items:center;gap:20px;
+  padding:5px 20px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:#4a8ab0;
+}
+.status-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#66bb6a;
+  box-shadow:0 0 6px #66bb6a;
+  display:inline-block;
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{50%{opacity:.3;}}
+
+/* ── SCALE RULER ── */
+.ruler-label{font-family:'Share Tech Mono',monospace;fill:#778899;font-size:9px;}
+
+/* ── ANIMATED FLOWS ── */
+@keyframes flowMove{
+  from{stroke-dashoffset:200;}
+  to{stroke-dashoffset:0;}
+}
+@keyframes flowMoveRev{
+  from{stroke-dashoffset:0;}
+  to{stroke-dashoffset:200;}
+}
+.flow-anim-fuel{
+  stroke-dasharray:12 8;
+  animation:flowMove 1.8s linear infinite;
+}
+.flow-anim-steam{
+  stroke-dasharray:10 6;
+  animation:flowMove 1.2s linear infinite;
+}
+.flow-anim-cool{
+  stroke-dasharray:14 8;
+  animation:flowMoveRev 2s linear infinite;
+}
+.flow-anim-elec{
+  stroke-dasharray:8 6;
+  animation:flowMove .8s linear infinite;
+}
+.flow-anim-water{
+  stroke-dasharray:12 8;
+  animation:flowMove 2.4s linear infinite;
+}
+.flow-hidden{display:none;}
+
+/* ── STEAM PARTICLES ── */
+@keyframes steamRise{
+  0%{opacity:.8;transform:translateY(0) scaleX(1);}
+  60%{opacity:.4;transform:translateY(-30px) scaleX(1.5);}
+  100%{opacity:0;transform:translateY(-60px) scaleX(2.2);}
+}
+.sp{animation:steamRise 3s ease-out infinite;}
+.sp2{animation:steamRise 3.8s ease-out infinite .7s;}
+.sp3{animation:steamRise 2.8s ease-out infinite 1.4s;}
+.sp4{animation:steamRise 4.2s ease-out infinite .3s;}
+.sp5{animation:steamRise 3.3s ease-out infinite 1.8s;}
+
+/* ── TURBINE SPIN ── */
+@keyframes turbineSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.tspin{animation:turbineSpin 1.5s linear infinite;transform-origin:center;}
+
+/* ── PULSE ── */
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.epulse{animation:pulse 1s ease-in-out infinite;}
+@keyframes slowPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+.spulse{animation:slowPulse 3s ease-in-out infinite;}
+
+/* ── SUN RAYS ── */
+@keyframes sunRot{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.sun-rays{animation:sunRot 20s linear infinite;transform-origin:1105px 35px;}
+
+/* ── MOTION ICONS ── */
+@keyframes motionPath{to{offset-distance:100%;}}
+.motion-icon{
+  offset-rotate:0deg;
+  animation:motionPath 4s linear infinite;
+}
+
+/* ── DEPTH OF FIELD blurs ── */
+.dof-far{filter:url(#dofBlur);}
+
+/* ── SEASON CLASSES ── */
+body.winter #skyRect stop:first-child{stop-color:#b8c8d8 !important;}
+body.winter #skyRect stop:last-child{stop-color:#d8e4ee !important;}
+body.winter .grass{fill:#e8ecf0 !important;}
+
+body.dusk #skyRect stop:first-child{stop-color:#e8704a !important;}
+body.dusk #skyRect stop:last-child{stop-color:#c85a8a !important;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TOP BAR ═══════════ -->
+<div id="topbar">
+  <div>
+    <h1 id="mainTitle">Natural Gas Combined Cycle Power Plant</h1>
+    <div class="subtitle" id="mainSubtitle">ENGINEERING SYSTEMS OVERVIEW — 3D INTERACTIVE DIAGRAM</div>
+  </div>
+  <div class="tbcontrols">
+    <button class="btn active" id="btnDay" onclick="setSeason('day')">☀ Day</button>
+    <button class="btn" id="btnDusk" onclick="setSeason('dusk')">🌅 Dusk</button>
+    <button class="btn" id="btnNight" onclick="setSeason('night')">🌙 Night</button>
+    <button class="btn" id="btnWinter" onclick="setSeason('winter')">❄ Winter</button>
+    <span style="border-left:1px solid #1a3a5a;height:20px;display:inline-block;margin:0 4px;"></span>
+    <button class="btn" id="btnTour" onclick="startTour()">▶ Guided Tour</button>
+    <button class="btn" id="btnDash" onclick="toggleDash()">📊 Live Data</button>
+    <button class="btn" id="langBtn" onclick="toggleLang()">🌐 AR / EN</button>
+    <button class="btn" id="btnExport" onclick="exportPNG()">⬇ Export PNG</button>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN SCENE ═══════════ -->
+<div id="canvas-wrapper">
+<div id="scene-container">
+<div id="iso-wrap">
+<div id="iso-scene">
+
+<svg id="mainSVG" viewBox="0 0 1300 860" xmlns="http://www.w3.org/2000/svg"
+     style="width:100%;height:auto;display:block;cursor:default;"
+     onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">
+
+<defs>
+  <!-- SKY gradients -->
+  <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#6aa8d8" id="skyTop"/>
+    <stop offset="100%" stop-color="#d8eef8" id="skyBot"/>
+  </linearGradient>
+  <!-- Night sky -->
+  <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#04091a"/>
+    <stop offset="100%" stop-color="#0a1832"/>
+  </linearGradient>
+  <!-- Dusk sky -->
+  <linearGradient id="duskSky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#c85a2a"/>
+    <stop offset="100%" stop-color="#8a4490"/>
+  </linearGradient>
+  <!-- Winter sky -->
+  <linearGradient id="winterSky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#b8cad8"/>
+    <stop offset="100%" stop-color="#dce8f0"/>
+  </linearGradient>
+
+  <!-- Ground -->
+  <linearGradient id="concreteGrad" x1="0" y1="0" x2="0.3" y2="1">
+    <stop offset="0%" stop-color="#cacac4"/>
+    <stop offset="100%" stop-color="#a4a49c"/>
+  </linearGradient>
+  <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#6db856"/>
+    <stop offset="100%" stop-color="#4a8a38"/>
+  </linearGradient>
+  <linearGradient id="winterGround" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#e8edf2"/>
+    <stop offset="100%" stop-color="#d0d8e0"/>
+  </linearGradient>
+
+  <!-- Building materials -->
+  <linearGradient id="wallTop" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#e2e8f0"/>
+    <stop offset="100%" stop-color="#c0ccd8"/>
+  </linearGradient>
+  <linearGradient id="wallLt" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#dce4ec"/>
+    <stop offset="100%" stop-color="#b8c4d0"/>
+  </linearGradient>
+  <linearGradient id="wallDk" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#8898a8"/>
+    <stop offset="100%" stop-color="#6a7880"/>
+  </linearGradient>
+  <linearGradient id="metalTop" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#d8e0e8"/>
+    <stop offset="100%" stop-color="#9aaab8"/>
+  </linearGradient>
+  <linearGradient id="hrsgTop" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#c4d0dc"/>
+    <stop offset="100%" stop-color="#7888a0"/>
+  </linearGradient>
+  <linearGradient id="tankG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#e4e8ec"/>
+    <stop offset="100%" stop-color="#9aa4ae"/>
+  </linearGradient>
+  <linearGradient id="ctG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#d0d8e0"/>
+    <stop offset="100%" stop-color="#8090a0"/>
+  </linearGradient>
+  <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#29b6f6" stop-opacity=".9"/>
+    <stop offset="100%" stop-color="#0277bd" stop-opacity=".9"/>
+  </linearGradient>
+  <linearGradient id="solarG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#182848"/>
+    <stop offset="100%" stop-color="#1a4a9a"/>
+  </linearGradient>
+  <linearGradient id="pipeY" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#ffe066"/>
+    <stop offset="100%" stop-color="#c49a00"/>
+  </linearGradient>
+  <linearGradient id="redG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#ff6b6b"/>
+    <stop offset="100%" stop-color="#b80000"/>
+  </linearGradient>
+
+  <!-- Night window glow -->
+  <radialGradient id="winGlow" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ffe888" stop-opacity=".9"/>
+    <stop offset="100%" stop-color="#ffaa00" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="ctGlow" cx="50%" cy="100%" r="50%">
+    <stop offset="0%" stop-color="#4444ff" stop-opacity=".6"/>
+    <stop offset="100%" stop-color="#0000aa" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ff6600" stop-opacity=".7"/>
+    <stop offset="100%" stop-color="#ff0000" stop-opacity="0"/>
+  </radialGradient>
+
+  <!-- Textures -->
+  <pattern id="concreteTex" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#c4c4be"/>
+    <line x1="0" y1="10" x2="20" y2="10" stroke="#b8b8b2" stroke-width=".5" opacity=".5"/>
+    <line x1="10" y1="0" x2="10" y2="20" stroke="#b8b8b2" stroke-width=".5" opacity=".5"/>
+  </pattern>
+  <pattern id="metalTex" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+    <rect width="8" height="8" fill="#b8c4d0"/>
+    <line x1="0" y1="0" x2="8" y2="8" stroke="#ccd8e4" stroke-width=".8" opacity=".4"/>
+  </pattern>
+  <pattern id="grassTex" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#5aaa48"/>
+    <line x1="2" y1="16" x2="4" y2="10" stroke="#4a9038" stroke-width="1" opacity=".6"/>
+    <line x1="8" y1="16" x2="10" y2="8" stroke="#3a8028" stroke-width="1" opacity=".6"/>
+    <line x1="13" y1="16" x2="14" y2="11" stroke="#4a9038" stroke-width="1" opacity=".6"/>
+  </pattern>
+
+  <!-- DOF blur for background -->
+  <filter id="dofBlur" x="-10%" y="-10%" width="120%" height="120%">
+    <feGaussianBlur stdDeviation="1.5"/>
+  </filter>
+  <!-- Glow filter -->
+  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="4" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="8" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <!-- Label shadow -->
+  <filter id="lsh" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,.4)"/>
+  </filter>
+  <!-- Building drop shadow -->
+  <filter id="bsh" x="-10%" y="-10%" width="130%" height="140%">
+    <feDropShadow dx="5" dy="8" stdDeviation="4" flood-color="rgba(0,0,0,.35)"/>
+  </filter>
+
+  <!-- Arrow markers -->
+  <marker id="arrW" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+    <polygon points="0 0,7 2.5,0 5" fill="white"/>
+  </marker>
+  <marker id="arrY" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+    <polygon points="0 0,7 2.5,0 5" fill="#ffd84d"/>
+  </marker>
+  <marker id="arrC" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+    <polygon points="0 0,7 2.5,0 5" fill="#00e5ff"/>
+  </marker>
+
+  <!-- Motion paths for animated icons -->
+  <path id="fuelPath" d="M 5,395 Q 130,395 200,370 Q 240,355 265,340"/>
+  <path id="steamPath1" d="M 640,300 Q 660,300 690,310 Q 720,320 740,355"/>
+  <path id="coolPath" d="M 1040,400 Q 900,430 870,460 Q 850,480 820,500"/>
+  <path id="elecPath" d="M 760,410 Q 550,490 280,570 Q 230,580 195,595"/>
+  <path id="waterPath" d="M 945,620 Q 880,620 840,600 Q 800,585 780,560"/>
+
+  <!-- Stars pattern for night -->
+  <pattern id="starsPat" x="0" y="0" width="100" height="60" patternUnits="userSpaceOnUse">
+    <circle cx="10" cy="15" r="1" fill="white" opacity=".8"/>
+    <circle cx="35" cy="8" r=".8" fill="white" opacity=".6"/>
+    <circle cx="60" cy="20" r="1.2" fill="white" opacity=".9"/>
+    <circle cx="85" cy="5" r=".7" fill="white" opacity=".7"/>
+    <circle cx="22" cy="40" r="1" fill="white" opacity=".5"/>
+    <circle cx="75" cy="45" r=".9" fill="white" opacity=".8"/>
+    <circle cx="50" cy="50" r="1.1" fill="white" opacity=".6"/>
+  </pattern>
+
+  <!-- Concrete ground texture -->
+  <pattern id="roadPat" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <rect width="40" height="40" fill="#a8a8a0"/>
+    <line x1="0" y1="20" x2="40" y2="20" stroke="#ffffff" stroke-width=".8" stroke-dasharray="8,10" opacity=".3"/>
+  </pattern>
+</defs>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- BACKGROUND -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<rect id="skyRect" x="0" y="0" width="1300" height="860" fill="url(#skyGrad)"/>
+<!-- Night stars (hidden day) -->
+<rect id="starsRect" x="0" y="0" width="1300" height="500" fill="url(#starsPat)" opacity="0" style="transition:opacity 1.2s"/>
+
+<!-- Background hills (DOF blurred) -->
+<g class="dof-far">
+  <ellipse cx="180" cy="110" rx="260" ry="70" fill="#5a9a48" opacity=".5"/>
+  <ellipse cx="1100" cy="80" rx="300" ry="65" fill="#4a8a38" opacity=".4"/>
+  <ellipse cx="700" cy="60" rx="200" ry="50" fill="#5aaa48" opacity=".3"/>
+</g>
+
+<!-- River top-right (DOF) -->
+<path d="M850,0 Q950,50 1020,90 Q1070,115 1130,85 L1300,70 L1300,0 Z"
+      fill="#4aaace" opacity=".55" class="dof-far"/>
+<text x="1060" y="48" font-size="9" fill="#1a5a7a" font-family="Share Tech Mono"
+      text-anchor="middle" class="dof-far">RIVER / WATER SOURCE</text>
+
+<!-- Main site ground (concrete texture) -->
+<path d="M70,250 L1240,200 L1280,820 L30,850 Z" fill="url(#concreteTex)"/>
+<!-- Overlay for lighting -->
+<path d="M70,250 L1240,200 L1280,820 L30,850 Z" fill="url(#concreteGrad)" opacity=".6"/>
+
+<!-- Night overlay (darkens everything) -->
+<rect id="nightOvl" x="0" y="0" width="1300" height="860" fill="#020a18" opacity="0"
+      style="transition:opacity 1.2s;pointer-events:none;"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ROADS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Main horizontal road -->
+<path d="M70,620 L1260,575" fill="none" stroke="#999" stroke-width="18"/>
+<path d="M70,620 L1260,575" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="22,16" opacity=".5"/>
+<!-- Vertical spine road -->
+<path d="M640,250 L660,850" fill="none" stroke="#999" stroke-width="16"/>
+<path d="M640,250 L660,850" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="22,16" opacity=".5"/>
+<!-- Left road -->
+<path d="M215,250 L235,850" fill="none" stroke="#999" stroke-width="12"/>
+<!-- Right road -->
+<path d="M990,220 L1010,820" fill="none" stroke="#999" stroke-width="12"/>
+
+<!-- Green buffer zones -->
+<rect x="75" y="620" width="130" height="55" rx="5" fill="url(#grassTex)" class="grass"/>
+<rect x="670" y="640" width="90" height="45" rx="5" fill="url(#grassTex)" class="grass"/>
+<rect x="850" y="625" width="90" height="45" rx="5" fill="url(#grassTex)" class="grass"/>
+<rect x="280" y="625" width="110" height="45" rx="5" fill="url(#grassTex)" class="grass"/>
+<!-- Trees -->
+<g opacity=".9">
+  <circle cx="100" cy="635" r="10" fill="#2a7a18"/>
+  <circle cx="115" cy="628" r="8" fill="#3a9028"/>
+  <circle cx="175" cy="638" r="9" fill="#2a7a18"/>
+  <circle cx="690" cy="655" r="8" fill="#3a9028"/>
+  <circle cx="705" cy="648" r="7" fill="#2a7a18"/>
+  <circle cx="870" cy="638" r="9" fill="#2a7a18"/>
+  <circle cx="885" cy="632" r="8" fill="#3a9028"/>
+  <circle cx="300" cy="638" r="9" fill="#2a7a18"/>
+  <circle cx="315" cy="632" r="8" fill="#3a9028"/>
+  <circle cx="360" cy="636" r="7" fill="#2a7a18"/>
+</g>
+
+<!-- Perimeter fence -->
+<rect x="65" y="244" width="1220" height="8" rx="2" fill="#808880" opacity=".6"/>
+<rect x="65" y="244" width="7" height="610" rx="2" fill="#808880" opacity=".6"/>
+<rect x="1276" y="208" width="7" height="645" rx="2" fill="#808880" opacity=".6"/>
+<rect x="28" y="845" width="1250" height="7" rx="2" fill="#808880" opacity=".6"/>
+<!-- Barbed wire detail (small dots on top fence) -->
+<g stroke="#606860" stroke-width="1" fill="none" opacity=".5">
+  <circle cx="200" cy="244" r="2"/><circle cx="350" cy="244" r="2"/>
+  <circle cx="500" cy="244" r="2"/><circle cx="650" cy="244" r="2"/>
+  <circle cx="800" cy="244" r="2"/><circle cx="950" cy="244" r="2"/>
+  <circle cx="1100" cy="244" r="2"/>
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ①: GAS METERING & FUEL SUPPLY -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Pipeline from left edge -->
+<path d="M0,380 L145,374" stroke="url(#pipeY)" stroke-width="8" fill="none"/>
+<path d="M0,386 L145,380" stroke="#c49a00" stroke-width="2" fill="none"/>
+<!-- Arrow -->
+<polygon points="128,368 148,374 128,380" fill="#ffd84d"/>
+<text x="60" y="366" font-size="9" fill="#c49a00" font-family="Barlow Condensed" font-weight="700">NATURAL GAS SUPPLY →</text>
+
+<!-- Gas Metering Station — 3D isometric box -->
+<g id="gasMeter" class="clickable" data-tip="gasMeter" filter="url(#bsh)"
+   onmouseenter="showTip('gasMeter',event)" onmouseleave="hideTooltip()">
+  <!-- Shadow ground -->
+  <ellipse cx="200" cy="405" rx="60" ry="12" fill="#7a8a7a" opacity=".3"/>
+  <!-- Top face -->
+  <polygon points="140,295 245,295 250,275 145,275" fill="#8898a8"/>
+  <!-- Left face (lit) -->
+  <rect x="140" y="295" width="105" height="80" rx="2" fill="url(#wallLt)"/>
+  <!-- Right face (shadow) -->
+  <polygon points="245,295 260,285 260,355 245,375" fill="url(#wallDk)"/>
+  <!-- Windows -->
+  <rect x="150" y="310" width="18" height="14" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <rect x="176" y="310" width="18" height="14" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <rect x="202" y="310" width="18" height="14" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <!-- Night glow windows -->
+  <rect id="ngw1" x="150" y="310" width="18" height="14" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect id="ngw2" x="176" y="310" width="18" height="14" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <!-- Instruments / gauges -->
+  <circle cx="158" cy="345" r="6" fill="#ffd84d" stroke="#aa7700" stroke-width="1.5"/>
+  <circle cx="175" cy="345" r="6" fill="#ffd84d" stroke="#aa7700" stroke-width="1.5"/>
+  <circle cx="192" cy="345" r="6" fill="#ffd84d" stroke="#aa7700" stroke-width="1.5"/>
+  <circle cx="209" cy="345" r="6" fill="#ffd84d" stroke="#aa7700" stroke-width="1.5"/>
+  <!-- Security fence -->
+  <rect x="128" y="265" width="140" height="120" fill="none" stroke="#888" stroke-width="2"
+        stroke-dasharray="5,4" rx="3"/>
+  <text x="193" y="392" text-anchor="middle" font-size="9" fill="#667" font-family="Barlow Condensed">GAS METERING STN</text>
+</g>
+
+<!-- KO Drums (horizontal) -->
+<g id="koDrums" class="clickable" data-tip="koDrum"
+   onmouseenter="showTip('koDrum',event)" onmouseleave="hideTooltip()">
+  <!-- Drum 1 -->
+  <ellipse cx="142" cy="440" rx="10" ry="22" fill="#c0c8d0"/>
+  <rect x="142" y="418" width="65" height="44" fill="url(#tankG)"/>
+  <ellipse cx="207" cy="440" rx="10" ry="22" fill="#dce0e4"/>
+  <ellipse cx="142" cy="440" rx="10" ry="22" fill="#e0e4e8"/>
+  <text x="175" y="472" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">FUEL GAS KO DRUM 1</text>
+  <!-- Drum 2 -->
+  <ellipse cx="145" cy="495" rx="10" ry="22" fill="#c0c8d0"/>
+  <rect x="145" y="473" width="65" height="44" fill="url(#tankG)"/>
+  <ellipse cx="210" cy="495" rx="10" ry="22" fill="#dce0e4"/>
+  <ellipse cx="145" cy="495" rx="10" ry="22" fill="#e0e4e8"/>
+  <text x="178" y="527" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">FUEL GAS KO DRUM 2</text>
+</g>
+
+<!-- Fuel storage tanks (vertical cylinders) -->
+<g class="clickable" onmouseenter="showTip('fuelTank',event)" onmouseleave="hideTooltip()">
+  <ellipse cx="95" cy="465" rx="26" ry="12" fill="#d8dce0"/>
+  <rect x="69" y="465" width="52" height="65" fill="url(#tankG)"/>
+  <ellipse cx="95" cy="530" rx="26" ry="12" fill="#a8acb0"/>
+  <ellipse cx="95" cy="465" rx="26" ry="12" fill="#eaecf0"/>
+  <text x="95" y="550" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">FUEL TANK A</text>
+
+  <ellipse cx="95" cy="558" rx="22" ry="10" fill="#d8dce0"/>
+  <rect x="73" y="558" width="44" height="50" fill="url(#tankG)"/>
+  <ellipse cx="95" cy="608" rx="22" ry="10" fill="#a8acb0"/>
+  <ellipse cx="95" cy="558" rx="22" ry="10" fill="#eaecf0"/>
+  <text x="95" y="626" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">FUEL TANK B</text>
+</g>
+
+<!-- Yellow fuel pipes to GTGs -->
+<path d="M215,374 Q260,365 288,340" stroke="#ffd84d" stroke-width="6" fill="none"/>
+<path d="M215,374 Q255,415 280,420" stroke="#ffd84d" stroke-width="5" fill="none"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ②: GAS TURBINE GENERATORS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- GTG 1 ── Air Intake -->
+<g id="intake1" class="clickable" onmouseenter="showTip('airIntake',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Top -->
+  <polygon points="278,260 368,260 373,244 283,244" fill="#7a8a9a"/>
+  <!-- Front -->
+  <rect x="278" y="260" width="90" height="65" rx="2" fill="url(#wallLt)"/>
+  <!-- Side -->
+  <polygon points="368,260 383,250 383,315 368,325" fill="url(#wallDk)"/>
+  <!-- Louvres -->
+  <line x1="288" y1="265" x2="288" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="300" y1="265" x2="300" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="312" y1="265" x2="312" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="324" y1="265" x2="324" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="336" y1="265" x2="336" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="348" y1="265" x2="348" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="360" y1="265" x2="360" y2="320" stroke="#9aaab8" stroke-width="2.5"/>
+  <text x="325" y="340" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">AIR INTAKE 1</text>
+</g>
+
+<!-- GTG 1 ── Turbine Nacelle -->
+<g id="gt1" class="clickable" onmouseenter="showTip('gt1',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="383,250 510,247 515,290 383,294" fill="url(#metalTop)"/>
+  <polygon points="383,250 383,294 388,302 388,258" fill="#8898a8"/>
+  <!-- Turbine blade spinner -->
+  <g transform="translate(445,272)">
+    <g class="tspin">
+      <ellipse cx="0" cy="0" rx="16" ry="16" fill="#6a7a8a" opacity=".7"/>
+      <line x1="0" y1="-14" x2="0" y2="14" stroke="#9aaab8" stroke-width="3"/>
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#9aaab8" stroke-width="3"/>
+      <line x1="-10" y1="-10" x2="10" y2="10" stroke="#9aaab8" stroke-width="2"/>
+      <line x1="10" y1="-10" x2="-10" y2="10" stroke="#9aaab8" stroke-width="2"/>
+    </g>
+    <circle cx="0" cy="0" r="5" fill="#c8d4e0"/>
+  </g>
+  <text x="450" y="312" text-anchor="middle" font-size="9" fill="#334" font-family="Barlow Condensed" font-weight="700">GAS TURBINE 1</text>
+</g>
+
+<!-- GTG 1 ── Generator -->
+<g class="clickable" onmouseenter="showTip('gen1',event)" onmouseleave="hideTooltip()">
+  <ellipse cx="528" cy="272" rx="16" ry="28" fill="#c0c8d0"/>
+  <rect x="528" y="244" width="48" height="56" fill="url(#tankG)"/>
+  <ellipse cx="576" cy="272" rx="14" ry="27" fill="#d8dce0"/>
+  <ellipse cx="528" cy="272" rx="16" ry="28" fill="#d8dce0"/>
+  <text x="552" y="312" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">GEN 1</text>
+</g>
+
+<!-- GTG 2 ── Air Intake -->
+<g class="clickable" onmouseenter="showTip('airIntake',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="290,390 380,390 385,374 295,374" fill="#7a8a9a"/>
+  <rect x="290" y="390" width="90" height="65" rx="2" fill="url(#wallLt)"/>
+  <polygon points="380,390 395,380 395,445 380,455" fill="url(#wallDk)"/>
+  <line x1="300" y1="395" x2="300" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="312" y1="395" x2="312" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="324" y1="395" x2="324" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="336" y1="395" x2="336" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="348" y1="395" x2="348" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="360" y1="395" x2="360" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <line x1="372" y1="395" x2="372" y2="450" stroke="#9aaab8" stroke-width="2.5"/>
+  <text x="337" y="469" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">AIR INTAKE 2</text>
+</g>
+
+<!-- GTG 2 ── Turbine Nacelle -->
+<g class="clickable" onmouseenter="showTip('gt2',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="395,380 522,377 527,420 395,424" fill="url(#metalTop)"/>
+  <polygon points="395,380 395,424 400,432 400,388" fill="#8898a8"/>
+  <g transform="translate(458,401)">
+    <g class="tspin" style="animation-direction:reverse;">
+      <ellipse cx="0" cy="0" rx="16" ry="16" fill="#6a7a8a" opacity=".7"/>
+      <line x1="0" y1="-14" x2="0" y2="14" stroke="#9aaab8" stroke-width="3"/>
+      <line x1="-14" y1="0" x2="14" y2="0" stroke="#9aaab8" stroke-width="3"/>
+      <line x1="-10" y1="-10" x2="10" y2="10" stroke="#9aaab8" stroke-width="2"/>
+      <line x1="10" y1="-10" x2="-10" y2="10" stroke="#9aaab8" stroke-width="2"/>
+    </g>
+    <circle cx="0" cy="0" r="5" fill="#c8d4e0"/>
+  </g>
+  <text x="460" y="442" text-anchor="middle" font-size="9" fill="#334" font-family="Barlow Condensed" font-weight="700">GAS TURBINE 2</text>
+</g>
+
+<!-- GTG 2 ── Generator -->
+<g class="clickable" onmouseenter="showTip('gen2',event)" onmouseleave="hideTooltip()">
+  <ellipse cx="540" cy="401" rx="16" ry="28" fill="#c0c8d0"/>
+  <rect x="540" y="373" width="48" height="56" fill="url(#tankG)"/>
+  <ellipse cx="588" cy="401" rx="14" ry="27" fill="#d8dce0"/>
+  <ellipse cx="540" cy="401" rx="16" ry="28" fill="#d8dce0"/>
+  <text x="564" y="440" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed" font-weight="600">GEN 2</text>
+</g>
+
+<!-- Ducts: GT → HRSG -->
+<path d="M515,272 Q560,272 595,280" stroke="#9aaab8" stroke-width="16" fill="none"/>
+<path d="M515,272 Q560,272 595,280" stroke="#c8d4dc" stroke-width="12" fill="none"/>
+<path d="M527,401 Q572,401 607,408" stroke="#9aaab8" stroke-width="16" fill="none"/>
+<path d="M527,401 Q572,401 607,408" stroke="#c8d4dc" stroke-width="12" fill="none"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ②: HRSGs -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- HRSG 1 -->
+<g id="hrsg1" class="clickable" onmouseenter="showTip('hrsg1',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Shadow -->
+  <rect x="608" y="218" width="132" height="158" rx="4" fill="#6a7a8a" opacity=".2" transform="translate(8,8)"/>
+  <!-- Top face -->
+  <polygon points="600,218 742,218 748,200 606,200" fill="#6a7e8e"/>
+  <!-- Front face -->
+  <rect x="600" y="218" width="142" height="158" rx="3" fill="url(#hrsgTop)"/>
+  <!-- Side face -->
+  <polygon points="742,218 758,208 758,365 742,376" fill="url(#wallDk)"/>
+  <!-- Finned tubes (horizontal lines) -->
+  <g stroke="#8898a8" stroke-width="1.5" opacity=".7">
+    <line x1="606" y1="232" x2="736" y2="232"/>
+    <line x1="606" y1="244" x2="736" y2="244"/>
+    <line x1="606" y1="256" x2="736" y2="256"/>
+    <line x1="606" y1="268" x2="736" y2="268"/>
+    <line x1="606" y1="280" x2="736" y2="280"/>
+    <line x1="606" y1="292" x2="736" y2="292"/>
+    <line x1="606" y1="304" x2="736" y2="304"/>
+    <line x1="606" y1="316" x2="736" y2="316"/>
+    <line x1="606" y1="328" x2="736" y2="328"/>
+    <line x1="606" y1="340" x2="736" y2="340"/>
+    <line x1="606" y1="352" x2="736" y2="352"/>
+    <line x1="606" y1="364" x2="736" y2="364"/>
+  </g>
+  <!-- Vertical structural dividers -->
+  <line x1="660" y1="218" x2="660" y2="376" stroke="#7888a0" stroke-width="1.5" opacity=".4"/>
+  <line x1="700" y1="218" x2="700" y2="376" stroke="#7888a0" stroke-width="1.5" opacity=".4"/>
+  <text x="671" y="394" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">HRSG 1</text>
+</g>
+
+<!-- HRSG 2 -->
+<g id="hrsg2" class="clickable" onmouseenter="showTip('hrsg2',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <rect x="622" y="375" width="142" height="158" rx="4" fill="#6a7a8a" opacity=".2" transform="translate(8,8)"/>
+  <polygon points="614,375 756,375 762,357 620,357" fill="#6a7e8e"/>
+  <rect x="614" y="375" width="142" height="158" rx="3" fill="url(#hrsgTop)"/>
+  <polygon points="756,375 772,365 772,522 756,533" fill="url(#wallDk)"/>
+  <g stroke="#8898a8" stroke-width="1.5" opacity=".7">
+    <line x1="620" y1="389" x2="750" y2="389"/>
+    <line x1="620" y1="401" x2="750" y2="401"/>
+    <line x1="620" y1="413" x2="750" y2="413"/>
+    <line x1="620" y1="425" x2="750" y2="425"/>
+    <line x1="620" y1="437" x2="750" y2="437"/>
+    <line x1="620" y1="449" x2="750" y2="449"/>
+    <line x1="620" y1="461" x2="750" y2="461"/>
+    <line x1="620" y1="473" x2="750" y2="473"/>
+    <line x1="620" y1="485" x2="750" y2="485"/>
+    <line x1="620" y1="497" x2="750" y2="497"/>
+    <line x1="620" y1="509" x2="750" y2="509"/>
+    <line x1="620" y1="521" x2="750" y2="521"/>
+  </g>
+  <line x1="674" y1="375" x2="674" y2="533" stroke="#7888a0" stroke-width="1.5" opacity=".4"/>
+  <line x1="714" y1="375" x2="714" y2="533" stroke="#7888a0" stroke-width="1.5" opacity=".4"/>
+  <text x="685" y="550" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">HRSG 2</text>
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ③: EXHAUST STACKS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Stack 1 (above HRSG1) -->
+<g id="stack1" class="clickable" onmouseenter="showTip('stack',event)" onmouseleave="hideTooltip()">
+  <!-- Shadow on ground (angled, 10 o'clock sun) -->
+  <ellipse cx="720" cy="205" rx="18" ry="5" fill="#8898a8" opacity=".3" transform="rotate(-15,720,205)"/>
+  <!-- Stack body -->
+  <rect x="680" y="50" width="28" height="155" fill="white" rx="3"/>
+  <rect x="680" y="50" width="28" height="24" fill="#cc2222" rx="2"/>
+  <rect x="680" y="88" width="28" height="24" fill="#cc2222"/>
+  <rect x="680" y="126" width="28" height="24" fill="#cc2222"/>
+  <rect x="680" y="164" width="28" height="24" fill="#cc2222"/>
+  <!-- 3D side -->
+  <rect x="708" y="58" width="7" height="147" fill="#9aaab4" rx="1" opacity=".6"/>
+  <!-- Top cap -->
+  <ellipse cx="694" cy="50" rx="16" ry="5" fill="#cc2222"/>
+  <text x="694" y="218" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed">EXHAUST STACK 1</text>
+</g>
+
+<!-- Stack 1 steam particles -->
+<g id="steam1">
+  <ellipse class="sp"  cx="692" cy="34" rx="22" ry="15" fill="white" opacity=".75"/>
+  <ellipse class="sp2" cx="698" cy="18" rx="30" ry="22" fill="white" opacity=".55"/>
+  <ellipse class="sp3" cx="688" cy="4"  rx="25" ry="18" fill="white" opacity=".40"/>
+  <ellipse class="sp4" cx="700" cy="-10" rx="34" ry="24" fill="white" opacity=".30"/>
+  <ellipse class="sp5" cx="685" cy="-22" rx="28" ry="20" fill="white" opacity=".20"/>
+</g>
+
+<!-- Stack 2 (above HRSG2) -->
+<g id="stack2" class="clickable" onmouseenter="showTip('stack',event)" onmouseleave="hideTooltip()">
+  <rect x="702" y="185" width="26" height="148" fill="white" rx="3"/>
+  <rect x="702" y="185" width="26" height="22" fill="#cc2222" rx="2"/>
+  <rect x="702" y="221" width="26" height="22" fill="#cc2222"/>
+  <rect x="702" y="258" width="26" height="22" fill="#cc2222"/>
+  <rect x="702" y="295" width="26" height="22" fill="#cc2222"/>
+  <rect x="728" y="192" width="6" height="140" fill="#9aaab4" rx="1" opacity=".6"/>
+  <ellipse cx="715" cy="185" rx="14" ry="4" fill="#cc2222"/>
+  <text x="715" y="344" text-anchor="middle" font-size="8" fill="#445" font-family="Barlow Condensed">EXHAUST STACK 2</text>
+</g>
+<!-- Stack 2 steam -->
+<g id="steam2">
+  <ellipse class="sp2" cx="713" cy="168" rx="20" ry="14" fill="white" opacity=".75"/>
+  <ellipse class="sp"  cx="720" cy="152" rx="28" ry="20" fill="white" opacity=".55"/>
+  <ellipse class="sp3" cx="708" cy="138" rx="23" ry="16" fill="white" opacity=".40"/>
+  <ellipse class="sp4" cx="718" cy="124" rx="32" ry="22" fill="white" opacity=".28"/>
+  <ellipse class="sp5" cx="705" cy="110" rx="26" ry="18" fill="white" opacity=".18"/>
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- STEAM TURBINE GENERATOR -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Steam pipes from HRSGs to STG -->
+<path d="M742,298 Q790,298 800,345" stroke="#cc2222" stroke-width="6" fill="none"/>
+<path d="M756,455 Q800,455 800,430" stroke="#cc2222" stroke-width="6" fill="none"/>
+
+<g id="stg" class="clickable" onmouseenter="showTip('stg',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Top face -->
+  <polygon points="792,340 915,340 921,322 798,322" fill="#8090a0"/>
+  <!-- Front face -->
+  <rect x="792" y="340" width="128" height="160" rx="3" fill="url(#wallLt)"/>
+  <!-- Side face -->
+  <polygon points="920,340 936,330 936,490 920,500" fill="url(#wallDk)"/>
+  <!-- Windows -->
+  <rect x="804" y="355" width="25" height="18" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <rect x="838" y="355" width="25" height="18" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <rect x="872" y="355" width="25" height="18" rx="1" fill="#7ab8d8" opacity=".85"/>
+  <!-- Night glow -->
+  <rect class="nwin" x="804" y="355" width="25" height="18" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect class="nwin" x="838" y="355" width="25" height="18" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <!-- Pipeline header detail -->
+  <rect x="804" y="385" width="100" height="9" rx="3" fill="#9aaab8"/>
+  <rect x="804" y="402" width="100" height="9" rx="3" fill="#9aaab8"/>
+  <rect x="804" y="419" width="100" height="9" rx="3" fill="#9aaab8"/>
+  <!-- Turbine spinner in building -->
+  <g transform="translate(856,450)">
+    <g class="tspin" style="animation-duration:2s;">
+      <ellipse cx="0" cy="0" rx="20" ry="20" fill="#7888a0" opacity=".6"/>
+      <line x1="0" y1="-18" x2="0" y2="18" stroke="#c0ccda" stroke-width="4"/>
+      <line x1="-18" y1="0" x2="18" y2="0" stroke="#c0ccda" stroke-width="4"/>
+      <line x1="-13" y1="-13" x2="13" y2="13" stroke="#c0ccda" stroke-width="2.5"/>
+      <line x1="13" y1="-13" x2="-13" y2="13" stroke="#c0ccda" stroke-width="2.5"/>
+    </g>
+    <circle cx="0" cy="0" r="6" fill="#d8e4f0"/>
+  </g>
+  <text x="856" y="515" text-anchor="middle" font-size="10" fill="#334" font-family="Barlow Condensed" font-weight="700">STEAM TURBINE</text>
+  <text x="856" y="527" text-anchor="middle" font-size="8" fill="#556" font-family="Barlow Condensed">GENERATOR (STG)</text>
+</g>
+
+<!-- Coupled electrical generator on STG -->
+<g>
+  <ellipse cx="936" cy="415" rx="15" ry="26" fill="#c0c8d0"/>
+  <rect x="936" y="389" width="42" height="52" fill="url(#tankG)"/>
+  <ellipse cx="978" cy="415" rx="13" ry="25" fill="#d0d8e0"/>
+  <ellipse cx="936" cy="415" rx="15" ry="26" fill="#d0d8e0"/>
+  <!-- Spinning indicator -->
+  <g transform="translate(957,415)">
+    <g class="tspin" style="animation-duration:2.5s;">
+      <circle cx="0" cy="0" r="8" fill="none" stroke="#9aaab8" stroke-width="2"/>
+      <line x1="0" y1="-7" x2="0" y2="7" stroke="#9aaab8" stroke-width="2"/>
+      <line x1="-7" y1="0" x2="7" y2="0" stroke="#9aaab8" stroke-width="2"/>
+    </g>
+  </g>
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ④: COOLING SYSTEM -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Cooling Tower 1 (hyperboloid) -->
+<g id="ct1" class="clickable" onmouseenter="showTip('ct1',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Lit side -->
+  <path d="M1058,148 Q1024,238 1032,315 Q1040,360 1058,372 Q1076,360 1084,315 Q1092,238 1058,148 Z"
+        fill="url(#ctG)" stroke="#8090a0" stroke-width="2"/>
+  <!-- Shadow side -->
+  <path d="M1058,372 Q1076,360 1084,315 Q1092,238 1058,148 Q1080,240 1088,318 Q1096,365 1082,378 Z"
+        fill="url(#wallDk)" opacity=".5"/>
+  <!-- Inner lines -->
+  <path d="M1050,155 Q1038,240 1044,318 Q1050,352 1058,368" fill="none" stroke="#9aaab8" stroke-width="1.5" opacity=".4"/>
+  <!-- Horizontal bands -->
+  <line x1="1033" y1="238" x2="1083" y2="238" stroke="#9aaab8" stroke-width=".8" opacity=".3"/>
+  <line x1="1028" y1="280" x2="1086" y2="280" stroke="#9aaab8" stroke-width=".8" opacity=".3"/>
+  <line x1="1030" y1="320" x2="1086" y2="320" stroke="#9aaab8" stroke-width=".8" opacity=".3"/>
+  <!-- Rim top -->
+  <ellipse cx="1058" cy="148" rx="34" ry="9" fill="#c8d0d8"/>
+  <!-- Rim bottom -->
+  <ellipse cx="1058" cy="372" rx="50" ry="14" fill="#9aa4ae"/>
+  <!-- Night glow from base -->
+  <ellipse id="ct1Glow" cx="1058" cy="375" rx="50" ry="15" fill="url(#ctGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <text x="1058" y="396" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">COOLING TOWER 1</text>
+</g>
+
+<!-- CT1 Steam (5 particles) -->
+<g>
+  <ellipse class="sp"  cx="1056" cy="130" rx="28" ry="20" fill="white" opacity=".78"/>
+  <ellipse class="sp2" cx="1063" cy="110" rx="38" ry="28" fill="white" opacity=".58"/>
+  <ellipse class="sp3" cx="1050" cy="92"  rx="32" ry="23" fill="white" opacity=".42"/>
+  <ellipse class="sp4" cx="1066" cy="74"  rx="42" ry="30" fill="white" opacity=".28"/>
+  <ellipse class="sp5" cx="1048" cy="56"  rx="36" ry="25" fill="white" opacity=".18"/>
+</g>
+
+<!-- Cooling Tower 2 -->
+<g id="ct2" class="clickable" onmouseenter="showTip('ct2',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <path d="M1168,170 Q1134,260 1142,337 Q1150,382 1168,394 Q1186,382 1194,337 Q1202,260 1168,170 Z"
+        fill="url(#ctG)" stroke="#8090a0" stroke-width="2"/>
+  <path d="M1168,394 Q1186,382 1194,337 Q1202,260 1168,170 Q1192,262 1198,340 Q1206,387 1192,400 Z"
+        fill="url(#wallDk)" opacity=".5"/>
+  <path d="M1160,178 Q1148,262 1154,340 Q1160,375 1168,390" fill="none" stroke="#9aaab8" stroke-width="1.5" opacity=".4"/>
+  <line x1="1142" y1="258" x2="1192" y2="258" stroke="#9aaab8" stroke-width=".8" opacity=".3"/>
+  <line x1="1138" y1="300" x2="1194" y2="300" stroke="#9aaab8" stroke-width=".8" opacity=".3"/>
+  <ellipse cx="1168" cy="170" rx="34" ry="9" fill="#c8d0d8"/>
+  <ellipse cx="1168" cy="394" rx="50" ry="14" fill="#9aa4ae"/>
+  <ellipse id="ct2Glow" cx="1168" cy="397" rx="50" ry="15" fill="url(#ctGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <text x="1168" y="418" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">COOLING TOWER 2</text>
+</g>
+<!-- CT2 Steam -->
+<g>
+  <ellipse class="sp2" cx="1166" cy="152" rx="28" ry="20" fill="white" opacity=".78"/>
+  <ellipse class="sp"  cx="1174" cy="132" rx="38" ry="28" fill="white" opacity=".58"/>
+  <ellipse class="sp3" cx="1160" cy="112" rx="32" ry="23" fill="white" opacity=".42"/>
+  <ellipse class="sp4" cx="1176" cy="94"  rx="42" ry="30" fill="white" opacity=".28"/>
+  <ellipse class="sp5" cx="1156" cy="76"  rx="36" ry="25" fill="white" opacity=".18"/>
+</g>
+
+<!-- Cooling Water Basin -->
+<g class="clickable" onmouseenter="showTip('basin',event)" onmouseleave="hideTooltip()">
+  <rect x="1010" y="435" width="250" height="115" rx="5" fill="url(#waterG)"/>
+  <rect x="1010" y="435" width="250" height="9" rx="3" fill="#5ad0f8"/>
+  <!-- Ripples -->
+  <line x1="1022" y1="465" x2="1248" y2="458" stroke="#7adcfc" stroke-width="1.2" opacity=".5"/>
+  <line x1="1022" y1="485" x2="1248" y2="478" stroke="#7adcfc" stroke-width="1.2" opacity=".5"/>
+  <line x1="1022" y1="505" x2="1248" y2="498" stroke="#7adcfc" stroke-width="1.2" opacity=".4"/>
+  <!-- Depth lines -->
+  <line x1="1022" y1="525" x2="1248" y2="518" stroke="#7adcfc" stroke-width="1" opacity=".3"/>
+  <text x="1135" y="498" text-anchor="middle" font-size="10" fill="white" font-family="Barlow Condensed" font-weight="700">COOLING WATER BASIN</text>
+</g>
+
+<!-- Blue cooling water pipes -->
+<path d="M1108,372 L1108,435" stroke="#29b6f6" stroke-width="7" fill="none"/>
+<path d="M1168,394 L1168,435" stroke="#29b6f6" stroke-width="7" fill="none"/>
+<path d="M1010,490 Q980,490 960,510 Q940,530 900,545" stroke="#29b6f6" stroke-width="5" fill="none"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ④: WATER TREATMENT PLANT -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<g class="clickable" onmouseenter="showTip('wtp',event)" onmouseleave="hideTooltip()">
+  <!-- Clarifier 1 -->
+  <ellipse cx="1060" cy="605" rx="38" ry="18" fill="#3a8aba"/>
+  <rect x="1022" y="605" width="76" height="40" fill="#2a6a9a"/>
+  <ellipse cx="1060" cy="645" rx="38" ry="18" fill="#1a4a7a"/>
+  <ellipse cx="1060" cy="605" rx="38" ry="18" fill="#4aade0"/>
+  <circle cx="1060" cy="605" r="10" fill="#3a8aba"/>
+  <line x1="1046" y1="605" x2="1074" y2="605" stroke="#7adcfc" stroke-width="2.5"/>
+  <line x1="1060" y1="591" x2="1060" y2="619" stroke="#7adcfc" stroke-width="2.5"/>
+  <!-- Clarifier 2 -->
+  <ellipse cx="1140" cy="612" rx="34" ry="16" fill="#3a8aba"/>
+  <rect x="1106" y="612" width="68" height="36" fill="#2a6a9a"/>
+  <ellipse cx="1140" cy="648" rx="34" ry="16" fill="#1a4a7a"/>
+  <ellipse cx="1140" cy="612" rx="34" ry="16" fill="#4aade0"/>
+  <circle cx="1140" cy="612" r="8" fill="#3a8aba"/>
+  <line x1="1128" y1="612" x2="1152" y2="612" stroke="#7adcfc" stroke-width="2.5"/>
+  <line x1="1140" y1="600" x2="1140" y2="624" stroke="#7adcfc" stroke-width="2.5"/>
+  <!-- Clarifier 3 -->
+  <ellipse cx="1215" cy="607" rx="32" ry="15" fill="#3a8aba"/>
+  <rect x="1183" y="607" width="64" height="34" fill="#2a6a9a"/>
+  <ellipse cx="1215" cy="641" rx="32" ry="15" fill="#1a4a7a"/>
+  <ellipse cx="1215" cy="607" rx="32" ry="15" fill="#4aade0"/>
+  <!-- Chemical dosing units -->
+  <rect x="1055" y="658" width="16" height="24" rx="2" fill="#9aaab8"/>
+  <rect x="1075" y="662" width="12" height="20" rx="2" fill="#9aaab8"/>
+  <text x="1135" y="675" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">WATER TREATMENT PLANT</text>
+</g>
+
+<!-- Green treated water pipe -->
+<path d="M1022,622 Q975,622 945,600 Q910,575 885,555" stroke="#66bb6a" stroke-width="5" fill="none"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ⑤: CONDENSATE & FEEDWATER -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Condensate storage tanks -->
+<g class="clickable" onmouseenter="showTip('condensate',event)" onmouseleave="hideTooltip()">
+  <!-- Tank A -->
+  <ellipse cx="845" cy="560" rx="28" ry="12" fill="#d4d8dc"/>
+  <rect x="817" y="560" width="56" height="42" fill="url(#tankG)"/>
+  <ellipse cx="845" cy="602" rx="28" ry="12" fill="#aab0b4"/>
+  <ellipse cx="845" cy="560" rx="28" ry="12" fill="#e4e8ec"/>
+  <!-- Tank B -->
+  <ellipse cx="904" cy="558" rx="28" ry="12" fill="#d4d8dc"/>
+  <rect x="876" y="558" width="56" height="42" fill="url(#tankG)"/>
+  <ellipse cx="904" cy="600" rx="28" ry="12" fill="#aab0b4"/>
+  <ellipse cx="904" cy="558" rx="28" ry="12" fill="#e4e8ec"/>
+  <!-- Tank C -->
+  <ellipse cx="963" cy="556" rx="28" ry="12" fill="#d4d8dc"/>
+  <rect x="935" y="556" width="56" height="42" fill="url(#tankG)"/>
+  <ellipse cx="963" cy="598" rx="28" ry="12" fill="#aab0b4"/>
+  <ellipse cx="963" cy="556" rx="28" ry="12" fill="#e4e8ec"/>
+  <!-- Tank D -->
+  <ellipse cx="1022" cy="554" rx="28" ry="12" fill="#d4d8dc"/>
+  <rect x="994" y="554" width="56" height="42" fill="url(#tankG)"/>
+  <ellipse cx="1022" cy="596" rx="28" ry="12" fill="#aab0b4"/>
+  <ellipse cx="1022" cy="554" rx="28" ry="12" fill="#e4e8ec"/>
+  <text x="934" y="620" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">CONDENSATE STORAGE TANKS</text>
+</g>
+
+<!-- Feedwater Pump House -->
+<g id="fwPump" class="clickable" onmouseenter="showTip('feedwater',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Top -->
+  <polygon points="810,650 942,650 948,635 816,635" fill="#8090a0"/>
+  <!-- Front -->
+  <rect x="810" y="650" width="132" height="78" rx="3" fill="url(#wallLt)"/>
+  <!-- Side -->
+  <polygon points="942,650 958,640 958,718 942,728" fill="url(#wallDk)"/>
+  <!-- Pump circles -->
+  <circle cx="832" cy="688" r="12" fill="#8a9aba" stroke="#7888a8" stroke-width="2"/>
+  <circle cx="864" cy="688" r="12" fill="#8a9aba" stroke="#7888a8" stroke-width="2"/>
+  <circle cx="896" cy="688" r="12" fill="#8a9aba" stroke="#7888a8" stroke-width="2"/>
+  <!-- Pipe headers -->
+  <rect x="818" y="706" width="110" height="6" rx="2" fill="#9aaab8"/>
+  <rect x="818" y="718" width="110" height="6" rx="2" fill="#9aaab8"/>
+  <!-- Deaerator tower -->
+  <ellipse cx="930" cy="655" rx="11" ry="5" fill="#b0bcc8"/>
+  <rect x="919" y="655" width="22" height="48" fill="#9aaab8"/>
+  <ellipse cx="930" cy="703" rx="11" ry="5" fill="#8898a8"/>
+  <text x="872" y="740" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">FEEDWATER SYSTEM</text>
+</g>
+
+<!-- Red steam pipe back to HRSG -->
+<path d="M866,650 Q866,530 770,530 Q760,520 756,455" stroke="#cc2222" stroke-width="5" fill="none" stroke-dasharray="10,5"/>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ⑥: ELECTRICAL INFRASTRUCTURE -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Busbar from STG generator -->
+<path d="M978,415 Q1000,415 1000,550 Q1000,570 600,620 Q400,640 260,660" stroke="#cccccc" stroke-width="4" fill="none" stroke-dasharray="10,6" class="epulse"/>
+
+<!-- Main Transformer Bank -->
+<g class="clickable" onmouseenter="showTip('transformer',event)" onmouseleave="hideTooltip()">
+  <!-- Transformer 1 -->
+  <rect x="100" y="648" width="48" height="60" rx="2" fill="#7a8a9a" filter="url(#bsh)"/>
+  <rect x="103" y="651" width="42" height="54" rx="1" fill="#9aaab8"/>
+  <!-- Cooling fins -->
+  <line x1="107" y1="651" x2="107" y2="705" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="114" y1="651" x2="114" y2="705" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="121" y1="651" x2="121" y2="705" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="128" y1="651" x2="128" y2="705" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="135" y1="651" x2="135" y2="705" stroke="#8898a8" stroke-width="2.5"/>
+  <!-- Bushings -->
+  <line x1="110" y1="648" x2="110" y2="635" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="122" y1="648" x2="122" y2="635" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="134" y1="648" x2="134" y2="635" stroke="#cc2222" stroke-width="2.5"/>
+  <circle cx="110" cy="633" r="3" fill="#cc2222"/>
+  <circle cx="122" cy="633" r="3" fill="#cc2222"/>
+  <circle cx="134" cy="633" r="3" fill="#cc2222"/>
+  <!-- Transformer 2 -->
+  <rect x="158" y="644" width="48" height="60" rx="2" fill="#7a8a9a" filter="url(#bsh)"/>
+  <rect x="161" y="647" width="42" height="54" rx="1" fill="#9aaab8"/>
+  <line x1="165" y1="647" x2="165" y2="701" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="172" y1="647" x2="172" y2="701" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="179" y1="647" x2="179" y2="701" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="186" y1="647" x2="186" y2="701" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="193" y1="647" x2="193" y2="701" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="168" y1="644" x2="168" y2="631" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="180" y1="644" x2="180" y2="631" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="192" y1="644" x2="192" y2="631" stroke="#cc2222" stroke-width="2.5"/>
+  <circle cx="168" cy="629" r="3" fill="#cc2222"/>
+  <circle cx="180" cy="629" r="3" fill="#cc2222"/>
+  <circle cx="192" cy="629" r="3" fill="#cc2222"/>
+  <!-- Transformer 3 -->
+  <rect x="216" y="641" width="48" height="60" rx="2" fill="#7a8a9a" filter="url(#bsh)"/>
+  <rect x="219" y="644" width="42" height="54" rx="1" fill="#9aaab8"/>
+  <line x1="223" y1="644" x2="223" y2="698" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="230" y1="644" x2="230" y2="698" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="237" y1="644" x2="237" y2="698" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="244" y1="644" x2="244" y2="698" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="251" y1="644" x2="251" y2="698" stroke="#8898a8" stroke-width="2.5"/>
+  <line x1="226" y1="641" x2="226" y2="628" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="238" y1="641" x2="238" y2="628" stroke="#cc2222" stroke-width="2.5"/>
+  <line x1="250" y1="641" x2="250" y2="628" stroke="#cc2222" stroke-width="2.5"/>
+  <circle cx="226" cy="626" r="3" fill="#cc2222"/>
+  <circle cx="238" cy="626" r="3" fill="#cc2222"/>
+  <circle cx="250" cy="626" r="3" fill="#cc2222"/>
+  <text x="182" y="718" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed" font-weight="700">MAIN TRANSFORMER BANK</text>
+</g>
+
+<!-- 400kV Switchyard -->
+<g class="clickable" onmouseenter="showTip('switchyard',event)" onmouseleave="hideTooltip()">
+  <!-- Lattice structures -->
+  <!-- Col 1 -->
+  <line x1="80"  y1="730" x2="80"  y2="785" stroke="#8090a0" stroke-width="3"/>
+  <line x1="80"  y1="730" x2="104" y2="785" stroke="#8090a0" stroke-width="1"/>
+  <line x1="80"  y1="730" x2="56"  y2="785" stroke="#8090a0" stroke-width="1"/>
+  <line x1="62"  y1="758" x2="98"  y2="758" stroke="#8090a0" stroke-width="1.5"/>
+  <line x1="80"  y1="730" x2="80"  y2="724" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="68"  y1="724" x2="92"  y2="724" stroke="#8090a0" stroke-width="2.5"/>
+  <!-- Col 2 -->
+  <line x1="134" y1="726" x2="134" y2="781" stroke="#8090a0" stroke-width="3"/>
+  <line x1="134" y1="726" x2="158" y2="781" stroke="#8090a0" stroke-width="1"/>
+  <line x1="134" y1="726" x2="110" y2="781" stroke="#8090a0" stroke-width="1"/>
+  <line x1="116" y1="754" x2="152" y2="754" stroke="#8090a0" stroke-width="1.5"/>
+  <line x1="134" y1="726" x2="134" y2="720" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="122" y1="720" x2="146" y2="720" stroke="#8090a0" stroke-width="2.5"/>
+  <!-- Col 3 -->
+  <line x1="188" y1="722" x2="188" y2="777" stroke="#8090a0" stroke-width="3"/>
+  <line x1="188" y1="722" x2="212" y2="777" stroke="#8090a0" stroke-width="1"/>
+  <line x1="188" y1="722" x2="164" y2="777" stroke="#8090a0" stroke-width="1"/>
+  <line x1="170" y1="750" x2="206" y2="750" stroke="#8090a0" stroke-width="1.5"/>
+  <line x1="188" y1="722" x2="188" y2="716" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="176" y1="716" x2="200" y2="716" stroke="#8090a0" stroke-width="2.5"/>
+  <!-- Col 4 -->
+  <line x1="242" y1="718" x2="242" y2="773" stroke="#8090a0" stroke-width="3"/>
+  <line x1="242" y1="718" x2="266" y2="773" stroke="#8090a0" stroke-width="1"/>
+  <line x1="242" y1="718" x2="218" y2="773" stroke="#8090a0" stroke-width="1"/>
+  <line x1="224" y1="746" x2="260" y2="746" stroke="#8090a0" stroke-width="1.5"/>
+  <line x1="242" y1="718" x2="242" y2="712" stroke="#8090a0" stroke-width="2.5"/>
+  <line x1="230" y1="712" x2="254" y2="712" stroke="#8090a0" stroke-width="2.5"/>
+  <!-- Busbars horizontal -->
+  <line x1="68" y1="724" x2="254" y2="712" stroke="#cc7700" stroke-width="3"/>
+  <line x1="68" y1="729" x2="254" y2="717" stroke="#cc7700" stroke-width="1.5"/>
+  <!-- String insulators -->
+  <circle cx="107" cy="722" r="4" fill="#e8dcc8" stroke="#9a8870" stroke-width="1.5"/>
+  <circle cx="161" cy="718" r="4" fill="#e8dcc8" stroke="#9a8870" stroke-width="1.5"/>
+  <circle cx="215" cy="714" r="4" fill="#e8dcc8" stroke="#9a8870" stroke-width="1.5"/>
+  <!-- Disconnect switches -->
+  <rect x="76" y="747" width="9" height="6" rx="1" fill="#445"/>
+  <rect x="130" y="743" width="9" height="6" rx="1" fill="#445"/>
+  <rect x="184" y="739" width="9" height="6" rx="1" fill="#445"/>
+  <rect x="238" y="735" width="9" height="6" rx="1" fill="#445"/>
+  <text x="165" y="800" text-anchor="middle" font-size="10" fill="#334" font-family="Barlow Condensed" font-weight="700">400kV SWITCHYARD</text>
+</g>
+
+<!-- HV pylons marching off-screen -->
+<g opacity=".8">
+  <!-- Pylon A -->
+  <line x1="72" y1="810" x2="72" y2="840" stroke="#6a7888" stroke-width="4"/>
+  <line x1="55" y1="822" x2="89" y2="822" stroke="#6a7888" stroke-width="3"/>
+  <line x1="72" y1="817" x2="55" y2="828" stroke="#6a7888" stroke-width="1.5"/>
+  <line x1="72" y1="817" x2="89" y2="828" stroke="#6a7888" stroke-width="1.5"/>
+  <!-- Pylon B (smaller, depth) -->
+  <line x1="32" y1="828" x2="32" y2="852" stroke="#6a7888" stroke-width="3"/>
+  <line x1="20" y1="838" x2="44" y2="838" stroke="#6a7888" stroke-width="2"/>
+  <!-- Wires -->
+  <path d="M55,822 Q38,828 18,838" stroke="#333" stroke-width="1.5" fill="none"/>
+  <path d="M89,822 Q72,828 52,838" stroke="#333" stroke-width="1.5" fill="none"/>
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION ⑦: OPERATIONS & SUPPORT -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Control Room Building -->
+<g id="ctrlRoom" class="clickable" onmouseenter="showTip('controlRoom',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <!-- Top -->
+  <polygon points="424,670 574,670 580,653 430,653" fill="#8898a8"/>
+  <!-- Front -->
+  <rect x="424" y="670" width="150" height="90" rx="3" fill="url(#wallLt)"/>
+  <!-- Side -->
+  <polygon points="574,670 590,660 590,750 574,760" fill="url(#wallDk)"/>
+  <!-- Large windows (glass facade) -->
+  <rect x="434" y="682" width="28" height="18" rx="1" fill="#7ab8d8" opacity=".9"/>
+  <rect x="470" y="682" width="28" height="18" rx="1" fill="#7ab8d8" opacity=".9"/>
+  <rect x="506" y="682" width="28" height="18" rx="1" fill="#7ab8d8" opacity=".9"/>
+  <rect x="542" y="682" width="22" height="18" rx="1" fill="#7ab8d8" opacity=".9"/>
+  <!-- Second floor windows -->
+  <rect x="434" y="710" width="28" height="14" rx="1" fill="#7ab8d8" opacity=".75"/>
+  <rect x="470" y="710" width="28" height="14" rx="1" fill="#7ab8d8" opacity=".75"/>
+  <rect x="506" y="710" width="28" height="14" rx="1" fill="#7ab8d8" opacity=".75"/>
+  <!-- Night glow windows -->
+  <rect class="nwin" x="434" y="682" width="28" height="18" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect class="nwin" x="470" y="682" width="28" height="18" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect class="nwin" x="506" y="682" width="28" height="18" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <!-- Door -->
+  <rect x="484" y="733" width="24" height="27" rx="1" fill="#8898a8"/>
+  <!-- Solar panels on roof -->
+  <rect x="432" y="655" width="70" height="16" rx="2" fill="url(#solarG)"/>
+  <line x1="450" y1="655" x2="450" y2="671" stroke="#1a4a8a" stroke-width="1.5"/>
+  <line x1="468" y1="655" x2="468" y2="671" stroke="#1a4a8a" stroke-width="1.5"/>
+  <line x1="486" y1="655" x2="486" y2="671" stroke="#1a4a8a" stroke-width="1.5"/>
+  <line x1="432" y1="663" x2="502" y2="663" stroke="#1a4a8a" stroke-width="1.5"/>
+  <!-- "DCS" antenna -->
+  <line x1="552" y1="653" x2="552" y2="638" stroke="#9aaab8" stroke-width="2"/>
+  <line x1="545" y1="641" x2="559" y2="641" stroke="#9aaab8" stroke-width="2"/>
+  <circle cx="552" cy="638" r="3" fill="#00e5ff" class="spulse"/>
+  <text x="499" y="775" text-anchor="middle" font-size="10" fill="#334" font-family="Barlow Condensed" font-weight="700">CONTROL ROOM (DCS)</text>
+</g>
+
+<!-- Admin Building -->
+<g class="clickable" onmouseenter="showTip('admin',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="594,682 714,682 720,667 600,667" fill="#8898a8"/>
+  <rect x="594" y="682" width="120" height="75" rx="3" fill="url(#wallLt)"/>
+  <polygon points="714,682 730,672 730,748 714,757" fill="url(#wallDk)"/>
+  <rect x="604" y="693" width="20" height="14" rx="1" fill="#7ab8d8" opacity=".8"/>
+  <rect x="632" y="693" width="20" height="14" rx="1" fill="#7ab8d8" opacity=".8"/>
+  <rect x="660" y="693" width="20" height="14" rx="1" fill="#7ab8d8" opacity=".8"/>
+  <rect x="688" y="693" width="18" height="14" rx="1" fill="#7ab8d8" opacity=".8"/>
+  <rect class="nwin" x="604" y="693" width="20" height="14" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect class="nwin" x="632" y="693" width="20" height="14" rx="1" fill="url(#winGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <rect x="638" y="733" width="22" height="24" rx="1" fill="#8898a8"/>
+  <text x="654" y="768" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed">ADMIN BUILDING</text>
+</g>
+
+<!-- Workshop/Maintenance Bay -->
+<g class="clickable" onmouseenter="showTip('workshop',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="358,688 456,688 462,674 364,674" fill="#7a8898"/>
+  <rect x="358" y="688" width="98" height="68" rx="2" fill="url(#wallLt)"/>
+  <polygon points="456,688 472,678 472,748 456,756" fill="url(#wallDk)"/>
+  <!-- Roller shutters -->
+  <rect x="368" y="710" width="28" height="38" rx="1" fill="#9aaab8"/>
+  <line x1="368" y1="715" x2="396" y2="715" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="368" y1="722" x2="396" y2="722" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="368" y1="729" x2="396" y2="729" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="368" y1="736" x2="396" y2="736" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="368" y1="743" x2="396" y2="743" stroke="#8898a8" stroke-width="1.5"/>
+  <rect x="402" y="710" width="28" height="38" rx="1" fill="#9aaab8"/>
+  <line x1="402" y1="715" x2="430" y2="715" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="402" y1="722" x2="430" y2="722" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="402" y1="729" x2="430" y2="729" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="402" y1="736" x2="430" y2="736" stroke="#8898a8" stroke-width="1.5"/>
+  <line x1="402" y1="743" x2="430" y2="743" stroke="#8898a8" stroke-width="1.5"/>
+  <text x="407" y="770" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed">WORKSHOP / MAINT.</text>
+</g>
+
+<!-- Fire Station -->
+<g class="clickable" onmouseenter="showTip('fireStation',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="298,700 360,700 366,686 304,686" fill="#a82020"/>
+  <rect x="298" y="700" width="62" height="62" rx="2" fill="#e04040"/>
+  <polygon points="360,700 376,690 376,754 360,762" fill="#c03030"/>
+  <rect x="308" y="720" width="18" height="34" rx="1" fill="#e8b8b8"/>
+  <rect x="332" y="720" width="18" height="34" rx="1" fill="#e8b8b8"/>
+  <!-- Night fire glow -->
+  <ellipse id="fireGlowEl" cx="329" cy="695" rx="30" ry="12" fill="url(#fireGlow)" opacity="0" style="transition:opacity 1.2s"/>
+  <text x="329" y="772" text-anchor="middle" font-size="9" fill="#cc2222" font-family="Barlow Condensed" font-weight="700">FIRE STATION</text>
+</g>
+
+<!-- Warehouse -->
+<g class="clickable" onmouseenter="showTip('warehouse',event)" onmouseleave="hideTooltip()" filter="url(#bsh)">
+  <polygon points="736,660 836,660 842,645 742,645" fill="#8898a8"/>
+  <rect x="736" y="660" width="100" height="72" rx="2" fill="url(#wallLt)"/>
+  <polygon points="836,660 852,650 852,722 836,732" fill="url(#wallDk)"/>
+  <rect x="746" y="682" width="28" height="36" rx="1" fill="#9aaab8"/>
+  <rect x="780" y="682" width="28" height="36" rx="1" fill="#9aaab8"/>
+  <rect x="814" y="682" width="14" height="36" rx="1" fill="#9aaab8"/>
+  <text x="786" y="745" text-anchor="middle" font-size="9" fill="#445" font-family="Barlow Condensed">WAREHOUSE</text>
+</g>
+
+<!-- Parking Area -->
+<rect x="424" y="772" width="155" height="52" rx="3" fill="#b0b0a8" opacity=".7"/>
+<line x1="448" y1="772" x2="448" y2="824" stroke="white" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+<line x1="472" y1="772" x2="472" y2="824" stroke="white" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+<line x1="496" y1="772" x2="496" y2="824" stroke="white" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+<line x1="520" y1="772" x2="520" y2="824" stroke="white" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+<line x1="544" y1="772" x2="544" y2="824" stroke="white" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+<!-- Cars -->
+<rect x="427" y="777" width="16" height="9" rx="2" fill="#6a8aaa"/>
+<rect x="451" y="779" width="16" height="9" rx="2" fill="#aa6a6a"/>
+<rect x="475" y="777" width="16" height="9" rx="2" fill="#6aaa6a"/>
+<rect x="499" y="779" width="16" height="9" rx="2" fill="#888aaa"/>
+<rect x="523" y="777" width="16" height="9" rx="2" fill="#aa8a6a"/>
+<text x="502" y="836" text-anchor="middle" font-size="8" fill="#667" font-family="Barlow Condensed">PARKING AREA</text>
+
+<!-- Security Gate -->
+<rect x="648" y="248" width="22" height="14" rx="2" fill="#c0c4c8"/>
+<rect x="670" y="252" width="36" height="5" rx="2" fill="#cc2222"/>
+<circle cx="670" cy="252" r="4" fill="#cc2222"/>
+<text x="672" y="244" text-anchor="middle" font-size="8" fill="#667" font-family="Barlow Condensed">SECURITY GATE</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ANIMATED FLOW LINES (color-coded, with animateMotion icons) -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Fuel Gas (Yellow) -->
+<path id="flowFuel" d="M148,374 Q200,365 265,348" stroke="#ffd84d" stroke-width="5" fill="none"
+      class="flow-anim-fuel" opacity=".9"/>
+<path id="flowFuel2" d="M148,374 Q205,420 275,422" stroke="#ffd84d" stroke-width="4" fill="none"
+      class="flow-anim-fuel" opacity=".9"/>
+
+<!-- Hot Steam (Red) -->
+<path id="flowSteam1" d="M742,298 Q780,298 800,345" stroke="#ff4444" stroke-width="5" fill="none"
+      class="flow-anim-steam"/>
+<path id="flowSteam2" d="M756,455 Q800,455 800,430" stroke="#ff4444" stroke-width="5" fill="none"
+      class="flow-anim-steam"/>
+<path id="flowFW" d="M866,650 Q866,530 756,455" stroke="#ff4444" stroke-width="4" fill="none"
+      class="flow-anim-steam" stroke-dasharray="8,5" opacity=".7"/>
+
+<!-- Cooling Water (Blue) -->
+<path id="flowCool" d="M1108,435 L1108,372" stroke="#29b6f6" stroke-width="6" fill="none"
+      class="flow-anim-cool"/>
+<path id="flowCool2" d="M1010,490 Q965,510 920,530" stroke="#29b6f6" stroke-width="5" fill="none"
+      class="flow-anim-cool"/>
+
+<!-- Electrical (White dashed) -->
+<path id="flowElec" d="M978,415 Q700,530 380,650 Q320,665 270,678" stroke="rgba(255,255,255,0.7)"
+      stroke-width="3" fill="none" class="flow-anim-elec"/>
+
+<!-- Treated Water (Green) -->
+<path id="flowWater" d="M1022,622 Q980,625 945,608 Q905,582 875,558"
+      stroke="#66bb6a" stroke-width="5" fill="none" class="flow-anim-water"/>
+
+<!-- animateMotion icons on paths -->
+<!-- Fuel drop -->
+<text font-size="12" fill="#ffd84d">
+  <textPath href="#fuelPath">
+    <animate attributeName="startOffset" from="0%" to="100%" dur="2s" repeatCount="indefinite"/>
+    🔥
+  </textPath>
+</text>
+<!-- Steam puff on steam path -->
+<text font-size="11" fill="#ff8888">
+  <textPath href="#steamPath1">
+    <animate attributeName="startOffset" from="0%" to="100%" dur="1.5s" repeatCount="indefinite"/>
+    💨
+  </textPath>
+</text>
+<!-- Water drop on cool path -->
+<text font-size="12" fill="#29b6f6">
+  <textPath href="#coolPath">
+    <animate attributeName="startOffset" from="0%" to="100%" dur="2.5s" repeatCount="indefinite"/>
+    💧
+  </textPath>
+</text>
+<!-- Lightning on elec path -->
+<text font-size="13" fill="#ffff88">
+  <textPath href="#elecPath">
+    <animate attributeName="startOffset" from="0%" to="100%" dur="1s" repeatCount="indefinite"/>
+    ⚡
+  </textPath>
+</text>
+<!-- Water drop on water path -->
+<text font-size="11" fill="#66bb6a">
+  <textPath href="#waterPath">
+    <animate attributeName="startOffset" from="0%" to="100%" dur="3s" repeatCount="indefinite"/>
+    🌿
+  </textPath>
+</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- LABELS (white boxes, thin connector lines) -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<g font-family="Barlow Condensed" font-weight="700" font-size="9" filter="url(#lsh)">
+
+  <!-- Natural Gas Supply -->
+  <line x1="148" y1="374" x2="85" y2="348" stroke="white" stroke-width="1.5"/>
+  <rect x="4" y="330" width="132" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="70" y="345" text-anchor="middle" fill="#112">NATURAL GAS SUPPLY →</text>
+
+  <!-- Gas Metering Station -->
+  <line x1="193" y1="295" x2="210" y2="272" stroke="white" stroke-width="1.5"/>
+  <rect x="170" y="254" width="142" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="241" y="269" text-anchor="middle" fill="#112">GAS METERING STATION</text>
+
+  <!-- Fuel KO Drums -->
+  <line x1="175" y1="440" x2="148" y2="422" stroke="white" stroke-width="1.5"/>
+  <rect x="40" y="405" width="116" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="98" y="420" text-anchor="middle" fill="#112">FUEL GAS KO DRUMS</text>
+
+  <!-- Fuel tanks -->
+  <line x1="95" y1="465" x2="64" y2="448" stroke="white" stroke-width="1.5"/>
+  <rect x="2" y="430" width="100" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="52" y="445" text-anchor="middle" fill="#112">FUEL STORAGE TANKS</text>
+
+  <!-- Air Intake GTG1 -->
+  <line x1="325" y1="260" x2="336" y2="240" stroke="white" stroke-width="1.5"/>
+  <rect x="268" y="222" width="116" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="326" y="237" text-anchor="middle" fill="#112">AIR INTAKE FILTER — 1</text>
+
+  <!-- GTG1 -->
+  <line x1="448" y1="252" x2="450" y2="232" stroke="white" stroke-width="1.5"/>
+  <rect x="390" y="214" width="116" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="448" y="229" text-anchor="middle" fill="#112">GAS TURBINE 1 (150MW)</text>
+
+  <!-- GTG2 -->
+  <line x1="460" y1="382" x2="462" y2="360" stroke="white" stroke-width="1.5"/>
+  <rect x="402" y="342" width="116" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="460" y="357" text-anchor="middle" fill="#112">GAS TURBINE 2 (150MW)</text>
+
+  <!-- HRSG1 -->
+  <line x1="671" y1="218" x2="645" y2="196" stroke="white" stroke-width="1.5"/>
+  <rect x="566" y="177" width="158" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="645" y="192" text-anchor="middle" fill="#112">HEAT RECOVERY STEAM GEN 1</text>
+
+  <!-- HRSG2 -->
+  <line x1="685" y1="375" x2="720" y2="352" stroke="white" stroke-width="1.5"/>
+  <rect x="582" y="333" width="158" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="661" y="348" text-anchor="middle" fill="#112">HEAT RECOVERY STEAM GEN 2</text>
+
+  <!-- Stack 1 -->
+  <line x1="694" y1="120" x2="750" y2="118" stroke="white" stroke-width="1.5"/>
+  <rect x="748" y="108" width="150" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="823" y="123" text-anchor="middle" fill="#112">HRSG EXHAUST STACK 1</text>
+
+  <!-- Stack 2 -->
+  <line x1="715" y1="262" x2="760" y2="260" stroke="white" stroke-width="1.5"/>
+  <rect x="758" y="250" width="150" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="833" y="265" text-anchor="middle" fill="#112">HRSG EXHAUST STACK 2</text>
+
+  <!-- STG -->
+  <line x1="856" y1="340" x2="854" y2="318" stroke="white" stroke-width="1.5"/>
+  <rect x="792" y="299" width="124" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="854" y="314" text-anchor="middle" fill="#112">STEAM TURBINE GEN (STG)</text>
+
+  <!-- CT1 -->
+  <line x1="1058" y1="240" x2="1105" y2="232" stroke="white" stroke-width="1.5"/>
+  <rect x="1102" y="221" width="120" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="1162" y="236" text-anchor="middle" fill="#112">COOLING TOWER 1</text>
+
+  <!-- CT2 -->
+  <line x1="1200" y1="268" x2="1242" y2="260" stroke="white" stroke-width="1.5"/>
+  <rect x="1240" y="250" width="56" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="1268" y="265" text-anchor="middle" fill="#112">CT 2</text>
+
+  <!-- Basin -->
+  <line x1="1135" y1="500" x2="1135" y2="522" stroke="white" stroke-width="1.5"/>
+  <rect x="1060" y="521" width="150" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="1135" y="536" text-anchor="middle" fill="#112">COOLING WATER BASIN</text>
+
+  <!-- WTP -->
+  <line x1="1135" y1="648" x2="1135" y2="672" stroke="white" stroke-width="1.5"/>
+  <rect x="1054" y="671" width="162" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="1135" y="686" text-anchor="middle" fill="#112">WATER TREATMENT PLANT</text>
+
+  <!-- Condensate -->
+  <line x1="934" y1="556" x2="934" y2="534" stroke="white" stroke-width="1.5"/>
+  <rect x="848" y="514" width="172" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="934" y="529" text-anchor="middle" fill="#112">CONDENSATE STORAGE TANKS</text>
+
+  <!-- Feedwater -->
+  <line x1="872" y1="650" x2="845" y2="632" stroke="white" stroke-width="1.5"/>
+  <rect x="764" y="613" width="132" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="830" y="628" text-anchor="middle" fill="#112">FEEDWATER SYSTEM</text>
+
+  <!-- Transformer -->
+  <line x1="182" y1="648" x2="182" y2="626" stroke="white" stroke-width="1.5"/>
+  <rect x="96" y="607" width="172" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="182" y="622" text-anchor="middle" fill="#112">MAIN TRANSFORMER BANK (3×)</text>
+
+  <!-- Switchyard -->
+  <line x1="165" y1="730" x2="164" y2="708" stroke="white" stroke-width="1.5"/>
+  <rect x="100" y="689" width="128" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="164" y="704" text-anchor="middle" fill="#112">400kV SWITCHYARD</text>
+
+  <!-- Control Room -->
+  <line x1="499" y1="670" x2="499" y2="648" stroke="white" stroke-width="1.5"/>
+  <rect x="420" y="630" width="158" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="499" y="645" text-anchor="middle" fill="#112">CONTROL ROOM (DCS)</text>
+
+  <!-- Workshop -->
+  <line x1="407" y1="688" x2="388" y2="670" stroke="white" stroke-width="1.5"/>
+  <rect x="308" y="652" width="140" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="378" y="667" text-anchor="middle" fill="#112">WORKSHOP / MAINTENANCE</text>
+
+  <!-- Fire Station -->
+  <line x1="329" y1="700" x2="310" y2="680" stroke="white" stroke-width="1.5"/>
+  <rect x="228" y="662" width="114" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="285" y="677" text-anchor="middle" fill="#cc2222">🔴 FIRE STATION</text>
+
+  <!-- Warehouse -->
+  <line x1="786" y1="660" x2="786" y2="638" stroke="white" stroke-width="1.5"/>
+  <rect x="722" y="619" width="128" height="22" rx="3" fill="white" opacity=".93"/>
+  <text x="786" y="634" text-anchor="middle" fill="#112">WAREHOUSE</text>
+
+</g>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ⚡ ELECTRICAL OUTPUT BANNER -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<rect x="22" y="808" width="210" height="32" rx="5" fill="#0a1e34" opacity=".95"/>
+<rect x="22" y="808" width="210" height="32" rx="5" fill="none" stroke="#ffcc00" stroke-width="1" opacity=".6"/>
+<text x="127" y="829" text-anchor="middle" font-size="13" fill="#ffcc00"
+      font-family="Barlow Condensed" font-weight="700" class="epulse">⚡ OUTPUT TO NATIONAL GRID</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MINI WIDGETS: Sun, Compass, Scale Ruler, Efficiency -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- Rotating sun -->
+<g transform="translate(1246,44)">
+  <circle r="20" fill="#fff8b0" stroke="#ffd84d" stroke-width="2"/>
+  <text y="5" text-anchor="middle" font-size="8" fill="#aa8800"
+        font-family="Barlow Condensed" font-weight="700">SUN</text>
+  <g class="sun-rays" style="animation:sunRot 20s linear infinite;transform-origin:0 0;">
+    <line x1="0" y1="-28" x2="0" y2="-22" stroke="#ffd84d" stroke-width="2.5"/>
+    <line x1="0"  y1="22" x2="0"  y2="28" stroke="#ffd84d" stroke-width="2.5"/>
+    <line x1="-28" y1="0" x2="-22" y2="0" stroke="#ffd84d" stroke-width="2.5"/>
+    <line x1="22"  y1="0" x2="28"  y2="0" stroke="#ffd84d" stroke-width="2.5"/>
+    <line x1="-20" y1="-20" x2="-15" y2="-15" stroke="#ffd84d" stroke-width="2"/>
+    <line x1="15"  y1="15"  x2="20"  y2="20"  stroke="#ffd84d" stroke-width="2"/>
+    <line x1="15"  y1="-15" x2="20"  y2="-20" stroke="#ffd84d" stroke-width="2"/>
+    <line x1="-15" y1="15"  x2="-20" y2="20"  stroke="#ffd84d" stroke-width="2"/>
+  </g>
+  <!-- Shadow arrow -->
+  <line x1="-14" y1="14" x2="-28" y2="30" stroke="#aa8800" stroke-width="2" marker-end="url(#arrY)"/>
+</g>
+<text x="1195" y="84" text-anchor="middle" font-size="7.5" fill="#8899aa"
+      font-family="Share Tech Mono">SHADOW DIR. →SE</text>
+
+<!-- Compass -->
+<g transform="translate(1246,116)">
+  <circle r="18" fill="rgba(10,22,44,0.9)" stroke="#3a5a7a" stroke-width="1.5"/>
+  <polygon points="0,-15 -4,-4 0,-7 4,-4" fill="#00e5ff"/>
+  <polygon points="0,15 -4,4 0,7 4,4" fill="#445566"/>
+  <line x1="-15" y1="0" x2="15" y2="0" stroke="#3a5a7a" stroke-width="1"/>
+  <text y="-18" text-anchor="middle" font-size="8" fill="#00e5ff"
+        font-family="Barlow Condensed" font-weight="700">N</text>
+  <text y="26" text-anchor="middle" font-size="6.5" fill="#445566" font-family="Barlow Condensed">S</text>
+  <text x="-22" y="4" text-anchor="middle" font-size="6.5" fill="#445566" font-family="Barlow Condensed">W</text>
+  <text x="22"  y="4" text-anchor="middle" font-size="6.5" fill="#445566" font-family="Barlow Condensed">E</text>
+</g>
+
+<!-- Scale ruler -->
+<g transform="translate(40,852)">
+  <line x1="0" y1="0" x2="100" y2="0" stroke="#778899" stroke-width="2"/>
+  <line x1="0" y1="-4" x2="0" y2="4" stroke="#778899" stroke-width="2"/>
+  <line x1="50" y1="-3" x2="50" y2="3" stroke="#778899" stroke-width="1.5"/>
+  <line x1="100" y1="-4" x2="100" y2="4" stroke="#778899" stroke-width="2"/>
+  <text x="0"   y="-6" text-anchor="middle" font-size="8" fill="#778899" font-family="Share Tech Mono">0m</text>
+  <text x="50"  y="-6" text-anchor="middle" font-size="8" fill="#778899" font-family="Share Tech Mono">50m</text>
+  <text x="100" y="-6" text-anchor="middle" font-size="8" fill="#778899" font-family="Share Tech Mono">100m</text>
+</g>
+
+<!-- Efficiency badge -->
+<rect x="1180" y="155" width="120" height="44" rx="6" fill="rgba(10,22,44,0.92)"/>
+<rect x="1180" y="155" width="120" height="44" rx="6" fill="none" stroke="#2a5a8a" stroke-width="1"/>
+<text x="1240" y="173" text-anchor="middle" font-size="9" fill="#5aaad0" font-family="Share Tech Mono">THERMAL EFF.</text>
+<text x="1240" y="192" text-anchor="middle" font-size="18" fill="#7fffaa"
+      font-family="Barlow Condensed" font-weight="700">~60%</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MINI FLOW CHART / DONUT (power distribution) -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<g transform="translate(1235,250)">
+  <!-- Donut chart: ~60% output, 25% cooling loss, 15% heat loss -->
+  <!-- Base circle -->
+  <circle r="34" fill="none" stroke="#0a3a6a" stroke-width="12"/>
+  <!-- Output 60% green -->
+  <circle r="34" fill="none" stroke="#66bb6a" stroke-width="12"
+          stroke-dasharray="128 213" stroke-dashoffset="0" transform="rotate(-90)"/>
+  <!-- Cooling 25% blue -->
+  <circle r="34" fill="none" stroke="#29b6f6" stroke-width="12"
+          stroke-dasharray="53 213" stroke-dashoffset="-128" transform="rotate(-90)"/>
+  <!-- Heat 15% red -->
+  <circle r="34" fill="none" stroke="#ff6b6b" stroke-width="12"
+          stroke-dasharray="32 213" stroke-dashoffset="-181" transform="rotate(-90)"/>
+  <text y="-4" text-anchor="middle" font-size="9" fill="#aabbcc" font-family="Share Tech Mono">POWER</text>
+  <text y="8" text-anchor="middle" font-size="8" fill="#aabbcc" font-family="Share Tech Mono">SPLIT</text>
+</g>
+<!-- Donut legend -->
+<text x="1200" y="296" font-size="8" fill="#66bb6a" font-family="Barlow Condensed">■ Output 60%</text>
+<text x="1200" y="308" font-size="8" fill="#29b6f6" font-family="Barlow Condensed">■ Cool loss 25%</text>
+<text x="1200" y="320" font-size="8" fill="#ff6b6b" font-family="Barlow Condensed">■ Heat loss 15%</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PROCESS FLOW LEGEND -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<rect x="980" y="700" width="298" height="140" rx="6" fill="rgba(10,22,44,0.92)"/>
+<rect x="980" y="700" width="298" height="140" rx="6" fill="none" stroke="#2a5a8a" stroke-width="1"/>
+<text x="1129" y="720" text-anchor="middle" font-size="11" fill="#5aaad0"
+      font-family="Barlow Condensed" font-weight="700" letter-spacing="1.5">PROCESS FLOW LEGEND</text>
+<!-- Lines -->
+<line x1="998" y1="735" x2="1048" y2="735" stroke="#ffd84d" stroke-width="5" class="flow-anim-fuel"/>
+<text x="1058" y="739" font-size="10" fill="#ddeeff" font-family="Barlow Condensed">🔥 FUEL GAS (Yellow)</text>
+<line x1="998" y1="754" x2="1048" y2="754" stroke="#ff4444" stroke-width="5" class="flow-anim-steam"/>
+<text x="1058" y="758" font-size="10" fill="#ddeeff" font-family="Barlow Condensed">💨 HOT STEAM (Red)</text>
+<line x1="998" y1="773" x2="1048" y2="773" stroke="#29b6f6" stroke-width="5" class="flow-anim-cool"/>
+<text x="1058" y="777" font-size="10" fill="#ddeeff" font-family="Barlow Condensed">💧 COOLING WATER (Blue)</text>
+<line x1="998" y1="792" x2="1048" y2="792" stroke="rgba(255,255,255,0.7)" stroke-width="4" class="flow-anim-elec"/>
+<text x="1058" y="796" font-size="10" fill="#ddeeff" font-family="Barlow Condensed">⚡ ELECTRICAL (White)</text>
+<line x1="998" y1="811" x2="1048" y2="811" stroke="#66bb6a" stroke-width="5" class="flow-anim-water"/>
+<text x="1058" y="815" font-size="10" fill="#ddeeff" font-family="Barlow Condensed">🌿 TREATED WATER (Green)</text>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- NIGHT OVERLAY RECT (on top of everything) -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<rect id="nightOvl2" x="0" y="0" width="1300" height="860" fill="#010818" opacity="0"
+      style="transition:opacity 1.2s;pointer-events:none;"/>
+
+</svg>
+</div><!-- /iso-scene -->
+</div><!-- /iso-wrap -->
+</div><!-- /scene-container -->
+</div><!-- /canvas-wrapper -->
+
+<!-- ═══════════ SIDE DASHBOARD ═══════════ -->
+<div id="dashboard">
+  <div class="dash-title" id="dashTitle">LIVE PLANT DATA</div>
+
+  <div class="metric"><span class="metric-label" id="ml1">OUTPUT POWER</span><span class="metric-value" id="mv1">480 MW</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf1" style="width:80%;background:#7fffaa;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml2">THERMAL EFF.</span><span class="metric-value" id="mv2">59.8 %</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf2" style="width:60%;background:#66bb6a;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml3">EXHAUST TEMP</span><span class="metric-value" id="mv3">620 °C</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf3" style="width:72%;background:#ff6b6b;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml4">STEAM PRESSURE</span><span class="metric-value" id="mv4">120 bar</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf4" style="width:65%;background:#ff8888;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml5">COOLING FLOW</span><span class="metric-value" id="mv5">2400 m³/h</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf5" style="width:55%;background:#29b6f6;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml6">FUEL FLOW</span><span class="metric-value" id="mv6">38.2 t/h</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf6" style="width:44%;background:#ffd84d;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml7">GT1 SPEED</span><span class="metric-value" id="mv7">3000 RPM</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf7" style="width:90%;background:#aabbcc;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml8">GT2 SPEED</span><span class="metric-value" id="mv8">3000 RPM</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf8" style="width:90%;background:#aabbcc;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml9">AMBIENT TEMP</span><span class="metric-value" id="mv9">28 °C</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf9" style="width:38%;background:#ffcc88;"></div></div>
+
+  <div class="metric"><span class="metric-label" id="ml10">CO₂ INTENSITY</span><span class="metric-value" id="mv10">350 g/kWh</span></div>
+  <div class="metric-bar"><div class="metric-fill" id="mf10" style="width:35%;background:#88aa88;"></div></div>
+</div>
+
+<!-- ═══════════ FLOW CONTROL PANEL ═══════════ -->
+<div id="flowpanel">
+  <div class="dash-title" id="flowTitle" style="font-size:10px;margin-bottom:8px;">FLOW CONTROL</div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#ffd84d;" id="fl1">⬡ FUEL GAS</span>
+    <div class="flow-toggle on" id="ft1" onclick="toggleFlow('fuel')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#ff6666;" id="fl2">⬡ HOT STEAM</span>
+    <div class="flow-toggle on" id="ft2" onclick="toggleFlow('steam')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#29b6f6;" id="fl3">⬡ COOL WATER</span>
+    <div class="flow-toggle on" id="ft3" onclick="toggleFlow('cool')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#cccccc;" id="fl4">⬡ ELECTRICAL</span>
+    <div class="flow-toggle on" id="ft4" onclick="toggleFlow('elec')"></div>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label" style="color:#66bb6a;" id="fl5">⬡ TREATED H₂O</span>
+    <div class="flow-toggle on" id="ft5" onclick="toggleFlow('water')"></div>
+  </div>
+</div>
+
+<!-- ═══════════ TOOLTIP ═══════════ -->
+<div id="tooltip">
+  <h3 id="tipTitle">Component</h3>
+  <p id="tipDesc">Description</p>
+  <div class="spec" id="tipSpec">Specs</div>
+</div>
+
+<!-- ═══════════ GUIDED TOUR OVERLAY ═══════════ -->
+<div id="tour-overlay">
+  <div id="tour-box">
+    <h2 id="tourTitle">Step Title</h2>
+    <p id="tourDesc">Step description.</p>
+    <div id="tour-nav">
+      <button class="btn" onclick="prevTour()">← Prev</button>
+      <button class="btn" onclick="nextTour()">Next →</button>
+      <button class="btn danger" onclick="endTour()">✕ Exit</button>
+    </div>
+    <div style="margin-top:8px;font-size:9px;color:#4a6a8a;font-family:'Share Tech Mono',monospace;"
+         id="tourStep">1 / 8</div>
+  </div>
+</div>
+
+<!-- ═══════════ STATUS BAR ═══════════ -->
+<div id="statusbar">
+  <span><span class="status-dot"></span> PLANT ONLINE</span>
+  <span id="statusTime">—</span>
+  <span id="statusOutput">OUTPUT: <b style="color:#7fffaa">480 MW</b></span>
+  <span id="statusEff">EFF: <b style="color:#66bb6a">59.8%</b></span>
+  <span id="statusCo2">CO₂: <b style="color:#88aa88">350 g/kWh</b></span>
+  <span style="margin-left:auto;opacity:.4">© CCPP Engineering Diagram — Educational Use</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════════════
+let currentSeason = 'day';
+let dashOpen = false;
+let tourActive = false;
+let tourStep = 0;
+let lang = 'en';
+
+const flowState = {fuel:true,steam:true,cool:true,elec:true,water:true};
+
+// Tooltip data
+const tipData = {
+  gasMeter: {
+    en:{title:'Gas Metering Station',desc:'Receives high-pressure natural gas from the national grid pipeline. Contains pressure regulators, flow meters (ultrasonic & coriolis), safety shut-off valves, and odorisation units.',spec:'Inlet P: 60–80 bar\nOutlet P: 30–40 bar\nFlow: 38 t/h max'},
+    ar:{title:'محطة قياس الغاز',desc:'تستقبل الغاز الطبيعي عالي الضغط من خط الأنابيب الوطني. تحتوي على منظمات ضغط وعدادات تدفق ووحدات تأمين.',spec:'ضغط الدخول: 80-60 بار\nضغط الخروج: 40-30 بار\nالتدفق: 38 طن/ساعة'}
+  },
+  koDrum: {
+    en:{title:'Fuel Gas KO Drum',desc:'Knock-Out Drums separate liquid droplets from the natural gas stream before it enters the gas turbine fuel system. Prevents liquid carryover that could damage turbine blades.',spec:'Type: Horizontal gravity separator\nDesign P: 50 bar\nTemp: 20–60°C'},
+    ar:{title:'طبل فصل الغاز',desc:'يفصل القطيرات السائلة من تيار الغاز الطبيعي قبل دخوله إلى نظام وقود التوربين.',spec:'النوع: فاصل جاذبية أفقي\nضغط التصميم: 50 بار'}
+  },
+  fuelTank: {
+    en:{title:'Fuel Storage Tanks',desc:'Vertical cylindrical storage vessels for backup liquid fuel (diesel). Allows continued operation if natural gas supply is interrupted.',spec:'Capacity: 2 × 5,000 m³\nMaterial: Carbon steel\nDesign: API 650'},
+    ar:{title:'خزانات الوقود',desc:'خزانات احتياطية للوقود السائل (ديزل) تتيح الاستمرار في حالة انقطاع الغاز.',spec:'السعة: 2 × 5,000 م³\nالمعيار: API 650'}
+  },
+  airIntake: {
+    en:{title:'Air Intake Filter House',desc:'Multi-stage filtration system that conditions inlet air for the gas turbine. Includes pulse-jet self-cleaning filters, silencers, and anti-icing systems to ensure clean, dry air delivery.',spec:'Air flow: 450 kg/s per GT\nFilter efficiency: 99.97%\nΔP design: 25 mbar'},
+    ar:{title:'منزل مرشح هواء الدخول',desc:'نظام ترشيح متعدد المراحل يُكيّف هواء الدخول للتوربين. يتضمن مرشحات ذاتية التنظيف وكواتم صوت وأنظمة مكافحة التجمد.',spec:'تدفق الهواء: 450 كغ/ث لكل توربين\nكفاءة الترشيح: 99.97%'}
+  },
+  gt1: {
+    en:{title:'Gas Turbine 1',desc:'Heavy-duty industrial gas turbine (GE 9FA class). Compresses air, mixes with natural gas, ignites to drive both the shaft and generator directly.',spec:'Model: GE 9FA (example)\nOutput: ~150 MW ISO\nSpeed: 3,000 RPM\nExhaust T: ~620°C\nPressure ratio: 15.4:1'},
+    ar:{title:'توربين الغاز 1',desc:'توربين غاز صناعي ثقيل (فئة GE 9FA). يضغط الهواء ويخلطه بالغاز الطبيعي ويشعله لتدوير المولد مباشرة.',spec:'الإنتاج: ~150 ميغاواط\nالسرعة: 3,000 دورة/دقيقة\nدرجة حرارة العادم: ~620°م'}
+  },
+  gt2: {
+    en:{title:'Gas Turbine 2',desc:'Identical to GT1, running in parallel to double generation capacity. Both turbines operate in combined cycle mode, using their exhaust heat to produce steam.',spec:'Model: GE 9FA (example)\nOutput: ~150 MW ISO\nSpeed: 3,000 RPM\nExhaust T: ~620°C'},
+    ar:{title:'توربين الغاز 2',desc:'مطابق لتوربين الغاز 1، يعمل بالتوازي لمضاعفة طاقة التوليد. كلا التوربينين يعملان في وضع الدورة المركبة.',spec:'الإنتاج: ~150 ميغاواط\nالسرعة: 3,000 دورة/دقيقة'}
+  },
+  gen1: {
+    en:{title:'Generator 1 (GTG)',desc:'Synchronous generator directly coupled to Gas Turbine 1. Converts mechanical shaft power to 3-phase AC electricity at 18–22kV.',spec:'Rating: 155 MVA\nVoltage: 18 kV\nPower factor: 0.85\nCooling: Hydrogen-cooled'},
+    ar:{title:'مولد التيار 1',desc:'مولد متزامن مقترن مباشرة بتوربين الغاز 1. يحول الطاقة الميكانيكية إلى كهرباء متردده ثلاثية الأطوار.',spec:'القدرة: 155 MVA\nالجهد: 18 كيلوفولت'}
+  },
+  gen2: {
+    en:{title:'Generator 2 (GTG)',desc:'Synchronous generator directly coupled to Gas Turbine 2. Identical specification to Generator 1.',spec:'Rating: 155 MVA\nVoltage: 18 kV\nPower factor: 0.85'},
+    ar:{title:'مولد التيار 2',desc:'مولد متزامن مقترن بتوربين الغاز 2، مماثل في المواصفات للمولد 1.',spec:'القدرة: 155 MVA\nالجهد: 18 كيلوفولت'}
+  },
+  hrsg1: {
+    en:{title:'HRSG 1 (Heat Recovery Steam Generator)',desc:'Recovers waste heat from GT1 exhaust (~620°C) to produce high-pressure steam. Contains superheater, evaporator, and economizer sections with finned tube bundles.',spec:'Steam output: 120 bar / 565°C\nExhaust inlet T: 620°C\nExhaust outlet T: 95°C\nType: 3-pressure, once-through'},
+    ar:{title:'مولد البخار باسترداد الحرارة 1',desc:'يسترد الحرارة المهدرة من عادم توربين الغاز 1 (~620°م) لإنتاج بخار عالي الضغط.',spec:'البخار: 120 بار / 565°م\nحرارة الدخول: 620°م\nحرارة الخروج: 95°م'}
+  },
+  hrsg2: {
+    en:{title:'HRSG 2 (Heat Recovery Steam Generator)',desc:'Identical to HRSG 1, receiving exhaust from GT2. Both HRSGs feed steam to the single Steam Turbine Generator.',spec:'Steam output: 120 bar / 565°C\nType: 3-pressure, once-through'},
+    ar:{title:'مولد البخار باسترداد الحرارة 2',desc:'مطابق لـ HRSG 1، يستقبل عادم توربين الغاز 2. كلا الجهازين يزودان توربين البخار بالبخار.',spec:'البخار: 120 بار / 565°م'}
+  },
+  stack: {
+    en:{title:'HRSG Exhaust Stack (60m+)',desc:'Discharges cooled flue gas (~95°C) to atmosphere after heat recovery. Red-and-white striping and warning lights for aviation safety. White plumes are water vapor, not pollution.',spec:'Height: 60–80 m\nOutlet T: ~95°C\nOutlet velocity: 18 m/s\nNOx: <25 mg/Nm³ (SCR)'},
+    ar:{title:'مدخنة عادم HRSG',desc:'تصرف الغازات المبردة (~95°م) للغلاف الجوي بعد استرداد الحرارة. الأعمدة البيضاء هي بخار الماء، وليس تلوثاً.',spec:'الارتفاع: 60-80 م\nدرجة حرارة الخروج: ~95°م\nNOx: <25 mg/Nm³'}
+  },
+  stg: {
+    en:{title:'Steam Turbine Generator (STG)',desc:'Converts high-pressure steam from both HRSGs into mechanical power, then electricity. Responsible for ~30% of total plant output — this is the "combined cycle" advantage.',spec:'Output: ~180 MW\nInlet: 120 bar / 565°C\nExhaust: 0.05 bar (condenser)\nSpeed: 3,000 RPM'},
+    ar:{title:'مولد توربين البخار (STG)',desc:'يحول البخار عالي الضغط من كلا جهازي HRSG إلى قدرة ميكانيكية ثم كهرباء. مسؤول عن ~30% من إجمالي إنتاج المحطة.',spec:'الإنتاج: ~180 ميغاواط\nدرجة الحرارة: 120 بار / 565°م'}
+  },
+  ct1: {
+    en:{title:'Natural Draft Cooling Tower 1',desc:'Hyperboloid-shaped tower that cools condenser water through evaporative cooling. Hot water sprayed from top cools as it falls, releasing heat through the natural draft chimney effect.',spec:'Height: ~150 m\nBase dia: ~100 m\nCooling duty: 400 MWth\nWater loss: ~1-2% evaporation'},
+    ar:{title:'برج التبريد بالسحب الطبيعي 1',desc:'برج بشكل مقطع هذلولي يبرد مياه المكثف عبر التبخر. يُرش الماء الساخن من الأعلى ويبرد أثناء سقوطه.',spec:'الارتفاع: ~150 م\nقطر القاعدة: ~100 م\nفاقد الماء: ~1-2% تبخر'}
+  },
+  ct2: {
+    en:{title:'Natural Draft Cooling Tower 2',desc:'Second cooling tower, identical to CT1. Both towers handle the total condenser heat rejection from the steam turbine.',spec:'Height: ~150 m\nBase dia: ~100 m\nCooling duty: 400 MWth'},
+    ar:{title:'برج التبريد بالسحب الطبيعي 2',desc:'برج التبريد الثاني، مطابق لبرج التبريد 1. كلا البرجين يتعاملان مع إجمالي رفض الحرارة من المكثف.',spec:'الارتفاع: ~150 م\nقطر القاعدة: ~100 م'}
+  },
+  basin: {
+    en:{title:'Cooling Water Basin',desc:'Large reinforced concrete reservoir that collects cooled water from the cooling towers. Serves as a buffer storage for condenser cooling water supply.',spec:'Volume: ~50,000 m³\nMaterial: RC concrete\nDepth: ~3.5 m'},
+    ar:{title:'حوض مياه التبريد',desc:'خزان خرساني مسلح كبير يجمع المياه المبردة من أبراج التبريد. يعمل كخزن احتياطي لإمدادات مياه التبريد.',spec:'الحجم: ~50,000 م³\nالعمق: ~3.5 م'}
+  },
+  wtp: {
+    en:{title:'Water Treatment Plant',desc:'Multi-stage water treatment including clarification (removing suspended solids), filtration, softening, demineralisation (for boiler feedwater), and chemical dosing for pH/corrosion control.',spec:'Capacity: 500 m³/h\nProduct: Demineralised water\nTDS: <0.1 mg/L output'},
+    ar:{title:'محطة معالجة المياه',desc:'معالجة متعددة المراحل تشمل التصفية وإزالة المعادن والجرعات الكيميائية للتحكم في درجة الحموضة والتآكل.',spec:'الطاقة: 500 م³/ساعة\nالمنتج: مياه منزوعة المعادن\nTDS: <0.1 ملغ/لتر'}
+  },
+  condensate: {
+    en:{title:'Condensate Storage Tanks',desc:'Store the condensate (liquid water) returned from the steam turbine condenser. Used as a buffer before feedwater treatment and return to the HRSGs.',spec:'Count: 4 × horizontal vessels\nCapacity: 4 × 500 m³\nTemp: 40–60°C'},
+    ar:{title:'خزانات تخزين الكثيف',desc:'تخزن الكثيف (الماء السائل) العائد من مكثف توربين البخار. يُستخدم كمخزن احتياطي قبل معالجة مياه التغذية.',spec:'العدد: 4 خزانات أفقية\nالسعة: 4 × 500 م³'}
+  },
+  feedwater: {
+    en:{title:'Feedwater System',desc:'High-pressure boiler feedwater pumps (BFP) that pressurise demineralised water and deliver it to the HRSG drum. Includes deaerator tower to remove dissolved oxygen preventing corrosion.',spec:'Pump duty: 3 × 100%\nDischarge P: 130 bar\nDeaerator P: 3.5 bar\nTemp out: 150°C'},
+    ar:{title:'نظام ماء التغذية',desc:'مضخات مياه التغذية عالية الضغط التي تضغط المياه المعالجة وتوصلها إلى HRSG. يشمل برج الطارد للأكسجين.',spec:'ضغط الخروج: 130 بار\nدرجة الحرارة: 150°م'}
+  },
+  transformer: {
+    en:{title:'Main Transformer Bank (3×)',desc:'Three step-up power transformers that raise generator voltage (18 kV) to grid voltage (400 kV). Oil-immersed with forced oil/air cooling (OFAF). Each connected to one generation unit.',spec:'Ratio: 18 kV / 400 kV\nRating: 3 × 200 MVA\nCooling: OFAF\nImpedance: 12%'},
+    ar:{title:'بنك المحولات الرئيسي (3×)',desc:'ثلاثة محولات رافعة للجهد ترفع جهد المولد (18 كيلوفولت) إلى جهد الشبكة (400 كيلوفولت). مغمورة في الزيت مع تبريد قسري.',spec:'النسبة: 18 كيلوفولت / 400 كيلوفولت\nالقدرة: 3 × 200 MVA'}
+  },
+  switchyard: {
+    en:{title:'400kV Switchyard (GIS/AIS)',desc:'High-voltage outdoor substation connecting the power plant to the national transmission grid. Contains circuit breakers, disconnectors, current transformers, and protection relays organised in busbar bays.',spec:'Voltage: 400 kV\nType: Air-insulated (AIS)\nBusbars: Double busbar\nFault level: 40 kA'},
+    ar:{title:'محطة التوزيع 400 كيلوفولت',desc:'محطة توزيع خارجية عالية الجهد تربط محطة الطاقة بشبكة النقل الوطنية. تحتوي على قواطع دائرة ومفاتيح فصل وحمايات.',spec:'الجهد: 400 كيلوفولت\nالنوع: معزول بالهواء (AIS)\nمستوى العطل: 40 كيلو أمبير'}
+  },
+  controlRoom: {
+    en:{title:'Control Room (DCS)',desc:'2-storey operations center with Distributed Control System (DCS). Operators monitor all plant parameters 24/7 from ergonomic consoles. Includes solar panels, emergency power, and full CCTV coverage.',spec:'DCS: Honeywell / ABB / Siemens\nConsoles: 8 operator stations\nBackup: 4-hour UPS\nSolar: 50 kWp rooftop'},
+    ar:{title:'غرفة التحكم (DCS)',desc:'مركز عمليات من طابقين مع نظام التحكم الموزع. يراقب المشغلون جميع معايير المحطة على مدار الساعة.',spec:'DCS: Honeywell / ABB / Siemens\nمحطات التشغيل: 8\nاحتياطي: UPS لمدة 4 ساعات'}
+  },
+  admin: {
+    en:{title:'Administration Building',desc:'Houses management offices, meeting rooms, engineering workstations, document control, and HSE (Health, Safety & Environment) department.',spec:'Floors: 2\nArea: ~1,200 m²\nOccupancy: ~80 persons'},
+    ar:{title:'مبنى الإدارة',desc:'يضم مكاتب الإدارة وغرف الاجتماعات ومحطات عمل المهندسين وقسم الصحة والسلامة والبيئة.',spec:'الطوابق: 2\nالمساحة: ~1,200 م²'}
+  },
+  workshop: {
+    en:{title:'Workshop / Maintenance Bay',desc:'Large facility for planned and corrective maintenance activities. Equipped with overhead cranes, lathes, welding stations, and tool stores. Roller-shutter doors allow entry of large equipment.',spec:'Bay width: 2 × 12 m\nCrane capacity: 20 t\nArea: ~800 m²'},
+    ar:{title:'ورشة / بيت الصيانة',desc:'منشأة كبيرة لأنشطة الصيانة المخططة والتصحيحية. مجهزة برافعات علوية ومخارط ومحطات لحام.',spec:'عرض الخليج: 2 × 12 م\nسعة الرافعة: 20 طن'}
+  },
+  fireStation: {
+    en:{title:'Fire Station',desc:'Dedicated on-site fire station with foam tenders, CO₂ vehicles, and water tankers. Required by international plant safety standards (NFPA, IEC). Staffed 24/7.',spec:'Tenders: 3 fire vehicles\nResponse time: <2 min\nFoam capacity: 10,000 L\nCrew: 6 per shift'},
+    ar:{title:'محطة الإطفاء',desc:'محطة إطفاء خاصة في الموقع مع مركبات رغوة وعربات CO₂ وصهاريج مياه. مطلوبة وفق معايير السلامة الدولية.',spec:'المركبات: 3 عربات إطفاء\nزمن الاستجابة: <2 دقيقة'}
+  },
+  warehouse: {
+    en:{title:'Warehouse / Stores',desc:'Climate-controlled storage for critical spare parts, chemicals, lubricants, and consumables. Managed with an ERP/CMMS inventory system to ensure parts availability for scheduled overhauls.',spec:'Area: ~1,500 m²\nTemperature: 18–25°C\nFire protection: Sprinkler'},
+    ar:{title:'المستودع / المخازن',desc:'تخزين مناخي مُتحكم للقطع الاحتياطية الحيوية والمواد الكيميائية والمواد الاستهلاكية.',spec:'المساحة: ~1,500 م²\nالحماية من الحريق: رشاشات'}
+  }
+};
+
+// Tour steps
+const tourSteps = [
+  {en:{title:'① Natural Gas Supply',desc:'Natural gas enters from the pipeline at the far left, passes through the metering station where flow, pressure, and quality are measured, before KO drums remove any liquid droplets.'},
+   ar:{title:'① إمداد الغاز الطبيعي',desc:'يدخل الغاز الطبيعي من خط الأنابيب على اليسار، ويمر عبر محطة القياس حيث تُقاس التدفق والضغط والجودة، ثم تُزيل الطبول القاطعة أي قطيرات سائلة.'},
+   pos:{top:'45%',left:'12%'}},
+  {en:{title:'② Gas Turbines (GT1 & GT2)',desc:'Filtered air is compressed in the gas turbine, mixed with natural gas, and ignited. Combustion gases spin the turbine at 3,000 RPM, driving the generator to produce ~150 MW each.'},
+   ar:{title:'② توربينات الغاز',desc:'يُضغط الهواء المُرشَّح في التوربين، ويُخلط بالغاز الطبيعي ويُشعل. تدور غازات الاحتراق بالتوربين بسرعة 3,000 دورة/دقيقة لتدوير المولد وإنتاج ~150 ميغاواط لكل واحد.'},
+   pos:{top:'38%',left:'32%'}},
+  {en:{title:'③ Heat Recovery Steam Generators',desc:'Exhaust gases leaving the gas turbines at ~620°C are not wasted — they pass through the HRSG where their heat boils feedwater into high-pressure steam (120 bar / 565°C).'},
+   ar:{title:'③ مولدات البخار باسترداد الحرارة',desc:'غازات العادم الخارجة من توربينات الغاز عند ~620°م لا تُهدر — تمر عبر HRSG حيث يغلي الماء ويتحول إلى بخار عالي الضغط (120 بار / 565°م).'},
+   pos:{top:'35%',left:'52%'}},
+  {en:{title:'④ Exhaust Stacks',desc:'After heat recovery, cooled flue gases (~95°C) exit through the tall stacks. The white plumes you see are condensed water vapour — not harmful emissions. NOx is controlled by SCR catalysts inside the HRSG.'},
+   ar:{title:'④ مداخن العادم',desc:'بعد استرداد الحرارة، تخرج الغازات المبردة (~95°م) عبر المداخن الطويلة. الأعمدة البيضاء هي بخار ماء متكثف وليست انبعاثات ضارة. يُتحكم في NOx عبر محفزات SCR داخل HRSG.'},
+   pos:{top:'12%',left:'54%'}},
+  {en:{title:'⑤ Steam Turbine Generator',desc:'Steam from both HRSGs flows into the single Steam Turbine, expanding and cooling through multiple turbine stages. This extracts ~180 MW more — the "combined cycle" bonus that pushes overall efficiency to ~60%.'},
+   ar:{title:'⑤ مولد توربين البخار',desc:'البخار من كلا جهازي HRSG يتدفق إلى توربين البخار الواحد، متمدداً ومتبرداً عبر مراحل متعددة. هذا يستخرج ~180 ميغاواط إضافية — مكافأة "الدورة المركبة" التي ترفع الكفاءة الإجمالية إلى ~60%.'},
+   pos:{top:'42%',left:'62%'}},
+  {en:{title:'⑥ Cooling Towers & Water System',desc:'Exhaust steam from the turbine is condensed back to water in a condenser using cooling water. Natural-draft cooling towers (150m tall) cool this water by evaporation before it recirculates.'},
+   ar:{title:'⑥ أبراج التبريد ونظام المياه',desc:'يتكثف البخار الخارج من التوربين مجدداً إلى ماء في مكثف باستخدام مياه التبريد. تُبرد أبراج التبريد بالسحب الطبيعي (150م ارتفاعاً) هذا الماء بالتبخر قبل إعادة تدويره.'},
+   pos:{top:'20%',left:'78%'}},
+  {en:{title:'⑦ Electrical Switchyard',desc:'Electricity generated at 18 kV is stepped up by the main transformers to 400 kV, then exported via the switchyard to the national high-voltage transmission grid. The switchyard contains protective relays, breakers, and disconnect switches.'},
+   ar:{title:'⑦ محطة التوزيع الكهربائية',desc:'الكهرباء المولدة عند 18 كيلوفولت تُرفع بواسطة المحولات الرئيسية إلى 400 كيلوفولت، ثم تُصدَّر عبر محطة التوزيع إلى شبكة النقل الوطنية.'},
+   pos:{top:'78%',left:'10%'}},
+  {en:{title:'⑧ Control Room & Support',desc:'A 2-storey DCS Control Room operates the entire plant around the clock. Supporting facilities include an admin building, maintenance workshop, fire station, warehouse, and water treatment plant — all within a secured, fenced site.'},
+   ar:{title:'⑧ غرفة التحكم والمرافق',desc:'تُدير غرفة تحكم DCS من طابقين المحطة بأكملها على مدار الساعة. المرافق الداعمة تشمل مبنى إداري وورشة صيانة ومحطة إطفاء ومستودع ومحطة معالجة مياه — جميعها داخل موقع مؤمّن.'},
+   pos:{top:'72%',left:'40%'}}
+];
+
+// ═══════════════════════════════════════════════════════
+// TOOLTIP FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function showTip(key, evt) {
+  if(tourActive) return;
+  const data = tipData[key];
+  if(!data) return;
+  const d = data[lang] || data['en'];
+  document.getElementById('tipTitle').textContent = d.title;
+  document.getElementById('tipDesc').textContent = d.desc;
+  document.getElementById('tipSpec').textContent = d.spec || '';
+  const tip = document.getElementById('tooltip');
+  tip.classList.add('show');
+  moveTooltip(evt);
+}
+function moveTooltip(evt) {
+  const tip = document.getElementById('tooltip');
+  if(!tip.classList.contains('show')) return;
+  const x = evt.clientX + 16, y = evt.clientY + 16;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  tip.style.left = (x + w > vw ? x - w - 32 : x) + 'px';
+  tip.style.top  = (y + h > vh ? y - h - 32 : y) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// FLOW TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleFlow(type) {
+  flowState[type] = !flowState[type];
+  const btn = document.getElementById('ft' + {fuel:1,steam:2,cool:3,elec:4,water:5}[type]);
+  btn.classList.toggle('on', flowState[type]);
+
+  const map = {
+    fuel:  ['flowFuel','flowFuel2'],
+    steam: ['flowSteam1','flowSteam2','flowFW'],
+    cool:  ['flowCool','flowCool2'],
+    elec:  ['flowElec'],
+    water: ['flowWater']
+  };
+  (map[type]||[]).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = flowState[type] ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SEASON / DAY-NIGHT
+// ═══════════════════════════════════════════════════════
+function setSeason(s) {
+  currentSeason = s;
+  ['btnDay','btnDusk','btnNight','btnWinter'].forEach(b =>
+    document.getElementById(b).classList.remove('active'));
+  document.getElementById('btn' + s.charAt(0).toUpperCase() + s.slice(1)).classList.add('active');
+
+  const sky = document.getElementById('skyRect');
+  const night = document.getElementById('nightOvl2');
+  const stars = document.getElementById('starsRect');
+  const ct1g = document.getElementById('ct1Glow');
+  const ct2g = document.getElementById('ct2Glow');
+  const fgEl = document.getElementById('fireGlowEl');
+  const nwins = document.querySelectorAll('.nwin');
+
+  // Reset
+  sky.setAttribute('fill','url(#skyGrad)');
+  night.setAttribute('opacity','0');
+  stars.setAttribute('opacity','0');
+  ct1g.setAttribute('opacity','0');
+  ct2g.setAttribute('opacity','0');
+  if(fgEl) fgEl.setAttribute('opacity','0');
+  nwins.forEach(w => { w.style.opacity = '0'; });
+  document.body.classList.remove('winter');
+
+  const skyTop = document.getElementById('skyTop');
+  const skyBot = document.getElementById('skyBot');
+
+  if(s === 'day') {
+    skyTop.setAttribute('stop-color','#6aa8d8');
+    skyBot.setAttribute('stop-color','#d8eef8');
+  } else if(s === 'dusk') {
+    skyTop.setAttribute('stop-color','#c86030');
+    skyBot.setAttribute('stop-color','#9a50a0');
+  } else if(s === 'night') {
+    skyTop.setAttribute('stop-color','#050b1a');
+    skyBot.setAttribute('stop-color','#0a1832');
+    night.setAttribute('opacity','0.55');
+    stars.setAttribute('opacity','0.9');
+    ct1g.setAttribute('opacity','1');
+    ct2g.setAttribute('opacity','1');
+    if(fgEl) fgEl.setAttribute('opacity','1');
+    nwins.forEach(w => { w.style.opacity = '1'; });
+  } else if(s === 'winter') {
+    skyTop.setAttribute('stop-color','#b0c4d4');
+    skyBot.setAttribute('stop-color','#dce8f0');
+    document.body.classList.add('winter');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function toggleDash() {
+  dashOpen = !dashOpen;
+  document.getElementById('dashboard').classList.toggle('open', dashOpen);
+  document.getElementById('btnDash').classList.toggle('active', dashOpen);
+}
+
+// Live-fluctuating metrics
+function fluctuate(base, range) {
+  return (base + (Math.random() - 0.5) * range).toFixed(1);
+}
+function updateDashboard() {
+  const metrics = [
+    {id:'mv1',base:480,range:20,unit:' MW',bar:'mf1',max:600,color:'#7fffaa'},
+    {id:'mv2',base:59.8,range:0.6,unit:' %',bar:'mf2',max:100,color:'#66bb6a'},
+    {id:'mv3',base:620,range:15,unit:' °C',bar:'mf3',max:860,color:'#ff6b6b'},
+    {id:'mv4',base:120,range:5,unit:' bar',bar:'mf4',max:185,color:'#ff8888'},
+    {id:'mv5',base:2400,range:150,unit:' m³/h',bar:'mf5',max:4000,color:'#29b6f6'},
+    {id:'mv6',base:38.2,range:2,unit:' t/h',bar:'mf6',max:80,color:'#ffd84d'},
+    {id:'mv7',base:3000,range:2,unit:' RPM',bar:'mf7',max:3600,color:'#aabbcc'},
+    {id:'mv8',base:3000,range:2,unit:' RPM',bar:'mf8',max:3600,color:'#aabbcc'},
+    {id:'mv9',base:28,range:4,unit:' °C',bar:'mf9',max:60,color:'#ffcc88'},
+    {id:'mv10',base:350,range:20,unit:' g/kWh',bar:'mf10',max:1000,color:'#88aa88'}
+  ];
+  metrics.forEach(m => {
+    const val = parseFloat(fluctuate(m.base, m.range));
+    document.getElementById(m.id).textContent = val.toFixed(1) + m.unit;
+    const pct = Math.min(100, (val / m.max) * 100);
+    document.getElementById(m.bar).style.width = pct + '%';
+  });
+
+  // Status bar
+  const pw = parseFloat(fluctuate(480, 20)).toFixed(0);
+  const ef = parseFloat(fluctuate(59.8, 0.6)).toFixed(1);
+  document.getElementById('statusOutput').innerHTML = 'OUTPUT: <b style="color:#7fffaa">' + pw + ' MW</b>';
+  document.getElementById('statusEff').innerHTML = 'EFF: <b style="color:#66bb6a">' + ef + '%</b>';
+}
+setInterval(updateDashboard, 2000);
+
+// ═══════════════════════════════════════════════════════
+// LIVE CLOCK
+// ═══════════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('statusTime').textContent =
+    now.toLocaleTimeString() + '  ' + now.toLocaleDateString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══════════════════════════════════════════════════════
+// GUIDED TOUR
+// ═══════════════════════════════════════════════════════
+function startTour() {
+  tourActive = true;
+  tourStep = 0;
+  document.getElementById('tour-overlay').classList.add('active');
+  document.getElementById('btnTour').classList.add('active');
+  renderTour();
+}
+function endTour() {
+  tourActive = false;
+  document.getElementById('tour-overlay').classList.remove('active');
+  document.getElementById('btnTour').classList.remove('active');
+  hideTooltip();
+}
+function nextTour() { if(tourStep < tourSteps.length-1) { tourStep++; renderTour(); } else endTour(); }
+function prevTour() { if(tourStep > 0) { tourStep--; renderTour(); } }
+function renderTour() {
+  const step = tourSteps[tourStep];
+  const d = step[lang] || step['en'];
+  document.getElementById('tourTitle').textContent = d.title;
+  document.getElementById('tourDesc').textContent = d.desc;
+  document.getElementById('tourStep').textContent = (tourStep+1) + ' / ' + tourSteps.length;
+  const box = document.getElementById('tour-box');
+  box.style.top  = step.pos.top;
+  box.style.left = step.pos.left;
+}
+
+// ═══════════════════════════════════════════════════════
+// LANGUAGE TOGGLE
+// ═══════════════════════════════════════════════════════
+const labels = {
+  en: {
+    main:'Natural Gas Combined Cycle Power Plant',
+    sub:'ENGINEERING SYSTEMS OVERVIEW — 3D INTERACTIVE DIAGRAM',
+    dashTitle:'LIVE PLANT DATA',
+    flowTitle:'FLOW CONTROL',
+    ml:['OUTPUT POWER','THERMAL EFF.','EXHAUST TEMP','STEAM PRESSURE','COOLING FLOW','FUEL FLOW','GT1 SPEED','GT2 SPEED','AMBIENT TEMP','CO₂ INTENSITY'],
+    fl:['⬡ FUEL GAS','⬡ HOT STEAM','⬡ COOL WATER','⬡ ELECTRICAL','⬡ TREATED H₂O']
+  },
+  ar: {
+    main:'محطة طاقة الدورة المركبة بالغاز الطبيعي',
+    sub:'نظرة عامة على أنظمة الهندسة — مخطط تفاعلي ثلاثي الأبعاد',
+    dashTitle:'البيانات الحية للمحطة',
+    flowTitle:'التحكم بالتدفق',
+    ml:['القدرة المُنتَجة','الكفاءة الحرارية','درجة حرارة العادم','ضغط البخار','تدفق التبريد','تدفق الوقود','سرعة توربين 1','سرعة توربين 2','درجة حرارة المحيط','شدة CO₂'],
+    fl:['⬡ الغاز الوقود','⬡ البخار الساخن','⬡ مياه التبريد','⬡ الكهرباء','⬡ المياه المعالجة']
+  }
+};
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ar' : 'en';
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  const L = labels[lang];
+  document.getElementById('mainTitle').textContent = L.main;
+  document.getElementById('mainSubtitle').textContent = L.sub;
+  document.getElementById('dashTitle').textContent = L.dashTitle;
+  document.getElementById('flowTitle').textContent = L.flowTitle;
+  L.ml.forEach((t,i) => {
+    const el = document.getElementById('ml' + (i+1));
+    if(el) el.textContent = t;
+  });
+  L.fl.forEach((t,i) => {
+    const el = document.getElementById('fl' + (i+1));
+    if(el) el.textContent = t;
+  });
+  if(tourActive) renderTour();
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT PNG (using canvas)
+// ═══════════════════════════════════════════════════════
+function exportPNG() {
+  const btn = document.getElementById('btnExport');
+  btn.textContent = '⏳ Rendering...';
+  const svg = document.getElementById('mainSVG');
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const canvas = document.createElement('canvas');
+  canvas.width = 3900; canvas.height = 2580;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const a = document.createElement('a');
+    a.download = 'CCPP_3D_Diagram_4K.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    btn.textContent = '⬇ Export PNG';
+  };
+  img.onerror = function() {
+    // Fallback: open SVG
+    const blob = new Blob([svgData], {type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = 'CCPP_3D_Diagram.svg';
+    a.href = url;
+    a.click();
+    btn.textContent = '⬇ Export SVG';
+  };
+  const svgBlob = new Blob([svgData], {type:'image/svg+xml;charset=utf-8'});
+  img.src = URL.createObjectURL(svgBlob);
+}
+
+// Init
+setSeason('day');
+</script>
+</body>
+</html>

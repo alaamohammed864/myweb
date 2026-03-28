@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XIOM NUCLEAR SUITE v4.0 — NPP Simulator</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js?module",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #0a1628 0%, #1a2a44 100%); font-family: 'Courier New', monospace; color: #ffd700; overflow: hidden; }
+        #header { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(10,22,40,0.9); padding: 15px; border: 2px solid #ff8c00; }
+        #footer { position: absolute; bottom: 10px; right: 10px; z-index: 100; background: rgba(10,22,40,0.9); padding: 10px; border: 2px solid #ff8c00; font-size: 0.8em; }
+        #fps { position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; }
+        #class-banner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,0,0,0.9); color: white; padding: 20px; border: 3px solid #ffd700; font-weight: bold; opacity: 0.1; pointer-events: none; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>⚛ XIOM NUCLEAR SUITE — MASTER v4.0</h1>
+        <p>NPP P&amp;ID + High-Fidelity 3D Reactor &amp; Containment Generator</p>
+        <p><strong>ENG_ALAA MOHAMMED | NUCLEAR ENGINEERING DIVISION</strong></p>
+<p>Step 7/19: Full RCS 4-Loop + P&ID/Clip ('P'/'C')</p>
+    </div>
+    <div id="footer">
+        Classification: <strong>ENGINEERING USE ONLY</strong><br>
+        Standards: ASME III, IEEE 603/344, IAEA SSR-2/1, 10 CFR 50
+    </div>
+<div id="fps">FPS: --</div>
+    <div id="data-panel" style="position: absolute; top: 120px; right: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 5px; max-width: 300px; font-size: 0.9em; display: none;">
+        <h3>Reactor Core Data</h3>
+        <div id="data-content">Loading...</div>
+    </div>
+    <div id="class-banner">FOR ENGINEERING SIMULATION USE ONLY — NOT FOR SAFETY ANALYSIS</div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { createPIDLayout, setupPIDControls } from './js/pid/symbols.js';
+        import { Containment, RPV } from './js/geometry/Containment.js'; // Temp, add RPV import
+        import { RPV } from './js/geometry/RPV.js';
+        import { PrimaryLoop } from './js/geometry/PrimaryLoop.js';
+        import { PointKineticsSolver } from './js/physics/PointKinetics.js';
+        import { NuclearShaders } from './js/shaders/cherenkov.js';
+        import { NuclearDashboard } from './js/ui/dashboard.js';
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x0a1628, 50, 500);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 100);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+// Step 3/4: P&amp;ID SVG overlay w/ ISA 5.1 bubbles
+        window.plantData = plantData; // Global for symbols (temp)
+        createPIDLayout();
+        setupPIDControls('pid-canvas');
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(50, 100, 50);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        scene.add(directionalLight);
+
+        // HDRI (industrial env for realism)
+        new RGBELoader().load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = texture;
+        });
+
+        // Step 5: Detailed Containment Building
+        const containmentGroup = Containment.build(plantData);
+        scene.add(containmentGroup);
+
+        // Step 6: RPV inside containment
+        const rpvGroup = RPV.build(plantData);
+        rpvGroup.position.y = 0;
+        containmentGroup.add(rpvGroup);
+        rpvGroup.traverse((child) => {
+          if (child.isMesh && child.name === 'fuel') child.material = cherenkovMat;
+        });
+
+        // Step 7: 4-loop Primary RCS
+        const primaryLoopGroup = PrimaryLoop.build(plantData);
+        primaryLoopGroup.position.y = 0;
+        containmentGroup.add(primaryLoopGroup);
+
+        // Axis helper for scale reference
+        const axesHelper = new THREE.AxesHelper(10);
+        scene.add(axesHelper);
+
+        // FPS counter
+        const clock = new THREE.Clock();
+        const fpsElement = document.getElementById('fps');
+        let fps = 0;
+
+        let plantData = null;
+        const dataPanel = document.getElementById('data-panel');
+        const dataContent = document.getElementById('data-content');
+
+        // Load nuclear data model (Step 2)
+        fetch('./data/reactor-core.json')
+          .then(response => response.json())
+          .then(data => {
+            plantData = data;
+            console.log('✅ Step 2: Nuclear Data Model Loaded:', data.design.thermalPower.rated, 'MWt PWR_4LOOP');
+            console.log('Schema validation: keys', Object.keys(data));
+            dataPanel.style.display = 'block';
+            updateDataPanel();
+          })
+          .catch(error => console.error('Data load error:', error));
+
+        function updateDataPanel() {
+          if (plantData) {
+            dataContent.innerHTML = `
+              <strong>ID:</strong> ${plantData.id}<br>
+              <strong>Subtype:</strong> ${plantData.subtype}<br>
+              <strong>Power Rated:</strong> ${plantData.design.thermalPower.rated} MWt<br>
+              <strong>keff:</strong> ${plantData.core.neutronics.keff}<br>
+              <strong>Pressure:</strong> ${plantData.coolant.pressure.value} bar<br>
+              <strong>Mode:</strong> ${plantData.status.mode}<br>
+              <strong>Fuel Assemblies:</strong> ${plantData.core.fuelAssemblies.total}
+            `;
+          }
+        }
+
+        // Init physics (Step 11)
+        const solver = new PointKineticsSolver();
+        const cherenkovMat = NuclearShaders.createCherenkovMaterial();
+        const dashboard = new NuclearDashboard(plantData, solver);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Rotate containment slowly for demo
+            containmentGroup.rotation.y += 0.001;
+
+            // Physics + Dashboard update
+            const delta = clock.getDelta();
+            fps = Math.round(1 / delta);
+            fpsElement.textContent = `FPS: ${fps}`;
+
+            if (solver) solver.step(delta);
+            if (dashboard) dashboard.update(delta);
+            if (plantData) updateDataPanel();
+
+            // Cherenkov update
+            NuclearShaders.updateCherenkovMaterial(cherenkovMat, solver ? solver.getPower() : 0, clock.getElapsedTime());
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // P&ID toggle (Key 'P')
+        window.addEventListener('keydown', (e) => {
+          if (e.key.toUpperCase() === 'P') {
+            const pidCanvas = document.getElementById('pid-canvas');
+            const opacity = pidCanvas.style.opacity === '0.7' ? '0.15' : '0.7';
+            pidCanvas.style.opacity = opacity;
+          }
+          if (e.key.toUpperCase() === 'C') {
+            if (window.toggleClipPlane) window.toggleClipPlane();
+          }
+        });
+
+        console.log('XIOM NUCLEAR SUITE v4.0 — Step 3 Complete');
+        console.log('P&ID overlay active. Press "P" to toggle opacity. Hover symbols. All 10 types ready.');
+    </script>
+
+</body>
+</html>
