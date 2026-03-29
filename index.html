@@ -735,7 +735,7 @@
             </div>
             <div class="footer-section">
                 <h3>التواصل</h3>
-                <p><i class="fas fa-envelope"></i> email@example.com</p>
+                <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8eebe3efe7e2ceebf6efe3fee2eba0ede1e3">[email&#160;protected]</a></p>
                 <p><i class="fas fa-map-marker-alt"></i> العراق</p>
                 <p><i class="fas fa-globe"></i> www.example.com</p>
             </div>
@@ -750,7 +750,7 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Projects Data based on your files
         const projects = [
             {
@@ -1059,7 +1059,7 @@
             `;
             
             card.addEventListener('click', () => {
-                window.location.href = project.file;
+                window.open(project.file, '_self');
             });
             
             return card;
@@ -1161,11 +1161,12 @@
         setTimeout(() => {
             document.querySelectorAll('.project-card').forEach(card => {
                 card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                 observer.observe(card);
             });
         }, 100);
+
     </script>
 </body>
 </html>
